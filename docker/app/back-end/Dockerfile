@@ -2,13 +2,19 @@
 FROM python:3.11-slim
 
 # Çalışma dizinini belirleyin
-WORKDIR /app
 
 # Django ve diğer bağımlılıkları manuel olarak yükleyin
-RUN pip3 install --no-cache-dir \
-    "django>=4.0,<5.0" \
-    "psycopg2-binary>=2.9.0" \
-    "django-environ"
+WORKDIR /app
+
+
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpq-dev \
+    gcc \
+    make
+
+COPY requirements.txt /app/
+RUN pip3 install -r requirements.txt
 
 # Django ortam değişkenini ayarlayın
 ENV PYTHONUNBUFFERED 1

@@ -1,0 +1,26 @@
+services:
+  django:
+    container_name: django
+    build:
+      context: /home/hbay/Desktop/TRanscendence/docker
+      dockerfile: /home/hbay/Desktop/TRanscendence/docker/app/back-end/Dockerfile
+    restart: always
+    volumes:
+      - /home/hbay/Desktop/TRanscendence/halimus:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=True
+      - DATABASE_URL=postgres://username:password@postgre:5432/mydatabase  # buradaki db -> postgre olmalı
+    depends_on:
+      - postgre
+  postgre:
+    container_name: postgre
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: mydatabase
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+
+volumes:
+  postgres_data:
