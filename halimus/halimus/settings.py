@@ -80,8 +80,9 @@ env = environ.Env()
 environ.Env.read_env()  # .env dosyasındaki çevresel değişkenleri yükler
 
 DATABASES = {
-    'default': env.db()  # env.db() DATABASE_URL'yi alır ve uygun formata çevirir
+    'default': env.db('DATABASE_URL')  # env.db() parametre olarak DATABASE_URL alır
 }
+
 
 
 # Password validation
