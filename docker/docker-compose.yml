@@ -23,6 +23,17 @@ services:
       POSTGRES_DB: mydatabase
       POSTGRES_USER: username
       POSTGRES_PASSWORD: password
+  frontend:
+    build:
+      context: /home/hbay/Desktop/ft_transcendence/
+      dockerfile: docker/app/front-end/Dockerfile
+    container_name: frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - django
+    volumes:
+      - /home/hbay/Desktop/ft_transcendence/front-end/assets/:/usr/share/nginx/html  # statik dosyaları yönlendiriyoruz
 
 volumes:
   postgres_data:
