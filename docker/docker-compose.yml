@@ -2,16 +2,15 @@ services:
   django:
     container_name: django
     build:
-      context: /home/hbay/Desktop/ft_transcendence/docker
-      dockerfile: /home/hbay/Desktop/ft_transcendence/docker/app/back-end/Dockerfile
+      dockerfile: app/back-end/Dockerfile
     restart: always
     volumes:
-      - /home/hbay/Desktop/ft_transcendence/halimus:/app
+      - ../halimus:/app
     ports:
       - "8000:8000"
-    environment:
-      - DEBUG=True
-      - DATABASE_URL=postgres://username:password@postgre:5432/mydatabase
+    env_file:
+      - ./.env
+
     depends_on:
       - postgre
   postgre:
@@ -19,21 +18,20 @@ services:
     image: postgres:latest
     ports:
     - "5432:5432"
-    environment:
-      POSTGRES_DB: mydatabase
-      POSTGRES_USER: username
-      POSTGRES_PASSWORD: password
+    env_file:
+      - ./.env
+
   frontend:
     build:
-      context: /home/hbay/Desktop/ft_transcendence/
+      context: ../
       dockerfile: docker/app/front-end/Dockerfile
     container_name: frontend
     ports:
-      - "80:80"
+      - "8001:8001"
     depends_on:
       - django
     volumes:
-      - /home/hbay/Desktop/ft_transcendence/front-end/assets/:/usr/share/nginx/html  # statik dosyaları yönlendiriyoruz
+      - ../front-end/assets/:/usr/share/nginx/html  # statik dosyaları yönlendiriyoruz
 
 volumes:
   postgres_data:
