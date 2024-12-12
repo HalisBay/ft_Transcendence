@@ -6,7 +6,7 @@ services:
     restart: always
     volumes:
       - ../halimus:/app
-      - ../front-end/assets/:/usr/share/nginx/static
+      - ../front-end/:/usr/share/nginx/static
     ports:
       - "8000:8000"
     env_file:
@@ -32,7 +32,7 @@ services:
     depends_on:
       - django
     volumes:
-      - ../front-end/assets/:/usr/share/nginx/static  # statik dosyaları yönlendiriyoruz
+      - ../front-end/:/usr/share/nginx/static  # statik dosyaları yönlendiriyoruz
 
 volumes:
   postgres_data:

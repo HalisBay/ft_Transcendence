@@ -9,7 +9,7 @@ function navigateTo(page) {
         content.removeEventListener('animationend', handleFadeOut); // Dinleyiciyi kaldır
 
         // Yeni içeriği yükle
-        fetch(`${page}.html`)
+        fetch(`/static/${page}.html`)
             .then(response => {
                 if (!response.ok) throw new Error('Sayfa bulunamadı');
                 return response.text();

@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import environ
-
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -49,9 +49,7 @@ ROOT_URLCONF = 'halimus.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            '/usr/share/nginx/static',
-        ],
+        'DIRS': ['/usr/share/nginx/static'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -137,6 +135,7 @@ if DEBUG:
     STATICFILES_DIRS = [
         '/usr/share/nginx/static/',  # Front-end statik dosyalarının yolu
     ]
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
