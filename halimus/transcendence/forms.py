@@ -29,7 +29,7 @@ class UserForm(forms.ModelForm):
     # def clean_password(self):
     #     password = self.cleaned_data.get('password')
     #     if len(password) < 8:
-    #         raise forms.ValidationError('şifre en az 8 karakter olmalı.')
+    #         raise forms.ValidationError('şifre en az 8 karakter olmalı..')
     #     if not any(char.isupper() for char in password):
     #         raise forms.ValidationError('Şifre en az bir büyük karakter içermelidir..')
     #     if not any(char.islower() for char in password):
