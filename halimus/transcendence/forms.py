@@ -31,7 +31,7 @@ class UserForm(forms.ModelForm):
     #     if len(password) < 8:
     #         raise forms.ValidationError('şifre en az 8 karakter olmalı.')
     #     if not any(char.isupper() for char in password):
-    #         raise forms.ValidationError('Şifre en az bir büyük karakter içermelidir.')
+    #         raise forms.ValidationError('Şifre en az bir büyük karakter içermelidir..')
     #     if not any(char.islower() for char in password):
     #         raise forms.ValidationError('Şifre en az bir küçük karakter içermelidir.')
     #     if not any(char in '!@#$%^&*()_+-=[{]}|;:",.<>?/`~' for char in password):
