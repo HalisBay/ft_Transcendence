@@ -1,18 +1,29 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Halimus</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Input ve Listeleme</title>
 </head>
 <body>
-    <div class="hero">
-        <div class="content">
-            <h1>Hoş Geldiniz!</h1>
-            <p>Web sitemizde harika şeyler keşfedin.</p>
-            <a href="#" class="cta-btn">Keşfet</a>
-        </div>
-    </div>
+    <h1>Veri Ekle ve Listele</h1>
+    
+    <!-- Veri Gönderme Formu -->
+    <form action="{% url 'halis2' %}" method="POST">
+        {% csrf_token %}
+        <input type="text" name="nick" placeholder="Bir şey yaz..." required>
+        <button type="submit">Gönder</button>
+        <input type="text" name="email" placeholder="Bir şey yaz..." required>
+        <button type="submit">Gönder</button>
+    </form>
+
+    <!-- Veritabanından Gelen Veriler -->
+    <h2>Liste:</h2>
+    <ul>
+        <!-- Buradaki <li> öğeleri Django template ile doldurulacak -->
+        {% for item in users %}
+        <li>{{ item.nick }}</li>
+        {% endfor %}
+    </ul>
 </body>
 </html>
