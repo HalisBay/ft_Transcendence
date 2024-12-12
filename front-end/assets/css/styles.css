@@ -1,0 +1,479 @@
+
+body{
+    height: 100vh;
+    /*background: linear-gradient(45deg, #ff6b6b, #f06595, #9b59b6, #3498db);*/
+    background: linear-gradient(45deg, #800000, #b22222, #4682b4, #1e90ff);
+    background-size: 300% 300%;
+    animation: gradientAnimation 10s ease infinite;
+}
+
+.container{
+    display: grid;
+    height: 100vh;
+    grid-template-columns: 1fr 5fr 5fr 5fr 1fr;
+    grid-template-rows: 5fr 5fr 5fr 1fr;
+    justify-items: center;
+    align-items: center;
+    gap: 10px;
+    transition: grid-template-columns 0.6s ease-in-out, grid-template-rows 0.6s ease-in-out;
+}
+
+/* -------- Button ---------- */
+
+.buttons {
+    grid-column: 3;
+    grid-row: 2;
+    margin: auto;
+}
+
+button {
+    display: block;
+    width: 230px;
+    padding: 10px 20px;
+    margin-bottom: 15px;
+    font-size: 1rem;
+    background: linear-gradient(45deg, #1e90ff,  #4682b4, #b22222, #800000);
+    background-size: 350% 350%;
+    background-position: center; 
+    color: white; /* Buton yazı rengi */
+    border: none;
+    border-radius: 25px; /* Oval kenarlar */
+    cursor: pointer;
+    transition: all 0.3s ease; /* Geçiş efekti */
+    position: relative; /* İç elementlerin konumlandırılması için */
+}
+
+button:link,
+button:visited {
+    text-transform: uppercase; /* Yazıyı büyük yap */
+    text-decoration: none; /* Alt çizgi kaldır */
+    padding: 15px 40px;
+    display: inline-block;
+    border-radius: 100px;
+    transition: all .2s;
+    position: absolute;
+}
+
+button:hover {
+    transform: translateY(-3px); /* Hover etkisi */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* Gölgeleme efekti */
+
+}
+
+button:active {
+    transform: translateY(-1px); /* Buton tıklanırken hareket */
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2); /* Kapanma efekti */
+}
+
+button::after {
+    content: "";
+    display: inline-block;
+    height: 100%;
+    width: 100%;
+    border-radius: 100px; /* Oval efekt */
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1; /* Butonun altına yerleştir */
+    transition: all .4s; /* Geçiş efekti */
+}
+
+button:hover::after {
+    transform: scaleX(1.4) scaleY(1.6); /* Hover etkisiyle büyütme */
+    opacity: 0; /* Yavaşça kaybolma */
+}
+
+button.btn-white {
+    background-color: #007BFF;
+    color: #ffffff;
+}
+
+button.btn-white::after {
+    background: linear-gradient(45deg, #1e90ff,  #4682b4, #b22222, #800000);
+}
+
+/* ---------- Lable-İnput ---------- */
+
+.form-group {
+    margin-bottom: 20px; /* Her grup arasında boşluk */
+    display: flex;
+    flex-direction: column; /* Elemanları dikey hizala */
+}
+
+.form-group label {
+    font-size: 16px; /* Yazı boyutu */
+    font-weight: bold; /* Kalın yazı */
+    color: #000000; /* Koyu gri */
+    margin-bottom: 5px; /* Input ile aralık */
+}
+
+.input-field {
+    width: 100%; /* Tam genişlik */
+    max-width: 200px; /* Maksimum genişlik */
+    padding: 10px 15px; /* İç boşluk */
+    border: 2px solid #ccc; /* Kenar rengi */
+    border-radius: 25px; /* Oval kenarlar */
+    font-size: 16px; /* Yazı boyutu */
+    outline: none; /* Odaklandığında mavi kenarlığı kaldır */
+    transition: all 0.3s ease; /* Geçiş efekti */
+}
+
+.input-field:focus {
+    border-color: #4CAF50; /* Kenar rengi */
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5); /* Yeşil gölge efekti */
+}
+
+.input-field::placeholder {
+    color: #999; /* Açık gri renk */
+    font-style: italic; /* Eğik yazı */
+}
+
+
+/* ---------- Chat ---------- */
+
+.chat-btn {
+    position: fixed;
+    width: 23px;
+    height: 200px;
+    background: linear-gradient(45deg, #1e90ff, #4682b4, #b22222, #800000);
+    background-size: 350% 350%;
+    background-position: center;
+    right: 0; /* Sağ kenara yapışık */
+    top: 40%; /* Dikey olarak ortada */
+    transform: translateY(-50%);
+    padding: 10px 5px;
+    border-radius: 30px 0 0 30px;
+    font-size: 1rem;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+/* Mesajların bulunduğu alan */
+#messages {
+    max-height: 100%; /* Alanın yüksekliğini sınırlar */
+    overflow-y: auto; /* Dikey kaydırma çubuğu ekler */
+    padding: 10px;
+    background-color: transparent;
+    border-radius: 5px; /* Kenarları yuvarlar */
+    margin-bottom: 20px; /* Alt boşluk */
+    display: flex;
+    flex-direction: column; /* Mesajlar alt taraftan başlasın */
+}
+
+/* Her bir mesaj */
+.message {
+    background: linear-gradient(45deg, #1e90ff, #4682b4, #b22222, #800000);
+    color: white; /* Yazı rengi */
+    padding: 10px 15px; /* İç boşluk */
+    margin-bottom: 10px; /* Mesajlar arasında boşluk */
+    border-radius: 15px; /* Yuvarlak köşeler */
+    max-width: 70%; /* Mesajın genişliğini sınırlar */
+    word-wrap: break-word; /* Uzun kelimeleri bölerek taşmayı önler */
+    align-self: flex-end; /* Sağda hizalar */
+    animation: fadeIn 0.5s ease-in;
+}
+
+#messages::-webkit-scrollbar {
+    display: none;
+}
+
+
+.chat-box h1{
+    height: 40px;
+    width: auto;
+    max-width: 400px;
+    background: linear-gradient(45deg, #1e90ff, #4682b4, #b22222, #800000);
+    border-radius: 30px;
+    text-align: center;
+}
+
+.d-flex{
+    grid-row: 3;
+    text-align: right;
+}
+
+.h-1{
+    text-align: right;
+}
+
+.btn{
+    height: 50%;
+    width: 100%;
+    border-radius: 30px;
+    max-width: 400px;
+    display:inline-block;
+}
+
+.form-control{
+    height: 100%;
+    width: 100%;
+    border-radius: 30px;
+    max-width: 400px;
+}
+
+.chat-box {
+    grid-column: 5;
+    grid-row: 1/5;
+    top: 0;
+    width: 100%;
+    background-color: transparent;
+    height: 100%;
+    border-radius: 30px;
+    color: white;
+    display: grid;
+    grid-template-rows: 8fr 8fr 1fr 1fr;
+    opacity: 0;
+    transition: opacity 1s ease-in-out; /* Animasyonlar */
+}
+
+
+.chat-box.open {
+    right: 0; /* Açık konum */
+    opacity: 1; /* Görünür hale gelme */
+}
+
+.chat-box.close {
+    right: 0; /* Kapanma sırasında pozisyon sabit */
+    opacity: 0; /* Görünmez */
+}
+
+.chat-body {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+.container.shift-chat {
+    grid-template-columns: 1fr 4fr 4fr 4fr 4fr; /* Son kolon genişletilir */
+}
+
+/* Arkadaşlar */
+
+.friends-btn {
+    position: fixed;
+    width: 23px;
+    height: 200px;
+    background: linear-gradient(45deg, #1e90ff, #4682b4, #b22222, #800000);
+    background-size: 350% 350%;
+    background-position: center;
+    left: 0; /* Sağ kenara yapışık */
+    top: 40%; /* Dikey olarak ortada */
+    transform: translateY(-50%);
+    padding: 10px 5px;
+    border-radius: 0 30px 30px 0;
+    font-size: 1rem;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+.friends-box {
+    grid-column: 1;
+    grid-row: 1/4;
+    top: 0;
+    width: 20%;
+    background-color:transparent;
+    height: 100%;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 5;
+    opacity: 0; /* Varsayılan olarak görünmez */
+    transition: opacity 1s ease-in-out; /* Animasyonlar */
+}
+
+.friends-card {
+    width: 90%;
+    height: 40%;
+    margin-bottom: 100px;
+    background: linear-gradient(45deg, #1e90ff, #4682b4, #b22222, #800000);
+    background-size: 350% 350%;
+    background-position: center;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+.friends-box h1 {
+    font-family: 'Arial', sans-serif;
+    font-size: 24px;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+    padding: 10px;
+    background: linear-gradient(45deg, #1e90ff, #4682b4, #b22222, #800000);
+    background-size: 350% 350%;
+    background-position: center;
+    color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.friends-box.open {
+    left: 0; /* Açık konum */
+    opacity: 1; /* Görünür hale gelme */
+}
+
+.friends-box.close {
+    left: 0; /* Kapanma sırasında pozisyon sabit */
+    opacity: 0; /* Görünmez */
+}
+
+.friends-body {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+
+  
+
+.container.shift-friends {
+    grid-template-columns: 4fr 4fr 4fr 4fr 1fr; /* Son kolon genişletilir */
+}
+
+.container.shift-both {
+    grid-template-columns: 4fr 3fr 4fr 3fr 4fr; /* Her iki kutu açık */
+}
+
+/* Kullanıcı */
+
+.user-card {
+    grid-column: 3;
+    width: 200px;
+    height: 200px;
+    margin: auto;
+    position: relative;
+    border-radius: 50%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* Kartın etrafına gölge */
+    transition: height 0.4s ease, width 0.4s ease, border-radius 0.4s ease;
+}
+
+.user-image {
+    width: 100%;
+    height: 100%;
+    transition: transform 0.4s ease, opacity 0.4s ease;
+}
+
+.user-image img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%; /* Yuvarlak resim */
+    object-fit: cover; /* Resim içeriği doğru şekilde sığdır */
+}
+
+.user-info {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    visibility: hidden;
+    text-align: center;
+    color: #fff; /* Yazı rengi */
+    font-family: 'Arial', sans-serif; /* Yazı tipi */
+    font-size: 1rem; /* Yazı boyutu */
+    font-weight: 600; /* Yazı kalınlığı */
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.user-card:hover {
+    width: 250px; /* Kart genişler */
+    height: 250px; /* Kart uzar */
+    border-radius: 15px; /* Kart köşeleri yuvarlanır */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); /* Hover olduğunda daha fazla gölge */
+}
+
+.user-card:hover .user-image {
+    transform: scale(0.5); /* Resim küçülür */
+    opacity: 0; /* Resim kaybolur */
+}
+
+.user-card:hover .user-info {
+    opacity: 1; /* Bilgi kutusu görünür */
+    visibility: visible;
+}
+
+.user-card:hover {
+    background: linear-gradient(45deg, #1e90ff, #4682b4, #b22222, #800000);
+    background-size: 350% 350%;
+    background-position: center;
+}
+
+img{
+    background: transparent;
+}
+
+/* Animasyon */
+
+.fade-in {
+    opacity: 0;
+    animation: fadeIn 0.5s forwards;
+}
+
+.fade-out {
+    opacity: 1;
+    animation: fadeOut 0.5s forwards;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+	
+}
+
+@keyframes gradientAnimation {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes wave-open {
+    0% {
+        transform: translateX(100%) scaleY(0.8);
+        opacity: 0;
+    }
+    50% {
+        transform: translateX(10%) scaleY(1.2);
+        opacity: 0.5; 
+    }
+    100% {
+        transform: translateX(0) scaleY(1);
+        opacity: 1; 
+    }
+}

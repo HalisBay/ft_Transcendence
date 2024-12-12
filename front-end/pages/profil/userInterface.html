@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <title>Document</title>
+</head>
+<body>
+    <div class="container">
+        <div class="user-card">
+            <div class="user-image">
+                <img src="assets/images/user1.jpg" alt="kullanıcı resmi">
+            </div>
+            <div class="user-info">
+                <p>Nick: Rago</p>
+                <p>Email: rago@example.com</p>
+                <p>Yaş 70 iş bitmemiş!</p>
+                <p>Level: 0</p>
+            </div>
+        </div>
+        <div class="buttons">
+            <button class="btn-white" onclick="navigateTo('assets/html/Game')">Game</button>
+            <button class="btn-white" onclick="navigateTo('pages/home/home')">Log out</button>
+        </div>
+
+        <div class="chat-btn" onclick="toggleChatBoxes('chat-box')">CHAT</div>
+        <div class="chat-box">
+            <h1 class="h-1">SOHBET</h1>
+            <div id="messages"></div>
+            <form class="d-flex " onsubmit="return sendMessage(event)">
+                <input type="text" id="messageInput" class="form-control" placeholder="Mesaj yazın..." aria-label="Mesaj yazın">
+                <button type="submit" class="btn btn-primary" id="sendButton">Gönder</button>
+            </form>
+        </div>
+        <div class="friends-btn" onclick="toggleChatBoxes('friends-box')">FRIENDS</div>
+        <div class="friends-box">
+            <h1>ARKADAŞLAR</h1>
+            <div class="friends-body">
+                <div class="friends-card">
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+    
+    <script src="assets/js/script.js"></script>
+</body>
+</html>
