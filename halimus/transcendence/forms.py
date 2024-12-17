@@ -1,11 +1,14 @@
 from django import forms
 from .models import User
+from django.contrib.auth.hashers import check_password
 from django.core.validators import EmailValidator
+from django.contrib import messages
+from django.contrib.auth.hashers import make_password
 
 class UserForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['nick', 'email'] # ,'password'
+        fields = ['nick', 'email','password']
     
     def clean_nick(self):
         nick = self.cleaned_data.get('nick')
@@ -26,17 +29,46 @@ class UserForm(forms.ModelForm):
             raise forms.ValidationError('Bu e-posta zaten kullanılıyor.')
         return email
     
-    # def clean_password(self):
-    #     password = self.cleaned_data.get('password')
-    #     if len(password) < 8:
-    #         raise forms.ValidationError('şifre en az 8 karakter olmalı.')
-    #     if not any(char.isupper() for char in password):
-    #         raise forms.ValidationError('Şifre en az bir büyük karakter içermelidir.')
-    #     if not any(char.islower() for char in password):
-    #         raise forms.ValidationError('Şifre en az bir küçük karakter içermelidir.')
-    #     if not any(char in '!@#$%^&*()_+-=[{]}|;:",.<>?/`~' for char in password):
-    #         raise forms.ValidationError('Şifre en az bir özel karakter içermelidir.')
-    #     return password
+    def clean_password(self):
+        password = self.cleaned_data.get('password')
+        if len(password) < 8:
+            raise forms.ValidationError('şifre en az 8 karakter olmalı.')
+        if not any(char.isupper() for char in password):
+            raise forms.ValidationError('Şifre en az bir büyük karakter içermelidir.')
+        if not any(char.islower() for char in password):
+            raise forms.ValidationError('Şifre en az bir küçük karakter içermelidir.')
+        if not any(char in '!@#$%^&*()_+-=[{]}|;:",.<>?/`~' for char in password):
+            raise forms.ValidationError('Şifre en az bir özel karakter içermelidir.')
+        return password
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.password = make_password(self.cleaned_data['password'])
+        if commit:
+            user.save()
+        return user
+
+
+class LoginForm(forms.Form):
+    nick = forms.CharField(max_length=150, required=True, label='Kullanıcı Adı')
+    password = forms.CharField(widget=forms.PasswordInput, required=True, label='Şifre')
+
+    def clean(self):
+        cleaned_data = super().clean()
+        username = cleaned_data.get('nick')
+        password = cleaned_data.get('password')
+
+        if username and password:
+            try:
+                user = User.objects.get(nick=username)
+                if not check_password(password, user.password) and user:
+                   raise forms.ValidationError('Geçersiz kullanıcı adı veya şifre.')
+            except User.DoesNotExist:
+                raise forms.ValidationError('Geçersiz kullanıcı adı veya şifre.')
+        return cleaned_data
+        
+
+
 # class BlockForm(forms.ModelForm):
 #     class Meta:
 #         model = Block

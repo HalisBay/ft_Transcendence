@@ -7,7 +7,7 @@ class User(models.Model):
     # avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
     nick = models.CharField(max_length=50, unique=True)
     email = models.EmailField(unique=True, null=True, blank=True)  # Boş değer kabul et
-    # password = models.CharField(max_length=128)
+    password = models.CharField(max_length=128,default = "Kolaydegildir123.")
 
     def __str__(self):
         return self.nick
