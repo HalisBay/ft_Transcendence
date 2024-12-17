@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'assets/css/styles.css' %}">
+    <title>Document</title>
+</head>
+<body>
+    <div class="container">
+        <div class="buttons">
+            <form method="post" action="/register" onsubmit="submitForm(event)">
+                <div class="form-group">
+                    {% csrf_token %}
+                    <label for="nick">Kullanıcı Adı </label>
+                    <input type="text" class="input-field" id="nick" name="nick" placeholder="Nickname giriniz" required value="{{ form.nick.value }}">
+                    {% if form.nick.errors %}
+                        <div class="error">
+                            {% for error in form.nick.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <br>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" class="input-field" id="email" name="email" placeholder="Email girin" required value="{{ form.email.value }}">
+                    {% if form.email.errors %}
+                        <div class="error">
+                            {% for error in form.email.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <br>
+                </div>
+                <div class="form-group">
+                    <label for="password">Şifre</label>
+                    <input type="password" class="input-field" id="password" name="password" placeholder="Şifre girin" required value="{{ form.password.value }}">
+                    {% if form.password.errors %}
+                        <div class="error">
+                            {% for error in form.password.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                <br>
+                </div>
+                <button class="btn-white" type="submit">Giriş</button>
+                <button class="btn-white" onclick="navigateTo('home')">Home</button>
+            </form>
+        </div>
+    </div>
+<script src="{% static 'assets/js/script.js' %}"></script>
+</body>
+</html>

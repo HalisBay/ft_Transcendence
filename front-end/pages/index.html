@@ -1,23 +1,14 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-    {% load static %}
+<html lang="tr">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'assets/css/styles.css' %}">
+    <title>Halimus</title>
 </head>
 <body>
-    <h1>SPA Uygulaması</h1>
-    <nav>
-        <a href="{% url 'home' %}" data-page="home">Ana Sayfa</a>
-        <a href="{% url 'register' %}" data-page="register">Kayıt Ol</a>
-        <a href="{% url 'login' %}" data-page="login">Giriş Yap</a>
- <!-- Yeni bağlantı -->
-    </nav>
-    <div id="app">
-        <!-- Dinamik içerik buraya yüklenecek -->
-        <p>Hoş geldiniz! Bir bağlantıya tıklayın.</p>
-    </div>
+    <div id="content"></div>
     <script src="{% static 'assets/js/script.js' %}"></script>
 </body>
 </html>

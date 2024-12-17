@@ -1,21 +1,26 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ana Sayfa</title>
-    <!-- {% load static %} -->
-    <link rel="stylesheet" href="/static/assets/css/styles.css">
+    <link rel="stylesheet" href="{% static 'assets/css/styles.css' %}">
+    <title>Document</title>
 </head>
 <body>
-    <h1>Ana Sayfa</h1>
-    {% if messages %}
-        <div class="messages">
-            {% for message in messages %}
-                <p class="message {{ message.tags }}">{{ message }}</p>
-            {% endfor %}
+    <div class="container">
+        <div class="buttons">
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <p class="message {{ message.tags }}">{{ message }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <button class="btn-white" onclick="navigateTo('login')">Log In</button>
+            <button class="btn-white" onclick="navigateTo('register')">Sign Up</button>
         </div>
-    {% endif %}
-    <p>Burada hoş geldiniz mesajı yazabiliriz.</p>
+    </div>
+<script src="{% static 'assets/js/script.js' %}"></script>
 </body>
 </html>

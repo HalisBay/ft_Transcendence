@@ -1,113 +1,59 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // Tüm bağlantıları dinle
-    document.querySelectorAll('nav a').forEach(link => {
-        link.addEventListener('click', (event) => {
-            event.preventDefault(); // Sayfanın yeniden yüklenmesini engelle
-            const page = event.target.getAttribute('data-page');
-            navigateTo(page); // İlgili sayfayı yükle
-        });
-    });
+function navigateTo(page) {
+    const content = document.getElementById('content');
 
-    // İlk yükleme sırasında uygun sayfayı yükle
-    const initialPage = window.location.pathname.split('/')[1] || 'index';
-    navigateTo(initialPage);
-
-    // Kayıt Ol ve Giriş Yap butonları için dinleyici ekle
-    document.addEventListener('DOMContentLoaded', () => {
-        // Kayıt Ol butonunu dinle
-        document.getElementById('go-to-register').addEventListener('click', () => {
-            document.getElementById('login-container').style.display = 'none'; // Giriş Yap sayfasını gizle
-            document.getElementById('register-container').style.display = 'block'; // Kayıt Ol sayfasını göster
-        });
-
-        // Giriş Yap butonunu dinle
-        document.getElementById('go-to-login').addEventListener('click', () => {
-            document.getElementById('register-container').style.display = 'none'; // Kayıt Ol sayfasını gizle
-            document.getElementById('login-container').style.display = 'block'; // Giriş Yap sayfasını göster
-        });
-    });
-
-    // Tarayıcıda geri/ileri tuşlarını yönet
-    window.onpopstate = () => {
-        const page = window.location.pathname.split('/')[1] || 'login';
-        navigateTo(page, false); // Geçmişteki sayfayı yüklerken tarayıcı geçmişini güncelleme
-    };
-});
-
-function navigateTo(page, updateHistory = true) {
-    const app = document.getElementById('app');
-
-    // İçeriği yükle
-    fetch(`/static/pages/${page}.html`)
+    // Yeni içeriği yükle
+    fetch(`${page}`)
         .then(response => {
             if (!response.ok) throw new Error('Sayfa bulunamadı');
             return response.text();
         })
         .then(html => {
-            app.innerHTML = html; // Yeni içeriği yükle
+            // İçeriği güncelle
+            content.innerHTML = html;
 
-            // Yeni sayfa içeriğinde form varsa CSRF token'ını ekleyin
-            const form = app.querySelector('form');
-            if (form) {
-                appendCSRFTokenToForm(form);
-                form.addEventListener('submit', submitForm);
-            }
+            // URL'yi güncelle
+            const newUrl = `/${page}`;
+            window.history.pushState({ page }, '', newUrl);
         })
         .catch(error => {
-            app.innerHTML = `<p class="text-danger">Hata: ${error.message}</p>`;
+            content.innerHTML = `<p class="text-danger">Hata: ${error.message}</p>`;
         });
-
-    // Tarayıcı geçmişini güncelle (isteğe bağlı)
-    if (updateHistory) {
-        window.history.pushState({}, '', `/${page}`);
-    }
 }
 
-function getCsrfToken() {
-    const tokenElement = document.querySelector('meta[name="csrf-token"]');
-    return tokenElement ? tokenElement.content : null;
-}
+// İlk yüklemede doğru sayfayı belirle
+const initialPage = window.location.pathname.split('/')[1] || 'home';
+navigateTo(initialPage);
 
-function appendCSRFTokenToForm(form) {
-    const csrfToken = getCsrfToken();
-    if (csrfToken) {
-        if (!form.querySelector('input[name="csrfmiddlewaretoken"]')) {
-            const csrfInput = document.createElement('input');
-            csrfInput.type = 'hidden';
-            csrfInput.name = 'csrfmiddlewaretoken';
-            csrfInput.value = csrfToken;
-            form.appendChild(csrfInput);
-        }
-    } else {
-        console.error('CSRF token bulunamadı.');
-    }
-}
+// Geri veya ileri düğmelerine basıldığında sayfayı yükle
+window.addEventListener('popstate', (event) => {
+    const page = event.state?.page || 'home';
+    navigateTo(page);
+});
+
 
 function submitForm(event) {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    const csrfToken = getCsrfToken();
-    if (!csrfToken) {
-        console.error("CSRF token bulunamadı!");
-        return;
-    }
-    const formObject = {};
-    formData.forEach((value, key) => {
-        formObject[key] = value;
-    });
-    fetch('', {
+    event.preventDefault();  // Sayfa yenilemesini engelle
+
+    const form = new FormData(event.target);  // Form verilerini al
+
+    fetch('/register', {
         method: 'POST',
+        body: form,
         headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest',  // AJAX isteği olduğunu belirtiyoruz
         },
-        body: JSON.stringify(formObject)
     })
-    .then(response => response.json())
+    .then(response => response.json())  // Yanıtı JSON formatında al
     .then(data => {
-        console.log(data);
+        if (data.success) {
+            // Başarılı olursa kullanıcıyı login sayfasına yönlendir
+            navigateTo('login');
+        } else {
+            // Hata varsa, hata mesajını göster
+            document.getElementById('message').innerHTML = data.message;
+        }
     })
     .catch(error => {
-        console.error('Hata:', error);
+        document.getElementById('message').innerHTML = 'Bir hata oluştu: ' + error.message;
     });
 }

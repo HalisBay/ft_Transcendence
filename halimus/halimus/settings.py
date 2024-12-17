@@ -68,7 +68,9 @@ WSGI_APPLICATION = 'halimus.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+LOGIN_REDIRECT_URL = '/home'
 
+APPEND_SLASH = False
 
 env = environ.Env()
 environ.Env.read_env(BASE_DIR / 'docker' / '.env')
