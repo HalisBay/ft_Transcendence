@@ -1,16 +1,35 @@
 from django.db import models
-# from .validators import SpecialCharacterValidator, UppercaseValidator
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
-class User(models.Model):
-    # id = models.AutoField(primary_key=True)
-    # skor = models.IntegerField(default=0)
-    # avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
+class UserManager(BaseUserManager):
+    def create_user(self, nick, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError("Kullanıcıların bir e-posta adresi olmalı")
+        email = self.normalize_email(email)
+        user = self.model(nick=nick, email=email, **extra_fields)
+        return user
+
+class User(AbstractBaseUser, PermissionsMixin):
+    id = models.AutoField(primary_key=True)
     nick = models.CharField(max_length=50, unique=True)
-    email = models.EmailField(unique=True, null=True, blank=True)  # Boş değer kabul et
-    password = models.CharField(max_length=128,default = "Kolaydegildir123.")
+    email = models.EmailField(unique=True, null=True, blank=True)
+    password = models.CharField(max_length=128, default="Kolaydegildir123.")
+    
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    date_joined = models.DateTimeField(auto_now_add=True)  # Varsayılan olarak şimdiye ayarlanır
+
+    objects = UserManager()
+
+    USERNAME_FIELD = 'nick'
+    REQUIRED_FIELDS = ['email']  # Süper kullanıcı oluşturulurken gerekli alanlar
 
     def __str__(self):
         return self.nick
+
+
+
+
 # class MatchHistory(models.Model):
 #     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='match_history')
 #     result = models.BooleanField()  # Kazandı mı? (True: kazandı, False: kaybetti)
