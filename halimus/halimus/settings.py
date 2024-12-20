@@ -13,15 +13,16 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import environ
 import os
+import socket
+hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + ["127.0.0.1"]
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
-
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -31,7 +32,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'transcendence'
+    'transcendence',
+    'debug_toolbar'
 ]
 
 MIDDLEWARE = [
@@ -42,6 +44,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware'
 ]
 
 ROOT_URLCONF = 'halimus.urls'
@@ -49,7 +52,8 @@ ROOT_URLCONF = 'halimus.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['/usr/share/nginx/static'],
+        'DIRS': ['/usr/share/nginx/static',
+         BASE_DIR / '/static/' ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -83,9 +87,11 @@ DATABASES = {
 SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env('DEBUG')
+DEBUG = True
+# env('DEBUG')
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
+ALLOWED_HOSTS = ['*']
+#env.list('ALLOWED_HOSTS')
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -133,10 +139,9 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = '/static'
 
-if DEBUG:
-    STATICFILES_DIRS = [
-        '/usr/share/nginx/static/',  # Front-end statik dosyalarının yolu
-    ]
+# if DEBUG:
+STATICFILES_DIRS = [ '/usr/share/nginx/static/' ]
+# Front-end statik dosyalarının yolu
 
 
 # Default primary key field type

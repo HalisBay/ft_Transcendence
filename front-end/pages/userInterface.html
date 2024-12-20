@@ -1,50 +1,39 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{% static 'assets/css/styles.css' %}">
-    <title>Document</title>
-</head>
-<body>
-    <div class="container">
-        <div class="user-card">
-            <div class="user-image">
-                <img src="assets/images/user1.jpg" alt="kullanıcı resmi">
-            </div>
-            <div class="user-info">
-                <p>Nick: Rago</p>
-                <p>Email: rago@example.com</p>
-                <p>Yaş 70 iş bitmemiş!</p>
-                <p>Level: 0</p>
-            </div>
-        </div>
-        <div class="buttons">
-            <button class="btn-white" onclick="navigateTo('assets/Game')">Game</button>
-            <button class="btn-white" onclick="navigateTo('pages/home')">Log out</button>
-        </div>
+<!-- userInterface.html -->
+{% extends 'pages/base.html' %}
 
-        <div class="chat-btn" onclick="toggleChatBoxes('chat-box')">CHAT</div>
-        <div class="chat-box">
-            <h1 class="h-1">SOHBET</h1>
-            <div id="messages"></div>
-            <form class="d-flex " onsubmit="return sendMessage(event)">
-                <input type="text" id="messageInput" class="form-control" placeholder="Mesaj yazın..." aria-label="Mesaj yazın">
-                <button type="submit" class="btn btn-primary" id="sendButton">Gönder</button>
-            </form>
-        </div>
-        <div class="friends-btn" onclick="toggleChatBoxes('friends-box')">FRIENDS</div>
-        <div class="friends-box">
-            <h1>ARKADAŞLAR</h1>
-            <div class="friends-body">
-                <div class="friends-card">
+{% block title %}Kullanıcı Arayüzü{% endblock %}
 
-                </div>
-            </div>
+{% block content %}
+<div class="container">
+    <div class="user-card">
+        <div class="user-info">
+            <p><strong>Adı:</strong> <span id="username"></span></p>
+            <p><strong>Soyadı:</strong> <span id="last_name"></span></p>
+            <p><strong>E-posta:</strong> <span id="email"></span></p>
         </div>
-
     </div>
-    
-    <script src="{% static 'assets/js/script.js' %}"></script>
-</body>
+    <div class="buttons">
+        <button class="btn-white" onclick="navigateTo('assets/Game')">Game</button>
+        <button class="btn-white" onclick="navigateTo('home')">Log out</button>
+    </div>
+
+    <div class="chat-btn" onclick="toggleChatBoxes('chat-box')">CHAT</div>
+    <div class="chat-box">
+        <h1 class="h-1">SOHBET</h1>
+        <div id="messages"></div>
+        <form class="d-flex " onsubmit="return sendMessage(event)">
+            <input type="text" id="messageInput" class="form-control" placeholder="Mesaj yazın..." aria-label="Mesaj yazın">
+            <button type="submit" class="btn btn-primary" id="sendButton">Gönder</button>
+        </form>
+    </div>
+    <div class="friends-btn" onclick="toggleChatBoxes('friends-box')">FRIENDS</div>
+    <div class="friends-box">
+        <h1>ARKADAŞLAR</h1>
+        <div class="friends-body">
+            <div class="friends-card">
+                <!-- Friends list goes here -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
