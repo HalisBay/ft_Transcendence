@@ -10,12 +10,19 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.urls import reverse
+from django.urls import reverseimport logging
+
+logger = logging.getLogger(__name__)
+
 def index_page(request):
-    return render(request, 'pages/index.html')
+    logger.debug(request)
+    return render(request, 'pages/base.html')
 
 def home_page(request):
     return render(request, 'pages/home.html')
+
+def user_page(request):
+    return render(request, 'pages/userInterface.html')
 
 def register_user(request):
     if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -60,11 +67,12 @@ def login_page(request):
                 login(request, user)
                 # send_verification_email(user)
                 messages.success(request, 'Giriş başarılı!')
-                return redirect('home')
+                return JsonResponse({'success': True})
             else:
                 messages.error(request, 'Geçersiz kullanıcı adı veya şifre.')
         else:
-            messages.error(request, 'Lütfen formdaki hataları düzeltin.')
+            errors = form.errors.as_json()
+            return JsonResponse({'success': False, 'message': errors})
     else:
         form = LoginForm()
 

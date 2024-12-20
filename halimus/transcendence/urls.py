@@ -1,4 +1,6 @@
 from django.urls import path
+from django.urls import re_path 
+from django.views.generic import TemplateView
 from . import views
 from django.contrib.auth import views as auth_views
 
@@ -8,4 +10,5 @@ urlpatterns = [
     path('register', views.register_user, name='register'),
     path('login', views.login_page, name='login'),
     path('activate/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='activate'),
+    path('user', views.user_page, name='user'),
 ]
