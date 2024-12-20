@@ -88,11 +88,9 @@ DATABASES = {
 SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
-env('DEBUG')
+DEBUG = env('DEBUG')
 
-# ALLOWED_HOSTS = ['*']
-env.list('ALLOWED_HOSTS')
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 
 EMAIL_BACKEND = env('EMAIL_BACKEND')
 EMAIL_HOST=env('EMAIL_HOST')
