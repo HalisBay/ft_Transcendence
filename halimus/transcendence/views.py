@@ -12,6 +12,7 @@ from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.urls import reverse 
 import logging
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +57,7 @@ def activate(request, uidb64, token):
         return render(request, 'activation_failed.html')  # Doğrulama başarısızsa hata sayfası
 
 
+
 def login_page(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
@@ -66,7 +68,7 @@ def login_page(request):
             print(f'DEbug msg.: 1{user}')
             if user is not None:
                 login(request, user)
-                # send_verification_email(user)
+                send_verification_email(user)
                 messages.success(request, 'Giriş başarılı!')
                 return JsonResponse({'success': True})
             else:
@@ -89,6 +91,6 @@ def send_verification_email(user):
 
     subject = 'Email Verification'
     message = f'Please verify your email by clicking the following link: {activation_url}'
-
+    host_email = settings.EMAIL_HOST_USER
     # E-posta gönder
-    send_mail(subject, message, 'halimuspong@gmail.com', [user.email])
+    send_mail(subject, message,host_email, [user.email])
