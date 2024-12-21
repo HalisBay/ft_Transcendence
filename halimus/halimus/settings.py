@@ -162,3 +162,6 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000'
 ]
 
+#annotations
+LOGIN_URL  = '/login'
+LOGIN_REDIRECT_URL = '/user' 

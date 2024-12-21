@@ -18,7 +18,7 @@ ENV PYTHONUNBUFFERED 1
 RUN touch halis.txt
 #entrypoint eklencek : python manage.py migrate && python manage.py makemigrations transcendence && python manage.py sqlmigrate 001 
 #makemigrations
-CMD ["bash", "-c", "python manage.py migrate && python manage.py makemigrations transcendence && python manage.py migrate && python manage.py collectstatic --noinput && python manage.py runserver 0.0.0.0:8000"]
+CMD ["bash", "-c", "python manage.py makemigrations transcendence && python manage.py migrate && python manage.py collectstatic --noinput && python manage.py runserver 0.0.0.0:8000"]
 
 
 EXPOSE 8000

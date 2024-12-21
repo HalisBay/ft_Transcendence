@@ -2,7 +2,7 @@ from django.shortcuts import render,redirect
 from django.http import HttpResponse,HttpRequest
 from django.contrib import messages
 from django.http import JsonResponse
-from django.contrib.auth import authenticate,login
+from django.contrib.auth import authenticate,login,logout
 from .forms import UserForm
 from .forms import LoginForm
 from .models import User
@@ -13,6 +13,8 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.urls import reverse 
 import logging
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
+
 
 logger = logging.getLogger(__name__)
 
@@ -23,8 +25,13 @@ def index_page(request):
 def home_page(request):
     return render(request, 'pages/home.html')
 
+@login_required
 def user_page(request):
     return render(request, 'pages/userInterface.html')
+
+def logout_page(request):
+    logout(request)  # Kullanıcının oturumunu sonlandırır
+    return redirect('login') 
 
 def register_user(request):
     if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -68,7 +75,7 @@ def login_page(request):
             print(f'DEbug msg.: 1{user}')
             if user is not None:
                 login(request, user)
-                send_verification_email(user)
+                #send_verification_email(user)
                 messages.success(request, 'Giriş başarılı!')
                 return JsonResponse({'success': True})
             else:
