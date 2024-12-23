@@ -1,10 +1,13 @@
 #!/bin/bash
 
-if [ ! -f /app/migrations_done ]; then
+    # if [ ! -f /usr/local/bin/dockerize ]; then
+    #     curl -sSL https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-linux-amd64-v0.6.1.tar.gz | tar -xzv -C /usr/local/bin
+    #     echo "adam kral"
+    # fi
+
+    #dockerize -wait tcp://postgre:5432 -timeout 60s şerh düşüyorum
+    echo "Migrate ve collect static işlemi "
+    python manage.py makemigrations transcendence --noinput
     python manage.py migrate
-    python manage.py makemigrations transcendence
-    python manage.py migrate
-    touch /app/migrations_done
-fi
-    python manage.py migrate
+    python manage.py collectstatic --noinput
     python manage.py runserver 0.0.0.0:8000

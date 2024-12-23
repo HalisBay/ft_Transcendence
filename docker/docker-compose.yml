@@ -3,7 +3,7 @@ services:
     container_name: django
     build:
       dockerfile: app/back-end/Dockerfile
-    restart: always
+    restart: always #şerh düşüyorum; django postgresqli yi beklemiyor restart always işi çözüyor timeout atıladabilir.
     volumes:
       - ../halimus:/app
       - ../front-end/:/usr/share/nginx/static
@@ -13,9 +13,10 @@ services:
       - ./.env
     environment:
       - DJANGO_DEBUG=True
-
     depends_on:
-      - postgre
+      postgre:
+        condition: service_healthy
+  
   postgre:
     container_name: postgre
     image: postgres:latest
@@ -23,6 +24,13 @@ services:
     - "5432:5432"
     env_file:
       - ./.env
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${DATABASE_USERNAME}", "-d", "${DATABASE}"]
+      interval: 10s        # 10 saniyede bir kontrol yapılacak
+      retries: 5           # 5 defa başarısız olursa konteyner sağlıksız sayılacak
+      start_period: 30s    # Konteyner başlatıldığında ilk sağlık kontrolünün başlaması için bekleme süresi
+      timeout: 5s 
+
 
   frontend:
     build:
@@ -36,8 +44,10 @@ services:
     volumes:
       - ../front-end/:/usr/share/nginx/static  # statik dosyaları yönlendiriyoruz
 
+
 volumes:
   postgres_data:
+
 
 
 
