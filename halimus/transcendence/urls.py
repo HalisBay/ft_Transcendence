@@ -8,8 +8,8 @@ urlpatterns = [
     path('', views.index_page, name='index'),
     path('home', views.home_page, name='home'), 
     path('register', views.register_user, name='register'),
-    path('login', views.login_page, name='login'),
-    path('activate/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='activate'),
+    path('login', views.login_user, name='login'),
+    path('activate/<uidb64>/<token>/', views.activate_user, name='activate'),
     path('user', views.user_page, name='user'),
     path('logout', views.logout_page, name='logout'),
 

@@ -34,7 +34,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'transcendence',
     'django.contrib.sites',
-    'debug_toolbar'
+    'debug_toolbar',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
