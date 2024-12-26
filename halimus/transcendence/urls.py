@@ -9,7 +9,9 @@ urlpatterns = [
     path('home', views.home_page, name='home'), 
     path('register', views.register_user, name='register'),
     path('login', views.login_user, name='login'),
-    path('activate/<uidb64>/<token>/', views.activate_user, name='activate'),
+    path('activate/<str:uidb64>/<str:token>/', views.activate_user, name='activate_user'),
+    path('verify', views.verify_page, name='verify_page'),
     path('user', views.user_page, name='user'),
     path('logout', views.logout_page, name='logout'),
+    path('notverified', views.verify_fail, name='not_verified'),
 ]

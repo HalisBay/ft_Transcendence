@@ -38,10 +38,6 @@ window.addEventListener('popstate', (event) => {
     navigateTo(page);
 });
 
-
-
-
-
 function submitForm(event) {
     event.preventDefault();  // Sayfa yenilemesini engelle
 
@@ -60,8 +56,12 @@ function submitForm(event) {
             // Başarılı olursa kullanıcıyı login sayfasına yönlendir
             navigateTo('login');
         } else {
-            // Hata varsa, hata mesajını göster
-            document.getElementById('message').innerHTML = data.message;
+            //TODO: Burası hallolcak
+            let messageContent = '';
+            data.messages.forEach(msg => {
+                messageContent += `<p class="message">${msg}</p>`; // Mesajları liste olarak ekle
+            });
+            document.getElementById('message').innerHTML = messageContent;  // messageContent kullan
         }
     })
     .catch(error => {
@@ -86,7 +86,7 @@ function submitFormOne(event) {
         console.log(JSON.stringify(data));
         if (data.success) {
             // Başarılı olursa kullanıcıyı login sayfasına yönlendir
-            navigateTo('user');
+            navigateTo('verify');
         } else {
             // Hata varsa, hata mesajını göster
             document.getElementById('message').innerHTML = data.message;
@@ -96,8 +96,6 @@ function submitFormOne(event) {
         document.getElementById('message').innerHTML = 'Bir hata oluştu: ' + error.message;
     });
 }
-
-
 
 function toggleChatBoxes(targetBoxClass) {
     const chatBox = document.querySelector('.chat-box');
@@ -136,10 +134,6 @@ function toggleChatBoxes(targetBoxClass) {
     }
 }
 
-
-
-
-
 function sendMessage(event) {
     // Formun varsayılan davranışını engelle (sayfa yenilenmesini önler)
     event.preventDefault();
@@ -167,3 +161,34 @@ function sendMessage(event) {
 
     return false; // Form gönderimini tamamen engelle
 }
+
+// function getUserWithToken() {
+//     const token = new URLSearchParams(window.location.search).get('token'); // URL'den token'ı al
+
+//     if (!token) {
+//         document.getElementById('message').innerHTML = 'Token bulunamadı.';
+//         return;
+//     }
+
+//     fetch(`/verify?token=${token}`, {  // URL'ye token'ı ekle
+//         method: 'GET',
+//         headers: {
+//             'X-Requested-With': 'XMLHttpRequest',  // AJAX isteği olduğunu belirtiyoruz
+//         },
+//     })
+//     .then(response => response.json())  // Yanıtı JSON formatında al
+//     .then(data => {
+//         console.log(JSON.stringify(data));
+//         if (data.success) {
+//             console.log('Token doğrulandı, kullanıcı sayfasına yönlendiriliyor...');
+//             navigateTo('user');  // Yönlendirme yap
+//         } else {
+//             console.error('Token doğrulanamadı: ', data.message);
+//             document.getElementById('message').innerHTML = data.message;
+//         }
+//     })
+//     .catch(error => {
+//         console.error('Bir hata oluştu: ', error.message);
+//         document.getElementById('message').innerHTML = 'Bir hata oluştu: ' + error.message;
+//     });
+// }

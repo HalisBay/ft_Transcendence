@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'debug_toolbar',
     'rest_framework',
+    'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
@@ -166,3 +167,9 @@ CSRF_TRUSTED_ORIGINS = [
 #annotations
 LOGIN_URL  = '/login'
 LOGIN_REDIRECT_URL = '/user' 
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}

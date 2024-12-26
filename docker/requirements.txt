@@ -4,3 +4,4 @@ django-environ
 djangorestframework==3.14.0
 debugpy==1.8.11
 django-debug-toolbar
+djangorestframework-simplejwt

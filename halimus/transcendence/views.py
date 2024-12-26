@@ -8,6 +8,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from rest_framework_simplejwt.tokens import RefreshToken
 from django.urls import reverse 
 import logging
 from django.conf import settings
@@ -17,6 +18,11 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .serializers import UserSerializer,LoginSerializer
 from django.contrib.auth import get_user_model
+from rest_framework_simplejwt.tokens import AccessToken
+from datetime import datetime, timedelta
+from rest_framework_simplejwt.tokens import UntypedToken
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+from django.http import HttpResponseRedirect
 
 logger = logging.getLogger(__name__)
 User = get_user_model() # merkezi yapıda kullanmak için bi dosya vs olabilir.
@@ -24,6 +30,7 @@ User = get_user_model() # merkezi yapıda kullanmak için bi dosya vs olabilir.
 def index_page(request):
     logger.debug(request)
     return render(request, 'pages/base.html',status = status.HTTP_200_OK)
+
 
 def home_page(request):
     return render(request, 'pages/home.html',status = status.HTTP_200_OK)
@@ -43,6 +50,7 @@ def register_user(request):
         print(serializers)
         if serializers.is_valid():
             serializers.save()
+
             return Response(serializers.data, status=status.HTTP_201_CREATED)
         else:
             print(serializers.errors)
@@ -60,9 +68,10 @@ def login_user(request):
             nick = serializer.validated_data['nick']
             password = serializer.validated_data['password']
             user = authenticate(request, username=nick, password=password)
+            print(user)
             if user is not None:
                 login(request, user)
-                #send_verification_email(user)
+                send_verification_email(user)
                 return Response({'success': True, 'message': 'Giriş başarılı!'}, status=status.HTTP_200_OK)
             else:
                 return Response({'success': False, 'message': 'Geçersiz kullanıcı adı veya şifre.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -71,28 +80,59 @@ def login_user(request):
     elif request.method == 'GET':
         return render(request, 'pages/logIn.html',status = status.HTTP_200_OK)
 
-@api_view(['GET'])
-def activate_user(request, uidb64, token):
-    try:
-        uid = urlsafe_base64_decode(uidb64).decode()
-        user = User.objects.get(id=uid)
-    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-        user = None
 
-    if user is not None and default_token_generator.check_token(user, token):
-        user.is_active = True
+@api_view(['GET'])
+def activate_user(request):
+    token = request.GET.get('token')  # Query parametre olarak token alınır
+
+    try:
+        decoded_token = AccessToken(token)
+        user_id = decoded_token['user_id']
+        user = User.objects.get(id=user_id)
+        user.is_active = True  # Kullanıcıyı aktif hale getir
         user.save()
-        return redirect('login',status = status.HTTP_200_OK)
-    else:
-        return Response({'success': False, 'message': 'Aktivasyon başarısız.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'success': True, 'message': 'Email başarıyla doğrulandı!'}, status=200)
+    except Exception as e:
+        return Response({'success': False, 'message': str(e)}, status=400)
+    
+def generate_activation_token(user):
+    refresh = RefreshToken.for_user(user)
+    token = refresh.access_token  # Aktivasyon için sadece access token kullanılır
+    token.set_exp(lifetime=timedelta(minutes=2))  # Token süresi 10 dakika
+    return str(token)
 
 def send_verification_email(user):
-    token = default_token_generator.make_token(user)
-    uid = urlsafe_base64_encode(str(user.id).encode())
-    activation_link = reverse('activate', kwargs={'uidb64': uid, 'token': token})
-    activation_url = f'http://localhost:8000{activation_link}'
+    token = generate_activation_token(user)
+    # activation_link = reverse('activate', kwargs={'uidb64': uid, 'token': token})
+    activation_url = f'http://localhost:8000/verify?token={token}'
 
     subject = 'Email Verification'
     message = f'Please verify your email by clicking the following link: {activation_url}'
     host_email = settings.EMAIL_HOST_USER
     send_mail(subject, message, host_email, [user.email])
+
+def verify_page(request):
+    # Eğer 'token' URL parametresinde varsa, doğrudan doğrulamayı yapalım
+    token = request.GET.get('token')
+    if token:
+        return verify_token(request)
+
+    # 'token' parametresi yoksa, doğrulama bekleniyor sayfasını render et
+    return render(request, 'pages/verify.html')
+
+def verify_token(request):
+    token = request.GET.get('token')
+    if not token:
+        return JsonResponse({'success': False, 'message': 'Token bulunamadı.'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        # Token'ı doğrula
+        UntypedToken(token)
+        return redirect('user')
+    except (InvalidToken, TokenError):
+        return redirect('not_verified')
+
+
+def verify_fail(request):
+    return render(request, 'pages/notverified.html', status=200) #TODO: burası 401 olunca patıyor bakılcak
