@@ -3,31 +3,24 @@ window.addEventListener('DOMContentLoaded', (event) => {
     navigateTo(initialPage);
 });
 
-// window.onbeforeunload = function(event) {
-//     event.preventDefault();
-//   };
-
-  function navigateTo(page) {
+function navigateTo(page) {
     const content = document.getElementById('content');
-    console.log(content);
 
     // Yeni içeriği yükle
     fetch(`/${page}`)
         .then(response => {
-            console.log('Gelen Yanıt Durumu:', response.status);
             if (!response.ok) throw new Error(`Sayfa bulunamadı: ${response.status}`);
             return response.text();
         })
         .then(html => {
-            console.log(`Yeni içerik yüklendi: ${page}`);
             content.innerHTML = html;
 
-            // Sayfa yüklenince JavaScript dosyalarını yeniden yükle
-            const scripts = content.querySelectorAll('script');
-            scripts.forEach(script => {
+            // Sayfa yüklenince gerekli JS işlemleri
+            const newScripts = content.querySelectorAll('script');
+            newScripts.forEach(script => {
                 const newScript = document.createElement('script');
                 newScript.src = script.src;
-                newScript.onload = () => console.log(`Script yüklendi: ${script.src}`);
+                newScript.defer = true;
                 document.body.appendChild(newScript);
             });
 
@@ -36,16 +29,15 @@ window.addEventListener('DOMContentLoaded', (event) => {
             window.history.pushState({ page }, '', newUrl);
         })
         .catch(error => {
-            console.error('Fetch hatası:', JSON.stringify(error));
             content.innerHTML = `<p class="text-danger">Hata: ${error.message}</p>`;
         });
 }
-
 
 window.addEventListener('popstate', (event) => {
     const page = event.state?.page || 'home';
     navigateTo(page);
 });
+
 
 
 

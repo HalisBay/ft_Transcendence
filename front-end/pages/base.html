@@ -1,4 +1,3 @@
-<!-- base.html -->
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -9,9 +8,10 @@
     <title>{% block title %}Halimus{% endblock %}</title>
 </head>
 <body>
+    <div id="content">
         {% block content %}
-            <div id="content"></div>
         {% endblock %}
-    <script src="{% static 'assets/js/script.js' defer %}"></script>
+    </div>
+    <script src="{% static 'assets/js/script.js' %}" defer></script>
 </body>
 </html>
