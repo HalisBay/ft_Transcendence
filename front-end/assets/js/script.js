@@ -87,6 +87,8 @@ function submitFormOne(event) {
             // Başarılı olursa kullanıcıyı login sayfasına yönlendir
             navigateTo('verify');
         } else {
+            localStorage.setItem('access_token', data.access_token);
+            navigateTo('user');
             // Hata varsa, hata mesajını göster
             document.getElementById('message').innerHTML = data.message;
         }

@@ -1,1 +1,4 @@
 *.env
+halimus/transcendence/migrations
+halimus/transcendence/__pycache__
+halimus/halimus/__pycache__
