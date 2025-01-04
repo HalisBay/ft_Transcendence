@@ -56,11 +56,7 @@ function submitForm(event) {
             // Başarılı olursa kullanıcıyı login sayfasına yönlendir
             navigateTo('login');
         } else {
-            //TODO: Burası hallolcak
-            let messageContent = '';
-            data.messages.forEach(msg => {
-                messageContent += `<p class="message">${msg}</p>`; // Mesajları liste olarak ekle
-            });
+            //TODO: Burası hallolcak 
             document.getElementById('message').innerHTML = messageContent;  // messageContent kullan
         }
     })

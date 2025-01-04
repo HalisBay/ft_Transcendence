@@ -27,13 +27,22 @@ from django.http import HttpResponseRedirect
 logger = logging.getLogger(__name__)
 User = get_user_model() # merkezi yapıda kullanmak için bi dosya vs olabilir.
 
+
+
+def anonymous_only(view_function):
+    def wrapper_function(request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect('user')  # Giriş yapmış kullanıcıları yönlendireceğiniz sayfa
+        return view_function(request, *args, **kwargs)
+    return wrapper_function
+
+@anonymous_only
+def home_page(request):
+    return render(request, 'pages/home.html',status = status.HTTP_200_OK)
+
 def index_page(request):
     logger.debug(request)
     return render(request, 'pages/base.html',status = status.HTTP_200_OK)
-
-
-def home_page(request):
-    return render(request, 'pages/home.html',status = status.HTTP_200_OK)
 
 @login_required
 def user_page(request):
@@ -46,17 +55,24 @@ def logout_page(request):
 @api_view(['GET', 'POST'])
 def register_user(request):
     if request.method == 'POST':
-        serializers = UserSerializer(data = request.data)
-        print(serializers)
+        serializers = UserSerializer(data=request.data)
         if serializers.is_valid():
             serializers.save()
-
-            return Response(serializers.data, status=status.HTTP_201_CREATED)
+            response_data = {
+                "success": True,
+                "data": serializers.data,
+            }
+            messages.success(request, "Kayıt başarılı! Giriş yapabilirsiniz.")
+            return JsonResponse(response_data, status=status.HTTP_201_CREATED)
         else:
-            print(serializers.errors)
-            return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+            response_data = {
+                "success": False,
+                "messages": serializers.errors,
+            }
+            return JsonResponse(response_data, status=status.HTTP_400_BAD_REQUEST)
     elif request.method == 'GET':
-        return render(request, 'pages/signUp.html',status = status.HTTP_200_OK)
+        return render(request, 'pages/signUp.html', status=status.HTTP_200_OK)
+
 
 
 
@@ -70,8 +86,8 @@ def login_user(request):
             user = authenticate(request, username=nick, password=password)
             print(user)
             if user is not None:
-                login(request, user)
                 send_verification_email(user)
+                login(request, user)
                 return Response({'success': True, 'message': 'Giriş başarılı!'}, status=status.HTTP_200_OK)
             else:
                 return Response({'success': False, 'message': 'Geçersiz kullanıcı adı veya şifre.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -136,3 +152,4 @@ def verify_token(request):
 
 def verify_fail(request):
     return render(request, 'pages/notverified.html', status=200) #TODO: burası 401 olunca patıyor bakılcak
+
