@@ -30,49 +30,17 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from functools import wraps
+from .requireds import jwt_required,notlogin_required
 logger = logging.getLogger(__name__)
 User = get_user_model() # merkezi yapıda kullanmak için bi dosya vs olabilir.
 
-def jwt_required(view_func):
-    """
-    Custom decorator for checking the validity of JWT in requests.
-    """
-    @wraps(view_func)
-    def _wrapped_view(request, *args, **kwargs):
-        # JWT token'ı header'dan alıyoruz
-        token = request.COOKIES.get('access_token')
-        
-        if not token:
-            return JsonResponse({'success': False, 'message': 'Geçersiz veya eksik token.'}, status=401)
-        
-        try:
-            # JWT token doğrulaması
-            JWTAuthentication().authenticate(request)
-        except AuthenticationFailed:
-            return JsonResponse({'success': False, 'message': 'Geçersiz veya eksik token.'}, status=401)
-        
-        return view_func(request, *args, **kwargs)
 
-    return _wrapped_view
-
-
-
-
-def anonymous_only(view_function):
-    def wrapper_function(request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return redirect('user')  # Giriş yapmış kullanıcıları yönlendireceğiniz sayfa
-        return view_function(request, *args, **kwargs)
-    return wrapper_function
-
-@anonymous_only
-def home_page(request):
-    return render(request, 'pages/home.html',status = status.HTTP_200_OK)
 
 def index_page(request):
     logger.debug(request)
     return render(request, 'pages/base.html',status = status.HTTP_200_OK)
 
+@notlogin_required
 def home_page(request):
     return render(request, 'pages/home.html',status = status.HTTP_200_OK)
 
@@ -88,7 +56,8 @@ def logout_page(request):
 @api_view(['GET', 'POST'])
 def register_user(request):
     if request.method == 'POST':
-        serializers = UserSerializer(data=request.data)
+        serializers = UserSerializer(data = request.data)
+        print(serializers)
         if serializers.is_valid():
             serializers.save()
             response_data = {
@@ -96,16 +65,12 @@ def register_user(request):
                 "data": serializers.data,
             }
             messages.success(request, "Kayıt başarılı! Giriş yapabilirsiniz.")
-            return JsonResponse(response_data, status=status.HTTP_201_CREATED)
+            return Response(response_data, status=status.HTTP_201_CREATED)
         else:
-            response_data = {
-                "success": False,
-                "messages": serializers.errors,
-            }
-            return JsonResponse(response_data, status=status.HTTP_400_BAD_REQUEST)
+            print(serializers.errors)
+            return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
     elif request.method == 'GET':
-        return render(request, 'pages/signUp.html', status=status.HTTP_200_OK)
-
+        return render(request, 'pages/signUp.html',status = status.HTTP_200_OK)
 
 
 
@@ -123,7 +88,6 @@ def login_user(request):
                 access_token = str(refresh.access_token)
                 login(request, user)
                 send_verification_email(user)
-                # Geriye token ve başarı mesajı dönüyoruz
                 response = JsonResponse({
                     'success': True,
                     'message': 'Giriş başarılı!',
@@ -132,8 +96,6 @@ def login_user(request):
                     'access_token', access_token, httponly=True, secure=True, samesite='Lax'
                 )
                 return response
-                login(request, user)
-                return Response({'success': True, 'message': 'Giriş başarılı!'}, status=status.HTTP_200_OK)
             else:
                 return Response({'success': False, 'message': 'Geçersiz kullanıcı adı veya şifre.'}, status=status.HTTP_400_BAD_REQUEST)
         else:
@@ -197,5 +159,3 @@ def verify_token(request):
 
 def verify_fail(request):
     return render(request, 'pages/notverified.html', status=200) #TODO: burası 401 olunca patıyor bakılcak
-
-
