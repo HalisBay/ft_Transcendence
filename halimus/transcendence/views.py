@@ -32,7 +32,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from functools import wraps
 from .requireds import jwt_required,notlogin_required
 logger = logging.getLogger(__name__)
-User = get_user_model() # merkezi yapıda kullanmak için bi dosya vs olabilir.
+User = get_user_model() #TODO:merkezi yapıda kullanmak için bi dosya vs olabilir.
 
 
 
@@ -50,7 +50,7 @@ def user_page(request):
     return render(request, 'pages/userInterface.html',status = status.HTTP_200_OK)
 
 def logout_page(request):
-    logout(request)  # Kullanıcının oturumunu sonlandırır
+    logout(request)
     return redirect('login') 
 
 @api_view(['GET', 'POST'])
@@ -82,37 +82,43 @@ def login_user(request):
             nick = serializer.validated_data['nick']
             password = serializer.validated_data['password']
             user = authenticate(request, username=nick, password=password)
-            if user is not None:
-                # JWT token oluşturma
-                refresh = RefreshToken.for_user(user)
-                access_token = str(refresh.access_token)
-                login(request, user)
-                send_verification_email(user)
-                response = JsonResponse({
-                    'success': True,
-                    'message': 'Giriş başarılı!',
-                })
-                response.set_cookie(
-                    'access_token', access_token, httponly=True, secure=True, samesite='Lax'
-                )
-                return response
+            if user:#alinin butonu ve model ayarlancak
+                if True:
+                    send_verification_email(user)
+                    return Response({'success': True, 'message': '2FA doğrulaması gerekiyor. Lütfen e-postanızı kontrol edin.'})
+                else:
+                    return perform_login(request, user)
             else:
                 return Response({'success': False, 'message': 'Geçersiz kullanıcı adı veya şifre.'}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     elif request.method == 'GET':
         return render(request, 'pages/logIn.html',status = status.HTTP_200_OK)
 
 
+def perform_login(request, user):
+    refresh = RefreshToken.for_user(user)
+    access_token = str(refresh.access_token)
+    login(request, user)
+    
+    messages.success(request, "Giriş başarılı!")
+    
+    response = redirect('user')
+    response.set_cookie(
+        'access_token', access_token, httponly=True, secure=True, samesite='Lax'
+    )
+    return response
+
+
+
 @api_view(['GET'])
 def activate_user(request):
-    token = request.GET.get('token')  # Query parametre olarak token alınır
+    token = request.GET.get('token')
 
     try:
         decoded_token = AccessToken(token)
         user_id = decoded_token['user_id']
         user = User.objects.get(id=user_id)
-        user.is_active = True  # Kullanıcıyı aktif hale getir
+        user.is_active = True 
         user.save()
 
         return Response({'success': True, 'message': 'Email başarıyla doğrulandı!'}, status=200)
@@ -122,12 +128,11 @@ def activate_user(request):
 def generate_activation_token(user):
     refresh = RefreshToken.for_user(user)
     token = refresh.access_token  # Aktivasyon için sadece access token kullanılır
-    token.set_exp(lifetime=timedelta(minutes=2))  # Token süresi 10 dakika
+    token.set_exp(lifetime=timedelta(minutes=5))  # Token süresi 10 dakika
     return str(token)
 
 def send_verification_email(user):
     token = generate_activation_token(user)
-    # activation_link = reverse('activate', kwargs={'uidb64': uid, 'token': token})
     activation_url = f'http://localhost:8000/verify?token={token}'
 
     subject = 'Email Verification'
@@ -136,26 +141,24 @@ def send_verification_email(user):
     send_mail(subject, message, host_email, [user.email])
 
 def verify_page(request):
-    # Eğer 'token' URL parametresinde varsa, doğrudan doğrulamayı yapalım
     token = request.GET.get('token')
     if token:
         return verify_token(request)
-
-    # 'token' parametresi yoksa, doğrulama bekleniyor sayfasını render et
     return render(request, 'pages/verify.html')
 
+@api_view(['GET'])
 def verify_token(request):
     token = request.GET.get('token')
     if not token:
-        return JsonResponse({'success': False, 'message': 'Token bulunamadı.'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'success': False, 'message': 'Token bulunamadı.'}, status=status.HTTP_400_BAD_REQUEST)
     
     try:
-        # Token'ı doğrula
-        UntypedToken(token)
-        return redirect('user')
-    except (InvalidToken, TokenError):
-        return redirect('not_verified')
-
+        decoded_token = UntypedToken(token)
+        user_id = decoded_token['user_id']
+        user = User.objects.get(id=user_id)
+        return perform_login(request, user)
+    except (InvalidToken, TokenError, User.DoesNotExist):
+        return Response({'success': False, 'message': 'Geçersiz veya süresi dolmuş token.'}, status=status.HTTP_400_BAD_REQUEST)
 
 def verify_fail(request):
     return render(request, 'pages/notverified.html', status=200) #TODO: burası 401 olunca patıyor bakılcak
