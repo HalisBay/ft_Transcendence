@@ -16,12 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
-from django.urls import path, re_path 
+from django.urls import path, re_path
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 # from transcendence.views import spa
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('__debug__/', include('debug_toolbar.urls')),
     path('',include('transcendence.urls')),
-    # re_path(r'^.*$', spa),
+    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # Giriş için
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # Refresh için
 ]

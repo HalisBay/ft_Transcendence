@@ -15,13 +15,13 @@ function navigateTo(page) {
         .then(html => {
             content.innerHTML = html;
 
-            // Sayfa yüklenince gerekli JS işlemleri
             const newScripts = content.querySelectorAll('script');
             newScripts.forEach(script => {
                 const newScript = document.createElement('script');
                 newScript.src = script.src;
                 newScript.defer = true;
                 document.body.appendChild(newScript);
+                script.remove();  // Eski scripti kaldır
             });
 
             // URL'yi güncelle
@@ -81,6 +81,9 @@ function submitFormOne(event) {
     .then(data => {
         console.log(JSON.stringify(data));
         if (data.success) {
+            // JWT token'ı localStorage'a kaydediyoruz
+            localStorage.setItem('access_token', data.access_token);
+
             // Başarılı olursa kullanıcıyı login sayfasına yönlendir
             navigateTo('verify');
         } else {

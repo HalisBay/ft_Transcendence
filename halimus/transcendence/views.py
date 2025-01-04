@@ -23,9 +23,38 @@ from datetime import datetime, timedelta
 from rest_framework_simplejwt.tokens import UntypedToken
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from django.http import HttpResponseRedirect
-
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.exceptions import AuthenticationFailed
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from functools import wraps
 logger = logging.getLogger(__name__)
 User = get_user_model() # merkezi yapıda kullanmak için bi dosya vs olabilir.
+
+def jwt_required(view_func):
+    """
+    Custom decorator for checking the validity of JWT in requests.
+    """
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        # JWT token'ı header'dan alıyoruz
+        token = request.COOKIES.get('access_token')
+        
+        if not token:
+            return JsonResponse({'success': False, 'message': 'Geçersiz veya eksik token.'}, status=401)
+        
+        try:
+            # JWT token doğrulaması
+            JWTAuthentication().authenticate(request)
+        except AuthenticationFailed:
+            return JsonResponse({'success': False, 'message': 'Geçersiz veya eksik token.'}, status=401)
+        
+        return view_func(request, *args, **kwargs)
+
+    return _wrapped_view
+
 
 
 
@@ -44,7 +73,11 @@ def index_page(request):
     logger.debug(request)
     return render(request, 'pages/base.html',status = status.HTTP_200_OK)
 
+def home_page(request):
+    return render(request, 'pages/home.html',status = status.HTTP_200_OK)
+
 @login_required
+@jwt_required
 def user_page(request):
     return render(request, 'pages/userInterface.html',status = status.HTTP_200_OK)
 
@@ -84,9 +117,21 @@ def login_user(request):
             nick = serializer.validated_data['nick']
             password = serializer.validated_data['password']
             user = authenticate(request, username=nick, password=password)
-            print(user)
             if user is not None:
+                # JWT token oluşturma
+                refresh = RefreshToken.for_user(user)
+                access_token = str(refresh.access_token)
+                login(request, user)
                 send_verification_email(user)
+                # Geriye token ve başarı mesajı dönüyoruz
+                response = JsonResponse({
+                    'success': True,
+                    'message': 'Giriş başarılı!',
+                })
+                response.set_cookie(
+                    'access_token', access_token, httponly=True, secure=True, samesite='Lax'
+                )
+                return response
                 login(request, user)
                 return Response({'success': True, 'message': 'Giriş başarılı!'}, status=status.HTTP_200_OK)
             else:
@@ -152,4 +197,5 @@ def verify_token(request):
 
 def verify_fail(request):
     return render(request, 'pages/notverified.html', status=200) #TODO: burası 401 olunca patıyor bakılcak
+
 
