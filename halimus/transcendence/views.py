@@ -159,3 +159,16 @@ def verify_token(request):
 
 def verify_fail(request):
     return render(request, 'pages/notverified.html', status=200) #TODO: burası 401 olunca patıyor bakılcak
+
+def activate_2fa(request):
+    user = request.user
+    if request.method == 'POST':
+        if user.is_2fa_active:
+            user.is_2fa_active = False
+        else:
+            user.is_2fa_active = True
+        user.save()
+        print(user)
+        print(user.is_2fa_active)
+        return JsonResponse({"success": True, "message": "2FA başarıyla etkinleştirildi."})
+    return JsonResponse({"success": False, "message": "Geçersiz istek."}, status=400)

@@ -14,4 +14,5 @@ urlpatterns = [
     path('user', views.user_page, name='user'),
     path('logout', views.logout_page, name='logout'),
     path('notverified', views.verify_fail, name='not_verified'),
+    path('user/activate2fa', views.activate_2fa, name='user_2fa'),
 ]

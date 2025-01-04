@@ -5,6 +5,7 @@
 
 {% block content %}
 <div class="container">
+    <meta name="csrf-token" content="{{ csrf_token }}">
     <div class="user-card">
         <div class="user-info">
             <p><strong>Adı:</strong> <span id="username"></span></p>
@@ -16,6 +17,7 @@
         <button class="btn-white" onclick="navigateTo('assets/Game')">Game</button>
         <button class="btn-white" onclick="navigateTo('home')">Ana sayfa</button>
         <button class="btn-white" onclick="navigateTo('logout')">Log out</button>
+        <button class="btn-white" onclick="activate2FA()">Enable/Disable 2FA</button>
     </div>
 
     <div class="chat-btn" onclick="toggleChatBoxes('chat-box')">CHAT</div>

@@ -18,6 +18,7 @@ class User(AbstractBaseUser):
     is_active = models.BooleanField(default=True)#default false olarak ayarlanacak kullanıcı login olurken true olucak
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)  # Varsayılan olarak şimdiye ayarlanır
+    is_2fa_active = models.BooleanField(default=False)
 
     objects = UserManager()
 

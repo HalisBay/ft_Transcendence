@@ -96,6 +96,30 @@ function submitFormOne(event) {
     });
 }
 
+function activate2FA() {
+    const csrfToken = getCsrfToken();
+    fetch('/user/activate2fa', {  // URL burada 'user/activate-2fa/' olarak kaldı
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('2FA başarıyla etkinleştirildi!');
+        }
+    })
+    .catch(error => {
+        console.error('Hata oluştu:', error);
+    });
+}
+
+function getCsrfToken() {
+    return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+}
+
 function toggleChatBoxes(targetBoxClass) {
     const chatBox = document.querySelector('.chat-box');
     const friendsBox = document.querySelector('.friends-box');
