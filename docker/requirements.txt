@@ -1,7 +1,9 @@
-Django>=4.0,<5.0
+Django==4.0.0
 psycopg2>=2.9.0
 django-environ
 djangorestframework==3.14.0
 debugpy==1.8.11
 django-debug-toolbar
 djangorestframework-simplejwt
+channels==3.0.4
+channels_redis

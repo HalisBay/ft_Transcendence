@@ -26,4 +26,5 @@ urlpatterns = [
     path('',include('transcendence.urls')),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # Giriş için
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # Refresh için
+    path('game/', include('pong.urls')),
 ]

@@ -34,9 +34,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'transcendence',
     'django.contrib.sites',
-    'debug_toolbar',
+    #'debug_toolbar',
     'rest_framework',
     'rest_framework_simplejwt',
+    'channels',
+    'pong',
 ]
 
 MIDDLEWARE = [
@@ -47,7 +49,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware'
+    #'debug_toolbar.middleware.DebugToolbarMiddleware'
 ]
 
 ROOT_URLCONF = 'halimus.urls'
@@ -70,8 +72,17 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'halimus.wsgi.application'
+ASGI_APPLICATION = 'halimus.asgi.application'
 
 
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('redis', 6380)],
+        },
+    },
+}
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 

@@ -31,6 +31,12 @@ services:
       start_period: 30s    # Konteyner başlatıldığında ilk sağlık kontrolünün başlaması için bekleme süresi
       timeout: 5s 
 
+  redis:
+    container_name: redis
+    image: redis
+    command: ["redis-server", "--port", "6380"]
+    ports:
+      - "6380:6380"
 
   frontend:
     build:

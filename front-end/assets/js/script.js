@@ -1,5 +1,5 @@
 window.addEventListener('DOMContentLoaded', (event) => {
-    const initialPage = window.location.pathname.split('/')[1] || 'home';
+    const initialPage = window.location.pathname.substring(1) || 'home';
     navigateTo(initialPage);
 });
 
@@ -27,11 +27,17 @@ function navigateTo(page) {
             // URL'yi güncelle
             const newUrl = `/${page}`;
             window.history.pushState({ page }, '', newUrl);
+
+            // WebSocket bağlantısını kontrol et veya başlat
+            if (page === 'game/pong') {
+                initiateWebSocketConnection();
+            }
         })
         .catch(error => {
             content.innerHTML = `<p class="text-danger">Hata: ${error.message}</p>`;
         });
 }
+
 
 window.addEventListener('popstate', (event) => {
     const page = event.state?.page || 'home';
@@ -97,6 +103,44 @@ function submitFormOne(event) {
         document.getElementById('message').innerHTML = 'Bir hata oluştu: ' + error.message;
     });
 }
+function initiateWebSocketConnection() {
+    const socket = new WebSocket('ws://' + window.location.host + '/ws/pong/');
+    
+    socket.onopen = () => {
+        console.log('WebSocket bağlantısı başarıyla açıldı.');
+    };
+    
+    socket.onmessage = (event) => {
+        console.log('Mesaj alındı:', event.data);
+        const data = JSON.parse(event.data);
+
+        if (data.type === 'game_state') {
+            // Update ball and paddles based on game state
+            ball.style.left = data.state.ball.x + 'px';
+            ball.style.top = data.state.ball.y + 'px';
+            player1.style.top = data.state.players.player1.y + 'px';
+            player2.style.top = data.state.players.player2.y + 'px';
+        }
+    };
+
+    socket.onerror = (error) => {
+        console.error('WebSocket hatası:', error);
+    };
+
+    socket.onclose = (event) => {
+        console.log('WebSocket bağlantısı kapandı:', event);
+    };
+
+    // Handle player movement
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'w') {
+            socket.send(JSON.stringify({ move: 'up' }));
+        } else if (e.key === 's') {
+            socket.send(JSON.stringify({ move: 'down' }));
+        }
+    });
+}
+
 
 function activate2FA() {
     const csrfToken = getCsrfToken();
