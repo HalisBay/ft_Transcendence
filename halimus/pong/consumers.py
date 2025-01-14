@@ -64,7 +64,7 @@ class PongConsumer(AsyncWebsocketConsumer):
             player = game_state['players'][self.player_id]
             if direction == 'up' and player['y'] > 0:
                 player['y'] -= 5
-            elif direction == 'down' and player['y'] < 80:  # Duvar sınırı
+            elif direction == 'down' and player['y'] < 520:  # yükseklik - paddle
                 player['y'] += 5
 
     async def start_game(self):
@@ -96,24 +96,24 @@ class PongConsumer(AsyncWebsocketConsumer):
             players = game_state['players']
 
             # Topun pozisyonunu güncelle
-            ball['x'] += ball['vx']
-            ball['y'] += ball['vy']
+            ball['x'] += ball['vx'] * 5
+            ball['y'] += ball['vy'] * 5
 
             # Duvara çarpma kontrolü
-            if ball['y'] >= 100 or ball['y'] <= 0:
+            if ball['y'] >= 570 or ball['y'] < 2:
                 ball['vy'] = -ball['vy']
 
             # Çubuğa çarpma kontrolü
-            if ball['x'] <= 5 and players['player1']['y'] <= ball['y'] <= players['player1']['y'] + 20:
+            if ball['x'] <= 5 and players['player1']['y'] <= ball['y'] <= players['player1']['y'] + 60:
                 ball['vx'] = -ball['vx']
-            elif ball['x'] >= 95 and players['player2']['y'] <= ball['y'] <= players['player2']['y'] + 20:
+            elif ball['x'] >= 985 and players['player2']['y'] <= ball['y'] <= players['player2']['y'] + 60:
                 ball['vx'] = -ball['vx']
 
             # Top dışarı çıkarsa sayı ve sıfırlama
             if ball['x'] < 0:  # Player 1 kaçırırsa
                 game_state['scores']['player2'] += 1
                 await self.reset_ball(direction=1)
-            elif ball['x'] > 100:  # Player 2 kaçırırsa
+            elif ball['x'] > 990:  # Player 2 kaçırırsa
                 game_state['scores']['player1'] += 1
                 await self.reset_ball(direction=-1)
 
@@ -131,8 +131,8 @@ class PongConsumer(AsyncWebsocketConsumer):
     async def reset_ball(self, direction):
         global game_state
         game_state['ball'] = {
-            'x': 50.0,
-            'y': 50.0,
+            'x': 500.0,
+            'y': 290.0,
             'vx': direction * 1.0,
             'vy': 1.0
         }
