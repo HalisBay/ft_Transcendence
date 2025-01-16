@@ -13,11 +13,21 @@
             <p><strong>E-posta:</strong> <span id="email"></span></p>
         </div>
     </div>
-    <div class="buttons">
+
+<div class="buttons">
         <button class="btn-white" onclick="navigateTo('game/home')">Game</button>
         <button class="btn-white" onclick="navigateTo('home')">Ana sayfa</button>
+        <button class="btn-white" onclick="navigateTo('user/update')">up</button>
         <button class="btn-white" onclick="navigateTo('logout')">Log out</button>
         <button class="btn-white" onclick="activate2FA()">Enable/Disable 2FA</button>
+
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <p class="message {{ message.tags }}">{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
     </div>
 
     <div class="chat-btn" onclick="toggleChatBoxes('chat-box')">CHAT</div>

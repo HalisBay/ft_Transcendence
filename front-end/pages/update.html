@@ -1,0 +1,51 @@
+{% extends 'pages/base.html' %}
+
+{% block title %}Kullanıcı Bilgilerini Güncelle{% endblock %}
+
+{% block content %}
+<h1>Kullanıcı Bilgilerini Güncelle</h1>
+
+<!-- Kullanıcı Adı Güncelleme -->
+<form method="POST" action="{% url 'update_nick' %}">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="nick">Kullanıcı Adı:</label>
+        <input type="text" class="input-field" name="nick" placeholder="Kullanıcı Adı" value="{{ user.nick }}">
+    </div>
+    <button type="submit">Güncelle</button>
+</form>
+
+<!-- E-posta Güncelleme -->
+<form method="POST" action="{% url 'update_email' %}">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="email">E-posta:</label>
+        <input type="email" class="input-field" name="email" placeholder="E-posta" value="{{ user.email }}">
+    </div>
+    <button type="submit">Güncelle</button>
+</form>
+
+<!-- Şifre Güncelleme -->
+<form method="POST" action="{% url 'update_password' %}">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="new_password">Yeni Şifre:</label>
+        <input type="password" class="input-field" name="new_password" placeholder="Yeni Şifre">
+    </div>
+    <div class="form-group">
+        <label for="new_password_confirm">Yeni Şifre (Tekrar):</label>
+        <input type="password" class="input-field" name="new_password_confirm" placeholder="Yeni Şifre Tekrar">
+    </div>
+    <button type="submit">Güncelle</button>
+    
+</form>
+<button class="btn-white" onclick="navigateTo('user')">geri dön</button>
+
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+        <p class="message {{ message.tags }}">{{ message }}</p>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

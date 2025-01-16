@@ -8,7 +8,6 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['nick', 'email', 'password']
-
     def validate_nick(self, value):
         if User.objects.filter(nick=value).exists():
             raise serializers.ValidationError('Bu nick zaten kullanılıyor.')
@@ -25,6 +24,7 @@ class UserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Bu e-posta zaten kullanılıyor.')
         return value
 
+
     def validate_password(self, value):
         # Şifre doğrulama
         if len(value) < 8:
@@ -37,11 +37,25 @@ class UserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Şifre en az bir özel karakter içermelidir.')
         return value
 
+
     def create(self, validated_data):
         # Şifreyi şifrele ve kullanıcıyı oluştur
         validated_data['password'] = make_password(validated_data['password'])
         user = User.objects.create(**validated_data)
         return user
+
+        
+    def update(self, instance, validated_data):
+        # Şifreyi güncellerken hashlemek için
+        for attr, value in validated_data.items():
+            if attr == 'password' and value:
+                    validated_data['password'] = make_password(validated_data['password'])
+            elif value is not None:
+                setattr(instance, attr, value)  # Diğer alanları güncelle
+        user = User.objects.update(**validated_data)
+        return user
+
+
 
 User = get_user_model()
 

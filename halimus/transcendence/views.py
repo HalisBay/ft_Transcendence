@@ -1,14 +1,13 @@
 from django.shortcuts import render,redirect
-from django.http import HttpResponse,HttpRequest
+from django.http import HttpResponse,HttpRequest,JsonResponse,HttpResponseRedirect
 from django.contrib import messages
-from django.http import JsonResponse
-from django.contrib.auth import authenticate,login,logout
+from django.contrib.auth import authenticate,login,logout,get_user_model,update_session_auth_hash
 from .models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken,AccessToken,UntypedToken
 from django.urls import reverse 
 import logging
 from django.conf import settings
@@ -17,20 +16,14 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .serializers import UserSerializer,LoginSerializer
-from django.contrib.auth import get_user_model
-from rest_framework_simplejwt.tokens import AccessToken
 from datetime import datetime, timedelta
-from rest_framework_simplejwt.tokens import UntypedToken
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
-from django.http import HttpResponseRedirect
 from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
-from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from functools import wraps
 from .requireds import jwt_required,notlogin_required
+from django.shortcuts import get_object_or_404
 logger = logging.getLogger(__name__)
 User = get_user_model() #TODO:merkezi yapıda kullanmak için bi dosya vs olabilir.
 
@@ -181,3 +174,72 @@ def activate_2fa(request):
         print(user.is_2fa_active)
         return JsonResponse({"success": True, "message": "2FA başarıyla etkinleştirildi."})
     return JsonResponse({"success": False, "message": "Geçersiz istek."}, status=400)
+
+
+@login_required
+@jwt_required
+def update(request):
+    return render(request, 'pages/update.html',status = status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+def update_nick(request):
+    user = request.user
+    nick = request.POST.get('nick')
+    if not nick:
+        messages.error(request, "Kullanıcı adı boş olamaz.")
+        return redirect('update')
+    
+    # Serializer ile güncelleme
+    serializer = UserSerializer(user, data={'nick': nick}, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        messages.success(request, "Kullanıcı adı başarıyla güncellendi.")
+        return redirect('logout')
+    else:
+        messages.error(request, serializer.errors.get('nick', ["Bir hata oluştu."])[0])
+    
+    return redirect('update')
+    
+
+
+@api_view(['POST'])
+def update_email(request):
+    user = request.user
+    email = request.POST.get('email')
+    if not email:
+        messages.error(request, "E-posta boş olamaz.")
+        return redirect('update')
+    
+    serializer = UserSerializer(user, data={'email': email}, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        messages.success(request, "E-posta başarıyla güncellendi.")
+        return redirect('logout')
+    else:
+        messages.error(request, serializer.errors.get('email', ["Bir hata oluştu."])[0])
+    return redirect('update')
+    
+
+@api_view(['POST'])
+def update_password(request):
+    user = request.user
+    new_password = request.POST.get('new_password')
+    new_password_confirm = request.POST.get('new_password_confirm')
+    if not new_password or not new_password_confirm:
+        messages.error(request, "Şifre alanları boş olamaz.")
+        return redirect('update')
+    
+    if new_password != new_password_confirm:
+        request.user.password = new_password
+        messages.error(request, "Şifreler eşleşmiyor.")
+        return redirect('update')
+    
+    serializer = UserSerializer(user, data={'password': new_password},partial =True)
+    if serializer.is_valid():
+        serializer.save()
+        return redirect('logout')
+    else:
+        messages.error(request, serializer.errors.get('password', ["Bir hata oluştu."])[0])
+    return redirect('update')
+

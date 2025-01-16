@@ -30,7 +30,6 @@ class User(AbstractBaseUser):
 
 
 
-
 # class MatchHistory(models.Model):
 #     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='match_history')
 #     result = models.BooleanField()  # Kazandı mı? (True: kazandı, False: kaybetti)

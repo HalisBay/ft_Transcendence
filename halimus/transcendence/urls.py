@@ -15,4 +15,9 @@ urlpatterns = [
     path('logout', views.logout_page, name='logout'),
     path('notverified', views.verify_fail, name='not_verified'),
     path('user/activate2fa', views.activate_2fa, name='user_2fa'),
+    path('user/update', views.update, name='update'),
+    path('user/update/nick', views.update_nick, name='update_nick'),
+    path('user/update/email', views.update_email, name='update_email'),
+    path('user/update/password', views.update_password, name='update_password'),
+
 ]
