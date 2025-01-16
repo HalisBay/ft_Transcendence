@@ -243,3 +243,17 @@ def update_password(request):
         messages.error(request, serializer.errors.get('password', ["Bir hata oluştu."])[0])
     return redirect('update')
 
+@login_required
+@jwt_required
+def delete_all(request):
+    if request.method == "POST":
+        input_text = request.POST.get("txt", "").strip().lower()  # Gelen metni al ve küçük harfe çevir
+        if input_text == "hesabımı sil":
+            user = request.user
+            user.delete() 
+            messages.success(request, "Hesabınız başarıyla silindi.")
+            return redirect("home")
+        else:
+            messages.error(request, "Yanlış metin girdiniz. Lütfen 'hesabımı sil' yazın.")
+            return render(request, 'pages/deleteall.html')  # Sayfayı yeniden yükle
+    return render(request, 'pages/deleteall.html')  # GET isteği için sayfayı yükle

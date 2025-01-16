@@ -19,5 +19,7 @@ urlpatterns = [
     path('user/update/nick', views.update_nick, name='update_nick'),
     path('user/update/email', views.update_email, name='update_email'),
     path('user/update/password', views.update_password, name='update_password'),
+    path('user/delete',views.delete_all, name='delete'),
+
 
 ]

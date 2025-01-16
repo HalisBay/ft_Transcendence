@@ -1,0 +1,52 @@
+{% extends 'pages/base.html' %}
+
+{% block title %}Hesabı sil{% endblock %}
+
+{% block content %}
+<h1>Hesabınızı sonsuza kadar silin</h1>
+<h3>Dikkat! Bütün verileriniz silinir ve daha sonra tekrar erişemezsiniz!</h3>
+
+<form method="POST" action="{% url 'delete' %}" id="deleteForm">
+    {% csrf_token %}
+    <div class="form-group">
+        <label>Aşağıya <strong>'hesabımı sil'</strong> yazdıktan sonra hesabınız kalıcı olarak silinir:</label>
+        <input type="text" id="deleteInput"class="input-field" name="txt" placeholder="hesabımı sil" oninput="checkInput()">
+    </div>
+    <button type="submit" id="deleteButton" disabled>Sil</button>
+    
+</form>
+<button class="btn-white" onclick="navigateTo('user')">vazgeç</button>
+
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+        <p class="message {{ message.tags }}">{{ message }}</p>
+    {% endfor %}
+</div>
+{% endif %}
+
+<script>
+    // Input değişikliklerini kontrol eden fonksiyon
+    function checkInput() {
+        const inputField = document.getElementById("deleteInput");
+        const deleteButton = document.getElementById("deleteButton");
+
+        if (inputField.value.trim().toLowerCase() === "hesabımı sil") {
+            deleteButton.disabled = false; // Butonu aktif hale getir
+        } else {
+            deleteButton.disabled = true; // Butonu devre dışı bırak
+        }
+    }
+
+    // Formun yanlışlıkla gönderilmesini önlemek için
+    document.getElementById("deleteForm").addEventListener("submit", function (event) {
+        const inputField = document.getElementById("deleteInput");
+
+        // Eğer input doğru değilse formu gönderme
+        if (inputField.value.trim().toLowerCase() !== "hesabımı sil") {
+            event.preventDefault();
+            alert("Lütfen doğru metni girin: 'hesabımı sil'");
+        }
+    });
+</script>
+{% endblock %}
