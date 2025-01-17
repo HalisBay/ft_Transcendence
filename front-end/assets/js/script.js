@@ -106,20 +106,32 @@ function submitFormOne(event) {
 function initiateWebSocketConnection() {
     const socket = new WebSocket('ws://' + window.location.host + '/ws/pong/');
     
+    const statusElement = document.getElementById('status');
+
     socket.onopen = () => {
         console.log('WebSocket bağlantısı başarıyla açıldı.');
+        statusElement.innerHTML = 'Connecting...';
     };
     
     socket.onmessage = (event) => {
         console.log('Mesaj alındı:', event.data);
         const data = JSON.parse(event.data);
 
-        if (data.type === 'game_state') {
-            // Update ball and paddles based on game state
+        if (data.type === 'game_message') {
+
+            statusElement.innerHTML = data.message;
+            if (data.scores) {
+                statusElement.innerHTML += `<br>Score: ${data.scores.player1} - ${data.scores.player2}`;
+            }
+        } else if (data.type === 'game_state') {
+            // Update status and score
             ball.style.left = data.state.ball.x + 'px';
             ball.style.top = data.state.ball.y + 'px';
             player1.style.top = data.state.players.player1.y + 'px';
             player2.style.top = data.state.players.player2.y + 'px';
+
+            // If scores are present, update score display
+            
         }
     };
 
@@ -133,13 +145,15 @@ function initiateWebSocketConnection() {
 
     // Handle player movement
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'w') {
+        if (e.key === 'w' || e.key === 'ArrowUp') {
             socket.send(JSON.stringify({ move: 'up' }));
-        } else if (e.key === 's') {
+        } else if (e.key === 's' || e.key === 'ArrowDown') {
             socket.send(JSON.stringify({ move: 'down' }));
         }
     });
 }
+
+
 
 
 function activate2FA() {

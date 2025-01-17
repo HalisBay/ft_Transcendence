@@ -22,7 +22,6 @@ game_state = {
 
 connected_players = 0
 
-
 class PongConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         global connected_players
@@ -35,16 +34,26 @@ class PongConsumer(AsyncWebsocketConsumer):
             self.room_group_name,
             self.channel_name
         )
-
         await self.accept()
 
-        if connected_players == 2:
-            await self.start_game()
-        else:
-            await self.send(text_data=json.dumps({
-                'type': 'waiting',
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'game_message',
                 'message': 'Waiting for another player...'
-            }))
+            }
+        )
+
+        if connected_players == 2:
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'game_message',
+                    'message': 'Both players connected. Starting game...'
+                }
+            )
+            await asyncio.sleep(1)  # Small delay before starting the countdown
+            asyncio.create_task(self.start_game())
 
     async def disconnect(self, close_code):
         global connected_players
@@ -68,8 +77,7 @@ class PongConsumer(AsyncWebsocketConsumer):
                 player['y'] += 5
 
     async def start_game(self):
-        # Geri sayım ve 2 saniyelik bekleme
-        for countdown in range(3, 0, -1):
+        for countdown in range(4, 0, -1):
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
@@ -77,7 +85,7 @@ class PongConsumer(AsyncWebsocketConsumer):
                     'message': f'{countdown}'
                 }
             )
-            await asyncio.sleep(1)
+            await asyncio.sleep(1)  # Add delay to ensure messages are sent one by one
 
         await self.channel_layer.group_send(
             self.room_group_name,
@@ -86,7 +94,15 @@ class PongConsumer(AsyncWebsocketConsumer):
                 'message': 'Başla!'
             }
         )
-        await asyncio.sleep(2)  # 2 saniyelik bekleme
+
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'game_state',
+                'state': game_state
+            }
+        )
+
         asyncio.create_task(self.move_ball())
 
     async def move_ball(self):
