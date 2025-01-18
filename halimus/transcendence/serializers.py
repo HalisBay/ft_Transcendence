@@ -46,14 +46,12 @@ class UserSerializer(serializers.ModelSerializer):
 
         
     def update(self, instance, validated_data):
-        # Şifreyi güncellerken hashlemek için
         for attr, value in validated_data.items():
             if attr == 'password' and value:
-                    validated_data['password'] = make_password(validated_data['password'])
-            elif value is not None:
-                setattr(instance, attr, value)  # Diğer alanları güncelle
-        user = User.objects.update(**validated_data)
-        return user
+                value = make_password(value)
+            setattr(instance, attr, value)  # Diğer alanları güncelle
+        instance.save()  # Güncellenmiş örneği kaydet
+        return instance
 
 
 

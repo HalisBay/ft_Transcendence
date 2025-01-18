@@ -245,6 +245,27 @@ function sendMessage(event) {
     return false; // Form gönderimini tamamen engelle
 }
 
+function checkInput() {
+        const inputField = document.getElementById("deleteInput");
+        const deleteButton = document.getElementById("deleteButton");
+
+        if (inputField.value.trim().toLowerCase() === "hesabımı sil") {
+            deleteButton.disabled = false; // Butonu aktif hale getir
+        } else {
+            deleteButton.disabled = true; // Butonu devre dışı bırak
+        }
+    }
+
+
+    document.getElementById("deleteForm").addEventListener("submit", function (event) {
+        const inputField = document.getElementById("deleteInput");
+
+        // Eğer input doğru değilse formu gönderme
+        if (inputField.value.trim().toLowerCase() !== "hesabımı sil") {
+            event.preventDefault();
+            alert("Lütfen doğru metni girin: 'hesabımı sil'");
+        }
+    });
 // function getUserWithToken() {
 //     const token = new URLSearchParams(window.location.search).get('token'); // URL'den token'ı al
 
