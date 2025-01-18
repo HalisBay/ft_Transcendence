@@ -25,8 +25,6 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from .requireds import jwt_required,notlogin_required
 from django.shortcuts import get_object_or_404
 
-
-
 logger = logging.getLogger(__name__)
 User = get_user_model() #TODO:merkezi yapıda kullanmak için bi dosya vs olabilir.
 
@@ -41,10 +39,8 @@ def home_page(request):
     return render(request, 'pages/home.html',status = status.HTTP_200_OK)
 
 @login_required
+@jwt_required
 def user_page(request):
-    user = get_user_from_token(request) #TODO:buradan memnun değilim daha stabil olarak jwt_required tarzı bir yapıya dönüştürülmeli
-    if user is None or not user.is_authenticated:
-        return redirect('login')
     return render(request, 'pages/userInterface.html', status=200)
 
 def logout_page(request):
@@ -80,7 +76,7 @@ def login_user(request):
             nick = serializer.validated_data['nick']
             password = serializer.validated_data['password']
             user = authenticate(request, username=nick, password=password)
-            if user:#alinin butonu ve model ayarlancak
+            if user:
                 if user.is_2fa_active:
                     send_verification_email(user)
                     return Response({'success': True, 'message': '2FA doğrulaması gerekiyor. Lütfen e-postanızı kontrol edin.'})
@@ -131,7 +127,7 @@ def activate_user(request):
     
 def generate_activation_token(user):
     refresh = RefreshToken.for_user(user)
-    token = refresh.access_token  # Aktivasyon için sadece access token kullanılır
+    token = refresh.access_token
     token.set_exp(lifetime=timedelta(minutes=5))  # Token süresi 10 dakika
     return str(token)
 
@@ -180,38 +176,25 @@ def activate_2fa(request):
         return JsonResponse({"success": True, "message": "2FA başarıyla etkinleştirildi."})
     return JsonResponse({"success": False, "message": "Geçersiz istek."}, status=400)
 
-def get_user_from_token(request):
-    auth = JWTAuthentication()
-    raw_token = request.COOKIES.get('access_token')
-    if raw_token is None:
-        return None
-
-    try:
-        validated_token = auth.get_validated_token(raw_token)
-        user = auth.get_user(validated_token)
-        return user
-    except InvalidToken:
-        return None
 
 @login_required
 @jwt_required
 def update(request):
-    return render(request, 'pages/update.html',status = status.HTTP_200_OK)
-
+    return render(request, 'pages/update.html', status=200)
 
 @api_view(['POST'])
+@jwt_required
 def update_nick(request):
-    user = get_user_from_token(request)
-    if user is None or user.is_anonymous:
+    user = request.user
+    if user.is_anonymous:
         return Response({'error': 'Kimlik doğrulama başarısız.'}, status=401)
 
     nick = request.POST.get('nick')
-
     if not nick:
         messages.error(request, "Kullanıcı adı boş olamaz.")
         return redirect('update')
 
-    # Serializer ile güncelleme
+
     serializer = UserSerializer(user, data={'nick': nick}, partial=True)
     if serializer.is_valid():
         serializer.save()
@@ -219,39 +202,38 @@ def update_nick(request):
         messages.success(request, "Kullanıcı adı başarıyla güncellendi.")
         return redirect('user')
     else:
-        print(serializer.errors)  # Hataları loglama
+        print(serializer.errors)
         messages.error(request, serializer.errors.get('nick', ["Bir hata oluştu."])[0])
 
     return redirect('update')
-    
-
 
 @api_view(['POST'])
+@jwt_required
 def update_email(request):
-    user = get_user_from_token(request)
-    if user is None or user.is_anonymous:
+    user = request.user
+    if user.is_anonymous:
         return Response({'error': 'Kimlik doğrulama başarısız.'}, status=401)
     
     email = request.POST.get('email')
     if not email:
         messages.error(request, "E-posta boş olamaz.")
         return redirect('update')
-    
+
     serializer = UserSerializer(user, data={'email': email}, partial=True)
     if serializer.is_valid():
         serializer.save()
         update_session_auth_hash(request, user)
-        messages.success(request, "e-posta başarıyla güncellendi.")
+        messages.success(request, "E-posta başarıyla güncellendi.")
         return redirect('user')
     else:
         messages.error(request, serializer.errors.get('email', ["Bir hata oluştu."])[0])
     return redirect('update')
-    
 
 @api_view(['POST'])
+@jwt_required
 def update_password(request):
-    user = get_user_from_token(request)
-    if user is None or user.is_anonymous:
+    user = request.user
+    if user.is_anonymous:
         return Response({'error': 'Kimlik doğrulama başarısız.'}, status=401)
     
     new_password = request.POST.get('new_password')
@@ -259,7 +241,7 @@ def update_password(request):
     if not new_password or not new_password_confirm:
         messages.error(request, "Şifre alanları boş olamaz.")
         return redirect('update')
-    
+
     if new_password != new_password_confirm:
         messages.error(request, "Şifreler eşleşmiyor.")
         return redirect('update')
@@ -267,13 +249,14 @@ def update_password(request):
     serializer = UserSerializer(user, data={'password': new_password}, partial=True)
     if serializer.is_valid():
         serializer.save()
-        update_session_auth_hash(request, user)
         messages.success(request, "Şifre başarıyla güncellendi.")
-        return redirect('user')
+        logout(request)
+        return redirect('login')
     else:
-        print(serializer.errors)  # Hataları loglama
+        print(serializer.errors)
         messages.error(request, serializer.errors.get('password', ["Bir hata oluştu."])[0])
     return redirect('update')
+
 
 
 @login_required
@@ -282,13 +265,13 @@ def delete_all(request):
     if request.method == "POST":
         input_text = request.POST.get("txt", "").strip().lower()  # Gelen metni al ve küçük harfe çevir
         if input_text == "hesabımı sil":
-            user = get_user_from_token(request)
-            if user is None or user.is_anonymous:
+            user = request.user
+            if user.is_anonymous:
                 return Response({'error': 'Kimlik doğrulama başarısız.'}, status=401)
             user.delete() 
             messages.success(request, "Hesabınız başarıyla silindi.")
             return redirect("home")
         else:
             messages.error(request, "Yanlış metin girdiniz. Lütfen 'hesabımı sil' yazın.")
-            return render(request, 'pages/deleteall.html')  # Sayfayı yeniden yükle
-    return render(request, 'pages/deleteall.html')  # GET isteği için sayfayı yükle
+            return render(request, 'pages/deleteall.html')
+    return render(request, 'pages/deleteall.html')
