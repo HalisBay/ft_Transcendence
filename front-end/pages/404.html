@@ -1,0 +1,82 @@
+{% extends 'pages/base.html' %}
+
+{% block title %}404 Not Found{% endblock %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Sayfa Bulunamadı</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #0f100f; /* Antrasit arka plan */
+            font-family: 'Arial', sans-serif;
+            color: #fff;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            border: 2px solid #000000;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            background: #2b2e2c; /* Daha koyu içerik arka planı */
+        }
+        h1 {
+            font-size: 6em;
+            margin: 0;
+            color: #e74c3c;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        p {
+            font-size: 1.5em;
+            margin-top: 10px;
+            color: #bdc3c7;
+        }
+        div.btn-white {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            color: #e74c3c;
+            background-color: #fff;
+            text-decoration: none;
+            border-radius: 10px;
+            transition: background-color 0.3s ease, color 0.3s ease, transform 0.1s ease;
+            cursor: pointer; /* Pointer eklemek */
+        }
+        div.btn-white:hover {
+            background-color: #e74c3c;
+            color: #fff;
+        }
+        div.btn-white:active {
+            transform: scale(0.95); /* Tıklama efekti */
+        }
+        .funny-video {
+            width: 100%;
+            max-width: 800px; /* Daha büyük video genişliği */
+            height: 450px; /* 16:9 oranı için */
+            margin: 20px auto;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>404</h1>
+        <p>Oops! Yanlış yere geldin dostum. Burası bomboş!</p>
+        <iframe class="funny-video" src="https://www.youtube.com/embed/ZHgyQGoeaB0?autoplay=1&loop=1&playlist=ZHgyQGoeaB0&start=0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        <div class="btn-white" onclick="navigateTo('home')">Ana sayfa</div>
+    </div>
+</body>
+</html>
+{% endblock %}

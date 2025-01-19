@@ -1,5 +1,4 @@
-from django.urls import path
-from django.urls import re_path 
+from django.urls import path,re_path 
 from django.views.generic import TemplateView
 from . import views
 from django.contrib.auth import views as auth_views
@@ -21,5 +20,5 @@ urlpatterns = [
     path('user/update/password', views.update_password, name='update_password'),
     path('user/delete',views.delete_all, name='delete'),
 
-
+    re_path(r'^.*$', TemplateView.as_view(template_name='pages/404.html'), name='page_not_found'),
 ]

@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path,include
 from django.urls import path, re_path
+from django.views.generic import TemplateView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 # from transcendence.views import spa
 
@@ -27,4 +28,5 @@ urlpatterns = [
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # Giriş için
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # Refresh için
     path('game/', include('pong.urls')),
+    re_path(r'^.*$', TemplateView.as_view(template_name='pages/404.html'), name='page_not_found'),
 ]
