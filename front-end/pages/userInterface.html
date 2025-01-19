@@ -7,19 +7,24 @@
 <div class="container">
     <meta name="csrf-token" content="{{ csrf_token }}">
     <div class="user-card">
+        <div class="user-image">
+            <img src="{{ user.avatar.url }}" alt="Avatar">
+        </div>
         <div class="user-info">
-            <p><strong>Adı:</strong> <span id="username"></span></p>
-            <p><strong>Soyadı:</strong> <span id="last_name"></span></p>
-            <p><strong>E-posta:</strong> <span id="email"></span></p>
+            <p><strong>Adı:</strong> {{ username }}<span id="username"></span></p>
+            <p><strong>E-posta:</strong> {{ email }}<span id="email"></span></p>
         </div>
     </div>
 
 <div class="buttons">
-        <button class="btn-white" onclick="navigateTo('user/delete')">Hesabı sil</button>
-        <button class="btn-white" onclick="navigateTo('game/home')">Game</button>
-        <button class="btn-white" onclick="navigateTo('user/update')">up</button>
-        <button class="btn-white" onclick="navigateTo('logout')">Log out</button>
-        <button class="btn-white" onclick="activate2FA()">Enable/Disable 2FA</button>
+    <button class="btn-white" onclick="navigateTo('game/home')">Oyun</button>
+    <button class="btn-white" onclick="navigateTo('user/update')">Düzenle</button>
+    <button class="btn-white" onclick="navigateTo('home')">Ana sayfa</button>
+    <button class="btn-white" onclick="navigateTo('logout')">Çıkış yap</button>
+    <button class="btn-white" onclick="activate2FA()">Enable/Disable 2FA</button>
+    <button class="btn-white" onclick="navigateTo('gdpr')">Veri Gizliliği Politikası</button>
+    <button class="btn-white" onclick="navigateTo('anonymize_account')">Anonimleştir</button>
+    <button class="btn-white" onclick="navigateTo('user/delete')">Hesabı sil</button>
 
         {% if messages %}
         <div class="messages">
@@ -43,11 +48,10 @@
     <div class="friends-btn" onclick="toggleChatBoxes('friends-box')">FRIENDS</div>
     <div class="friends-box">
         <h1>ARKADAŞLAR</h1>
-        <div class="friends-body">
-            <div class="friends-card">
-                <!-- Friends list goes here -->
-            </div>
-        </div>
+        <form class="a-flex">
+            <input type="text" id="addFriends" class="form-control" placeholder="Nick giriniz">
+            <button type="submit" class="btn btn-primary" id="sendButton">Gönder</button>
+        </form> 
     </div>
 </div>
 {% endblock %}

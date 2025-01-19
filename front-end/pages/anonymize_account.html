@@ -1,0 +1,12 @@
+{% extends 'pages/base.html' %}
+
+{% block title %}Anasayfa{% endblock %}
+
+{% block content %}
+  <h2>Hesap Bilgilerinizi Anonimleştir</h2>
+  <form method="POST">
+    {% csrf_token %}
+    <p>Hesap bilgilerinizi anonimleştirdiğinizde, bir daha geri alınamaz. Devam etmek istediğinizden emin misiniz?</p>
+    <button type="submit" class="btn btn-danger">Evet, anonimleştir</button>
+  </form>
+{% endblock %}

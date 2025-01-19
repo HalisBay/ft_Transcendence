@@ -1,5 +1,4 @@
 from django.urls import path,re_path 
-from django.views.generic import TemplateView
 from . import views
 from django.contrib.auth import views as auth_views
 
@@ -19,6 +18,6 @@ urlpatterns = [
     path('user/update/email', views.update_email, name='update_email'),
     path('user/update/password', views.update_password, name='update_password'),
     path('user/delete',views.delete_all, name='delete'),
-
-    re_path(r'^.*$', TemplateView.as_view(template_name='pages/404.html'), name='page_not_found'),
+    path('anonymize_account', views.anonymize_account, name='anonymize_account'),
+    path('gdpr', views.gdpr_page, name='gdpr'),
 ]

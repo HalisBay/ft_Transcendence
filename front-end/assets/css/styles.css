@@ -2,10 +2,12 @@
 body{
     height: 100vh;
     /*background: linear-gradient(45deg, #ff6b6b, #f06595, #9b59b6, #3498db);*/
-    background: linear-gradient(45deg, #800000, #b22222, #4682b4, #1e90ff);
-    background-size: 300% 300%;
+    background: linear-gradient(45deg, #150505, #570303, #0a0045, #000000);
+    background-size: 250% 250%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     animation: gradientAnimation 10s ease infinite;
-}
+
+} 
 
 .container{
     display: grid;
@@ -199,9 +201,12 @@ button.btn-white::after {
     text-align: right;
 }
 
-.h-1{
-    text-align: right;
+.a-flex {
+    grid-row: 2;
+    align-items: center; /* Dikeyde ortala */
+    height: 100px;
 }
+
 
 .btn{
     height: 50%;
@@ -212,7 +217,7 @@ button.btn-white::after {
 }
 
 .form-control{
-    height: 100%;
+    height: 40px;
     width: 100%;
     border-radius: 30px;
     max-width: 400px;
@@ -228,6 +233,8 @@ button.btn-white::after {
     border-radius: 30px;
     color: white;
     display: grid;
+    visibility: hidden; /* Görünmez yapar */
+    pointer-events: none; 
     grid-template-rows: 8fr 8fr 1fr 1fr;
     opacity: 0;
     transition: opacity 1s ease-in-out; /* Animasyonlar */
@@ -235,11 +242,14 @@ button.btn-white::after {
 
 
 .chat-box.open {
+    visibility: visible; /* Görünür hale getirir */
+    pointer-events: auto; 
     right: 0; /* Açık konum */
     opacity: 1; /* Görünür hale gelme */
 }
 
 .chat-box.close {
+    display: none;
     right: 0; /* Kapanma sırasında pozisyon sabit */
     opacity: 0; /* Görünmez */
 }
@@ -280,57 +290,43 @@ button.btn-white::after {
     transition: background-color 0.3s ease;
 }
 
+
 .friends-box {
     grid-column: 1;
     grid-row: 1/4;
     top: 0;
-    width: 20%;
+    width: 100%;
     background-color:transparent;
     height: 100%;
     color: white;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    z-index: 5;
+    display: grid;
+    visibility: hidden; /* Görünmez yapar */
+    pointer-events: none; 
+    grid-template-rows: 1fr 1fr 8fr 8fr;
+    border-radius: 30px;
     opacity: 0; /* Varsayılan olarak görünmez */
     transition: opacity 1s ease-in-out; /* Animasyonlar */
 }
 
-.friends-card {
-    width: 90%;
-    height: 40%;
-    margin-bottom: 100px;
-    background: linear-gradient(45deg, #1e90ff, #4682b4, #b22222, #800000);
-    background-size: 350% 350%;
-    background-position: center;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-
 .friends-box h1 {
-    font-family: 'Arial', sans-serif;
-    font-size: 24px;
-    color: #333;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-bottom: 20px;
-    padding: 10px;
+    height: 40px;
+    width: auto;
+    max-width: 400px;
     background: linear-gradient(45deg, #1e90ff, #4682b4, #b22222, #800000);
-    background-size: 350% 350%;
-    background-position: center;
-    color: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 30px;
+    text-align: center;
 }
 
+
 .friends-box.open {
+    visibility: visible; /* Görünür hale getirir */
+    pointer-events: auto; 
     left: 0; /* Açık konum */
     opacity: 1; /* Görünür hale gelme */
 }
 
 .friends-box.close {
+    display: none;
     left: 0; /* Kapanma sırasında pozisyon sabit */
     opacity: 0; /* Görünmez */
 }
@@ -420,6 +416,15 @@ img{
     background: transparent;
 }
 
+.message-div{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 24px;
+    color: black;
+}
+
 /* Animasyon */
 
 .fade-out {
@@ -458,6 +463,7 @@ img{
     color: red;
     margin: 5px 0;
 }
+
 
 
 @keyframes fadeIn {
@@ -505,3 +511,14 @@ img{
         opacity: 1; 
     }
 }
+
+.rotating-circle {
+    animation: rotateGrow 40s ease-in-out infinite;
+  }
+  
+  @keyframes rotateGrow {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.5); }
+    100% { transform: rotate(360deg) scale(1); }
+  }
+  

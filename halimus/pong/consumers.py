@@ -5,14 +5,14 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 # Global oyun durumu
 game_state = {
     'ball': {
-        'x': 50.0,
-        'y': 50.0,
+        'x': 500.0,
+        'y': 290.0,
         'vx': 1.0,
         'vy': 1.0
     },
     'players': {
-        'player1': {'y': 40.0},
-        'player2': {'y': 40.0}
+        'player1': {'y': 270.0},
+        'player2': {'y': 270.0}
     },
     'scores': {
         'player1': 0,

@@ -15,6 +15,9 @@ class User(AbstractBaseUser):
     email = models.EmailField(unique=True, null=True, blank=True)
     password = models.CharField(max_length=128, default="Kolaydegildir123.")
 
+    anonymized_nick = models.CharField(max_length=50, null=True, blank=True)
+    anonymized_email = models.EmailField(null=True, blank=True)
+
     is_active = models.BooleanField(default=True)#default false olarak ayarlanacak kullanıcı login olurken true olucak
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)  # Varsayılan olarak şimdiye ayarlanır
@@ -28,6 +31,13 @@ class User(AbstractBaseUser):
     def __str__(self):
         return self.nick
 
+    def anonymize(self):
+        """Kullanıcıyı anonimleştirir."""
+        self.anonymized_nick = f"anon_{self.id}"
+        self.anonymized_email = f"anon_{self.id}@example.com"
+        self.nick = self.anonymized_nick
+        self.email = self.anonymized_email
+        self.save()
 
 
 # class MatchHistory(models.Model):

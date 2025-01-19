@@ -114,7 +114,6 @@ function initiateWebSocketConnection() {
     };
     
     socket.onmessage = (event) => {
-        console.log('Mesaj alındı:', event.data);
         const data = JSON.parse(event.data);
 
         if (data.type === 'game_message') {
@@ -168,7 +167,7 @@ function activate2FA() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert('2FA başarıyla etkinleştirildi!');
+            alert('2FA Tercihi Güncellendi!');
         }
     })
     .catch(error => {
@@ -296,3 +295,30 @@ function checkInput() {
 //         document.getElementById('message').innerHTML = 'Bir hata oluştu: ' + error.message;
 //     });
 // }
+
+
+document.getElementById('changeColorButton').addEventListener('click', () => {
+    const switchElement = document.querySelector('.switch input');
+    if (switchElement.checked) {
+        // Switch açıkken rastgele renkleri uygula
+        document.getElementById('gameArea').style.backgroundColor = '#000';
+        document.getElementById('ball').style.backgroundColor = '#fff';
+        document.getElementById('player1').style.backgroundColor = '#fff';
+        document.getElementById('player2').style.backgroundColor = '#fff';
+    } else {
+        // Switch kapalıyken varsayılan renkleri geri yükle
+        document.getElementById('gameArea').style.backgroundColor = getRandomColor();
+        document.getElementById('ball').style.backgroundColor = getRandomColor();
+        document.getElementById('player1').style.backgroundColor = getRandomColor();
+        document.getElementById('player2').style.backgroundColor = getRandomColor();
+    }
+});
+
+function getRandomColor() {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}

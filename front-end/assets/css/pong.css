@@ -1,0 +1,146 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(45deg, #150505, #570303, #0a0045, #000000);
+    background-size: 250% 250%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    animation: gradientAnimation 10s ease infinite;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+#gameArea {
+    width: 1000px;
+    height: 580px;
+    border: 2px solid #ffffff;
+    position: relative;
+    background: #000;
+}
+
+#ball {
+    width: 13px;
+    height: 13px;
+    background-color: rgb(255, 255, 255);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+}
+
+.paddle {
+    width: 5px;
+    height: 60px;
+    background-color: rgb(255, 255, 255);
+    position: absolute;
+}
+
+#player1 {
+    left: 0;
+    top: 40%;
+}
+
+#player2 {
+    right: 0;
+    top: 40%;
+}
+
+#centerLine {
+    position: absolute;
+    width: 2px;
+    height: 100%;
+    background: repeating-linear-gradient(
+        0deg,
+        #ffffff,
+        #ffffff 10px,
+        transparent 10px,
+        transparent 20px
+    );
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+#status {
+    margin-bottom: 10px;
+    text-align: center;
+    color: #ffffff;
+    font-size: 18px;
+}
+
+#score-board {
+    margin-bottom: 10px;
+    text-align: center;
+    color: #ffffff;
+    font-size: 18px;
+}
+
+/* #changeColorButton {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #ffffff;
+    border: none;
+    color: #000;
+    font-size: 16px;
+    cursor: pointer;
+} */
+
+@keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+
+
+
+
+/* From Uiverse.io by r7chardgh */ 
+/* The switch - the box around the slider */
+.switch {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 50px; 
+  }
+  
+  /* Hide default HTML checkbox */
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  .toggle {
+    position: relative;
+    display: flex;
+    width: 2.8em;
+    height: 1em;
+    background-color: rgb(165, 165, 165);
+    justify-content: center;
+  }
+  
+  .toggle::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    width: .8em;
+    height: 2em;
+    margin-bottom: .5em;
+    bottom: 0;
+    background-color: rgb(153, 104, 39);
+    box-shadow: 0 -1em 0 0 rgb(165, 165, 165);
+    transform-origin: bottom;
+    transform: rotateZ(-30deg);
+    transition: transform 150ms;
+  }
+  
+  .switch input:checked + .toggle::before {
+    transform: rotateZ(30deg);
+  }
+  
+  .switch input:checked + .toggle {
+    box-shadow: 0 -1em 2em 0 rgb(230, 111, 111);
+  }     
+  

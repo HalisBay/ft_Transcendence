@@ -23,10 +23,48 @@ from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from .requireds import jwt_required,notlogin_required
-from django.shortcuts import get_object_or_404
+import hashlib
+import os
+from django.utils.crypto import get_random_string
 
 logger = logging.getLogger(__name__)
 User = get_user_model() #TODO:merkezi yapıda kullanmak için bi dosya vs olabilir.
+
+
+
+
+def anonymize_email(email):
+    """Emaili anonimleştirmek için hash ve salt kullanılır"""
+    salt = os.urandom(16)  # 16 baytlık rastgele tuz oluşturur
+    email_salt = salt + email.encode('utf-8')
+    return hashlib.sha256(email_salt).hexdigest()
+
+def anonymize_nick(nick):
+    """Kullanıcı adını anonimleştirmek için rastgele bir değer ekler"""
+    return get_random_string(length=10)
+
+def anonymize_user_data(user):
+    """Kullanıcı bilgilerini anonimleştirir"""
+    user.email = anonymize_email(user.email)
+    user.nick = anonymize_nick(user.nick)
+    user.save()
+
+@login_required
+def anonymize_account(request):
+    user = request.user
+
+    if request.method == 'POST':
+        # Kullanıcı bilgilerini anonimleştir
+        anonymize_user_data(user)
+        messages.success(request, "Hesap bilgileri anonimleştirildi.")
+        return redirect('user')  # Kullanıcı bilgileri sayfasına yönlendir
+        
+    return render(request, 'pages/anonymize_account.html')
+
+
+def gdpr_page(request):
+    return render(request, 'pages/gdpr.html',status = status.HTTP_200_OK)
+
 
 
 
@@ -41,7 +79,12 @@ def home_page(request):
 @login_required
 @jwt_required
 def user_page(request):
-    return render(request, 'pages/userInterface.html', status=200)
+    user = request.user
+    context = {
+        'username': user.nick,
+        'email': user.email,
+    }
+    return render(request, 'pages/userInterface.html',context)
 
 def logout_page(request):
     logout(request)

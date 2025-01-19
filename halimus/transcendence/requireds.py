@@ -2,6 +2,7 @@ from functools import wraps
 from django.http import JsonResponse
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.exceptions import InvalidToken
+from django.shortcuts import redirect
 
 def jwt_required(view_func):
     @wraps(view_func)

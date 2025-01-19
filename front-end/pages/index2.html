@@ -1,61 +1,32 @@
+{% extends 'pages/base.html' %}
+
+{% block title %}pong{% endblock %}
+
+{% block content %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pong Game</title>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f4f4f4;
-            font-family: Arial, sans-serif;
-        }
-
-        #gameArea {
-            width: 1000px;
-            height: 580px;
-            border: 2px solid #000;
-            position: relative;
-        }
-
-        #ball {
-            width: 10px;
-            height: 10px;
-            background-color: red;
-            position: absolute;
-        }
-
-        .paddle {
-            width: 5px;
-            height: 60px;
-            background-color: blue;
-            position: absolute;
-        }
-
-        #player1 {
-            left: 0;
-        }
-
-        #player2 {
-            right: 0;
-        }
-
-        #status {
-            margin-bottom: 10px;
-        }
-    </style>
 </head>
 <body>
     <div>
-        <div id="status"></div>
+        <div id="status">Waiting for players...</div>
         <div id="gameArea">
+            <div id="centerLine"></div>
             <div id="ball"></div>
             <div id="player1" class="paddle"></div>
             <div id="player2" class="paddle"></div>
         </div>
-    </div>
 
+        <label class="switch">
+            <input type="checkbox">
+            <span class="toggle" id="changeColorButton" onclick="toggleColors()">
+            </span>
+        </label>
+    </div>
+    <button class="btn-white" onclick="navigateTo('game/home')">Geri dön</button>
+    <div id="content"></div>
 </body>
-</html>
+{% endblock %}

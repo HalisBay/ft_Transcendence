@@ -10,25 +10,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resimli Butonlar - SPA</title>
-    <style>
-        .button-image {
-            border: none;
-            background: none;
-            cursor: pointer;
-        }
-        .button-image img {
-            width: 100px;
-            height: 100px;
-            transition: transform 0.3s ease;
-        }
-        .button-image:hover img {
-            transform: scale(1.1); /* Resmin büyümesi */
-        }
-    </style>
 </head>
 <body>
 
-    <h2>Oynamak istediğiniz oyunu seçin</h2>
+    <h2>OYUNLAR</h2>
     
     <button class="button-image" onclick="navigateTo('game/pong')">
         <img src="https://via.placeholder.com/100" alt="Pong">
@@ -41,24 +26,6 @@
     <button class="button-image" onclick="navigateTo('user')">
         <img src="https://via.placeholder.com/100" alt="Geri dön">
     </button>
-
-    <script>
-        function navigateTo(url) {
-            history.pushState(null, '', url); // URL'yi değiştirdik
-            loadContent(url); // İçeriği yükle
-        }
-
-        function loadContent(url) {
-            // Bu fonksiyon, URL'ye göre içeriği yükleyecek şekilde özelleştirilebilir.
-            console.log("Yükleniyor: " + url); // Örnek içerik
-        }
-
-        // Sayfa yüklenince default içerik
-        if (!window.location.pathname) {
-            loadContent('/page1');
-        }
-    </script>
-
 </body>
 </html>
 
