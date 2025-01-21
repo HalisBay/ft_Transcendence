@@ -1,3 +1,5 @@
+let socket = null; // Global bir WebSocket değişkeni tanımlayın
+
 window.addEventListener('DOMContentLoaded', (event) => {
     const initialPage = window.location.pathname.substring(1) || 'home';
     navigateTo(initialPage);
@@ -6,7 +8,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
 function navigateTo(page) {
     const content = document.getElementById('content');
 
-    // Yeni içeriği yükle
     fetch(`/${page}`)
         .then(response => {
             if (!response.ok) throw new Error(`Sayfa bulunamadı: ${response.status}`);
@@ -21,16 +22,17 @@ function navigateTo(page) {
                 newScript.src = script.src;
                 newScript.defer = true;
                 document.body.appendChild(newScript);
-                script.remove();  // Eski scripti kaldır
+                script.remove();
             });
 
-            // URL'yi güncelle
             const newUrl = `/${page}`;
             window.history.pushState({ page }, '', newUrl);
 
-            // WebSocket bağlantısını kontrol et veya başlat
+            // WebSocket'i sadece belirli sayfada başlat
             if (page === 'game/pong') {
                 initiateWebSocketConnection();
+            } else if (socket && socket.readyState === WebSocket.OPEN) {
+                socket.close(); // WebSocket'i diğer sayfalarda kapat
             }
         })
         .catch(error => {
@@ -118,20 +120,23 @@ function submitFormOne(event) {
 
 
 function initiateWebSocketConnection() {
-    const socket = new WebSocket('ws://' + window.location.host + '/ws/pong/');
-    
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.close(); // Eski bağlantıyı kapat
+    }
+
+    socket = new WebSocket('ws://' + window.location.host + '/ws/pong/');
+
     const statusElement = document.getElementById('status');
 
     socket.onopen = () => {
         console.log('WebSocket bağlantısı başarıyla açıldı.');
         statusElement.innerHTML = 'Connecting...';
     };
-    
+
     socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
 
         if (data.type === 'game_message') {
-
             statusElement.innerHTML = data.message;
             if (data.scores) {
                 statusElement.innerHTML += `<br>Score: ${data.scores.player1} - ${data.scores.player2}`;
@@ -142,9 +147,6 @@ function initiateWebSocketConnection() {
             ball.style.top = data.state.ball.y + 'px';
             player1.style.top = data.state.players.player1.y + 'px';
             player2.style.top = data.state.players.player2.y + 'px';
-
-            // If scores are present, update score display
-            
         }
     };
 
@@ -164,10 +166,8 @@ function initiateWebSocketConnection() {
             socket.send(JSON.stringify({ move: 'down' }));
         }
     });
-    
-
-    
 }
+
 
 
 
