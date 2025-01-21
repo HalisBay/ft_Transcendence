@@ -171,7 +171,7 @@ def activate_user(request):
 def generate_activation_token(user):
     refresh = RefreshToken.for_user(user)
     token = refresh.access_token
-    token.set_exp(lifetime=timedelta(minutes=1))  # Token süresi 10 dakika
+    token.set_exp(lifetime=timedelta(seconds=12))  # Token süresi 10 dakika
     return str(token)
 
 def send_verification_email(user):
