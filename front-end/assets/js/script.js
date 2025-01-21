@@ -41,7 +41,16 @@ function navigateTo(page) {
 
 window.addEventListener('popstate', (event) => {
     const page = event.state?.page || 'home';
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.close();
+     }
     navigateTo(page);
+
+window.addEventListener('beforeunload', () => {
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.close();
+     }
+ });
 });
 
 function submitForm(event) {
@@ -150,6 +159,9 @@ function initiateWebSocketConnection() {
             socket.send(JSON.stringify({ move: 'down' }));
         }
     });
+    
+
+    
 }
 
 

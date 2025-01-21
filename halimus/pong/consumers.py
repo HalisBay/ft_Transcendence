@@ -64,6 +64,14 @@ class PongConsumer(AsyncWebsocketConsumer):
             self.channel_name
         )
 
+        await self.channel_layer.group_send(
+             self.room_group_name,
+            {
+                'type': 'game_message',
+                'message': 'A player has disconnected.' 
+            } 
+        )
+
     async def receive(self, text_data):
         global game_state
         data = json.loads(text_data)
