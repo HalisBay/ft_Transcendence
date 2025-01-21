@@ -64,8 +64,7 @@ def anonymize_account(request):
         
     return render(request, 'pages/anonymize_account.html')
 
-@login_required
-@jwt_required
+
 def gdpr_page(request):
     return render(request, 'pages/gdpr.html',status = status.HTTP_200_OK)
 

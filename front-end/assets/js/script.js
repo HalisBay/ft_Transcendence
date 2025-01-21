@@ -315,27 +315,23 @@ function checkInput() {
 
 
 
-document.addEventListener('DOMContentLoaded', (event) => {
-    console.log("Document loaded");
-    const changeColorButton = document.getElementById('changeColorButton');
-    changeColorButton.addEventListener('click', () => {
-        console.log("Button clicked");
-        const switchElement = document.getElementById('changeColorButton');
-        if (switchElement.checked) {
-            console.log("Switch checked");
-            document.getElementById('gameArea').style.backgroundColor = '#000';
-            document.getElementById('ball').style.backgroundColor = '#fff';
-            document.getElementById('player1').style.backgroundColor = '#fff';
-            document.getElementById('player2').style.backgroundColor = '#fff';
-        } else {
-            console.log("Switch unchecked");
-            document.getElementById('gameArea').style.backgroundColor = getRandomColor();
-            document.getElementById('ball').style.backgroundColor = getRandomColor();
-            document.getElementById('player1').style.backgroundColor = getRandomColor();
-            document.getElementById('player2').style.backgroundColor = getRandomColor();
-        }
-    });
-});
+function changeColors() {
+    console.log("Button clicked");
+    const switchElement = document.getElementById('colorSwitch'); // Doğru input elemanını seçiyoruz
+    if (switchElement.checked) {
+        console.log("Switch checked");
+        document.getElementById('gameArea').style.backgroundColor = getRandomColor();
+        document.getElementById('ball').style.backgroundColor = getRandomColor();
+        document.getElementById('player1').style.backgroundColor = getRandomColor();
+        document.getElementById('player2').style.backgroundColor = getRandomColor();
+    } else {
+        console.log("Switch unchecked");
+        document.getElementById('gameArea').style.backgroundColor = '#000';
+        document.getElementById('ball').style.backgroundColor = '#fff';
+        document.getElementById('player1').style.backgroundColor = '#fff';
+        document.getElementById('player2').style.backgroundColor = '#fff';
+    }
+}
 
 function getRandomColor() {
     const letters = '0123456789ABCDEF';
@@ -345,6 +341,7 @@ function getRandomColor() {
     }
     return color;
 }
+
 
 
 

@@ -13,11 +13,12 @@
     </div>
 
     <label class="switch">
-        <input type="checkbox">
-        <span class="toggle" id="changeColorButton">
-        </span>
+        <input type="checkbox" id="colorSwitch" onchange="changeColors()"> <!-- onchange kullanıldı -->
+        <span class="toggle"></span>
     </label>
 </div>
 <button class="btn-white" onclick="navigateTo('game/home')">Geri dön</button>
 <div id="content"></div>
+
+
 {% endblock %}
