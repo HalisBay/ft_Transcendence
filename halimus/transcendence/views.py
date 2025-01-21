@@ -31,8 +31,6 @@ logger = logging.getLogger(__name__)
 User = get_user_model() #TODO:merkezi yapıda kullanmak için bi dosya vs olabilir.
 
 
-
-
 def anonymize_email(email):
     """Emaili anonimleştirmek için hash ve salt kullanılır"""
     salt = os.urandom(16)  # 16 baytlık rastgele tuz oluşturur
@@ -50,6 +48,7 @@ def anonymize_user_data(user):
     user.save()
 
 @login_required
+@jwt_required
 def anonymize_account(request):
     user = request.user
 
@@ -61,12 +60,9 @@ def anonymize_account(request):
         
     return render(request, 'pages/anonymize_account.html')
 
-
+@jwt_required
 def gdpr_page(request):
     return render(request, 'pages/gdpr.html',status = status.HTTP_200_OK)
-
-
-
 
 def index_page(request):
     logger.debug(request)
@@ -135,6 +131,7 @@ def login_user(request):
 def perform_login(request, user):
     refresh = RefreshToken.for_user(user)
     access_token = str(refresh.access_token)
+    refresh_token = str(refresh)
     login(request, user)
     
     messages.success(request, "Giriş başarılı!") # registerdeki düzgün çalışıyor buradaki bozuk çalışıyor messages.success
@@ -147,6 +144,9 @@ def perform_login(request, user):
                     })
     response.set_cookie(
         'access_token', access_token, httponly=True, secure=True, samesite='Lax'
+    )
+    response.set_cookie(
+        'refresh_token', refresh_token, httponly=True, secure=True, samesite='Lax'
     )
     print(f"Debug mesaji", {user})
     return response
@@ -171,7 +171,7 @@ def activate_user(request):
 def generate_activation_token(user):
     refresh = RefreshToken.for_user(user)
     token = refresh.access_token
-    token.set_exp(lifetime=timedelta(minutes=5))  # Token süresi 10 dakika
+    token.set_exp(lifetime=timedelta(minutes=1))  # Token süresi 10 dakika
     return str(token)
 
 def send_verification_email(user):
