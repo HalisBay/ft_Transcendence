@@ -1,4 +1,7 @@
 from django.db import models
+import os
+import shutil
+from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 class UserManager(BaseUserManager):
@@ -14,6 +17,7 @@ class User(AbstractBaseUser):
     nick = models.CharField(max_length=50, unique=True)
     email = models.EmailField(unique=True, null=True, blank=True)
     password = models.CharField(max_length=128, default="Kolaydegildir123.")
+    avatar = models.ImageField(upload_to='avatars/', default='user1.jpg', blank=True, null=True)
 
     anonymized_nick = models.CharField(max_length=50, null=True, blank=True)
     anonymized_email = models.EmailField(null=True, blank=True)
@@ -38,6 +42,26 @@ class User(AbstractBaseUser):
         self.nick = self.anonymized_nick
         self.email = self.anonymized_email
         self.save()
+
+
+def copy_static_to_media():
+    static_path = "/usr/share/nginx/static/assets/images"
+    media_path = "/usr/share/nginx/media"
+
+    # Eğer Media dizini yoksa, oluştur
+    if not os.path.exists(media_path):
+        os.makedirs(media_path)
+
+    # Static dizinindeki tüm dosyaları al
+    for filename in os.listdir(static_path):
+        # Dosya yolunu oluştur
+        file_path = os.path.join(static_path, filename)
+        
+        # Eğer bu bir dosya ise (klasör değil), kopyala
+        if os.path.isfile(file_path):
+            shutil.copy(file_path, media_path)
+
+
 
 
 # class MatchHistory(models.Model):

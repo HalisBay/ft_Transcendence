@@ -4,14 +4,6 @@
 {% block title %}Anasayfa{% endblock %}
 
 {% block content %}
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resimli Butonlar - SPA</title>
-</head>
-<body>
 
     <h2>OYUNLAR</h2>
     
@@ -26,36 +18,6 @@
     <button class="button-image" onclick="navigateTo('user')">
         <img src="https://via.placeholder.com/100" alt="Geri dön">
     </button>
-</body>
-</html>
+    <div class="content"></div>
 
-<!-- <script>
-    // WebSocket bağlantısı oluşturuluyor
-    const socket = new WebSocket('ws://localhost:8000/ws/home'); // Bağlantı URL'sini uygun şekilde değiştirin
-
-    // WebSocket açıldığında çalışacak fonksiyon
-    socket.onopen = function(event) {
-        console.log('WebSocket bağlantısı açıldı:', event);
-        // Sunucuya bir mesaj gönderme
-        socket.send('Merhaba, sunucu!');
-    };
-
-    // WebSocket üzerinden gelen mesajları alacak fonksiyon
-    socket.onmessage = function(event) {
-        console.log('Sunucudan gelen mesaj:', event.data);
-        // Gelen mesajı ekrana yazdırma
-        const messageDiv = document.getElementById('messages');
-        messageDiv.innerHTML += `<p>Sunucudan gelen mesaj: ${event.data}</p>`;
-    };
-
-    // WebSocket bağlantısı kapandığında çalışacak fonksiyon
-    socket.onclose = function(event) {
-        console.log('WebSocket bağlantısı kapandı:', event);
-    };
-
-    // WebSocket bağlantısında bir hata oluştuğunda çalışacak fonksiyon
-    socket.onerror = function(error) {
-        console.log('WebSocket hata:', error);
-    };
-</script> -->
 {% endblock %}

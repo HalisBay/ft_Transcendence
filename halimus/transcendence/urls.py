@@ -1,5 +1,8 @@
 from django.urls import path,re_path 
+from django.views.generic import TemplateView
+from django.conf import settings
 from . import views
+from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
@@ -14,10 +17,14 @@ urlpatterns = [
     path('notverified', views.verify_fail, name='not_verified'),
     path('user/activate2fa', views.activate_2fa, name='user_2fa'),
     path('user/update', views.update, name='update'),
-    path('user/update/nick', views.update_nick, name='update_nick'),
-    path('user/update/email', views.update_email, name='update_email'),
-    path('user/update/password', views.update_password, name='update_password'),
+    path('user/update_user', views.update_user, name='update_user'),
     path('user/delete',views.delete_all, name='delete'),
     path('anonymize_account', views.anonymize_account, name='anonymize_account'),
     path('gdpr', views.gdpr_page, name='gdpr'),
-]
+
+
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -5,42 +5,46 @@
 {% block content %}
 <h1>Kullanıcı Bilgilerini Güncelle</h1>
 
-<!-- Kullanıcı Adı Güncelleme -->
-<form method="POST" action="{% url 'update_nick' %}">
+<form method="POST" action="/user/update_user" onsubmit="submitUpdatePasswordForm(event)" enctype="multipart/form-data">
     {% csrf_token %}
-    <input type="hidden" name="access_token" value="{{ access_token }}">
+    <!-- Kullanıcı Adı -->
     <div class="form-group">
         <label for="nick">Kullanıcı Adı:</label>
-        <input type="text" class="input-field" name="nick" placeholder="Kullanıcı Adı" value="{{ user.nick }}">
+        <input type="text" name="nick" placeholder="{{ user.nick }}">
     </div>
-    <button type="submit">Güncelle</button>
-</form>
-
-<!-- E-posta Güncelleme -->
-<form method="POST" action="{% url 'update_email' %}">
-    {% csrf_token %}
-    <input type="hidden" name="access_token" value="{{ access_token }}">
+    
+    <!-- E-posta -->
     <div class="form-group">
         <label for="email">E-posta:</label>
-        <input type="email" class="input-field" name="email" placeholder="E-posta" value="{{ user.email }}">
+        <input type="email" name="email" placeholder="{{ user.email }}">
     </div>
-    <button type="submit">Güncelle</button>
-</form>
 
-<!-- Şifre Güncelleme -->
-
-<form method="POST" action="{% url 'update_password' %}">
-    {% csrf_token %}
-    <input type="hidden" name="access_token" value="{{ access_token }}">
+    <!-- Şifre -->
     <div class="form-group">
         <label for="new_password">Yeni Şifre:</label>
-        <input type="password" class="input-field" name="new_password" placeholder="Yeni Şifre">
+        <input type="password" name="new_password" placeholder="Yeni Şifre">
         <label for="new_password_confirm">Yeni Şifre (Tekrar):</label>
-        <input type="password" class="input-field" name="new_password_confirm" placeholder="Yeni Şifre Tekrar">
+        <input type="password" name="new_password_confirm" placeholder="Yeni Şifre (Tekrar)">
     </div>
-    <button type="submit">Güncelle</button>
-    
+
+    <!-- Avatar -->
+    <div class="form-group">
+        <label for="select_avatar">Avatar Seç:</label>
+        <select id="select_avatar" name="select_avatar">
+            <option value="">Bir Avatar Seçin</option>
+            <option value="Avatar1.jpg">Gözlüklü MİT</option>
+            <option value="Avatar2.jpg">Yüzsüz MİT</option>
+            <option value="Designer.jpeg">Dijital dalgalar</option>
+            <option value="Avatar3.jpg">Fakir Köpek</option>
+            <option value="Avatar4.jpg">İmam Polat</option>
+            <option value="Avatar5.jpg">Kapı Polat</option>
+            <option value="Avatar6.jpg">Memati Tokat</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Güncelle</button>
 </form>
+
+
 <button class="btn-white" onclick="navigateTo('user')">geri dön</button>
 
 {% if messages %}

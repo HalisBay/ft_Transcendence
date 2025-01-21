@@ -160,6 +160,11 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = '/static'
 
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = '/usr/share/nginx/media/'
+
+
 # if DEBUG:
 STATICFILES_DIRS = [ '/usr/share/nginx/static/' ]
 # Front-end statik dosyalarının yolu

@@ -1,32 +1,23 @@
 {% extends 'pages/base.html' %}
 
-{% block title %}pong{% endblock %}
+{% block title %}Anasayfa{% endblock %}
 
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pong Game</title>
-</head>
-<body>
-    <div>
-        <div id="status">Waiting for players...</div>
-        <div id="gameArea">
-            <div id="centerLine"></div>
-            <div id="ball"></div>
-            <div id="player1" class="paddle"></div>
-            <div id="player2" class="paddle"></div>
-        </div>
-
-        <label class="switch">
-            <input type="checkbox">
-            <span class="toggle" id="changeColorButton" onclick="toggleColors()">
-            </span>
-        </label>
+<div>
+    <div id="status">Waiting for players...</div>
+    <div id="gameArea">
+        <div id="centerLine"></div>
+        <div id="ball"></div>
+        <div id="player1" class="paddle"></div>
+        <div id="player2" class="paddle"></div>
     </div>
-    <button class="btn-white" onclick="navigateTo('game/home')">Geri dön</button>
-    <div id="content"></div>
-</body>
+
+    <label class="switch">
+        <input type="checkbox">
+        <span class="toggle" id="changeColorButton">
+        </span>
+    </label>
+</div>
+<button class="btn-white" onclick="navigateTo('game/home')">Geri dön</button>
+<div id="content"></div>
 {% endblock %}

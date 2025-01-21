@@ -103,6 +103,8 @@ function submitFormOne(event) {
         document.getElementById('message').innerHTML = 'Bir hata oluştu: ' + error.message;
     });
 }
+
+
 function initiateWebSocketConnection() {
     const socket = new WebSocket('ws://' + window.location.host + '/ws/pong/');
     
@@ -297,21 +299,27 @@ function checkInput() {
 // }
 
 
-document.getElementById('changeColorButton').addEventListener('click', () => {
-    const switchElement = document.querySelector('.switch input');
-    if (switchElement.checked) {
-        // Switch açıkken rastgele renkleri uygula
-        document.getElementById('gameArea').style.backgroundColor = '#000';
-        document.getElementById('ball').style.backgroundColor = '#fff';
-        document.getElementById('player1').style.backgroundColor = '#fff';
-        document.getElementById('player2').style.backgroundColor = '#fff';
-    } else {
-        // Switch kapalıyken varsayılan renkleri geri yükle
-        document.getElementById('gameArea').style.backgroundColor = getRandomColor();
-        document.getElementById('ball').style.backgroundColor = getRandomColor();
-        document.getElementById('player1').style.backgroundColor = getRandomColor();
-        document.getElementById('player2').style.backgroundColor = getRandomColor();
-    }
+
+document.addEventListener('DOMContentLoaded', (event) => {
+    console.log("Document loaded");
+    const changeColorButton = document.getElementById('changeColorButton');
+    changeColorButton.addEventListener('click', () => {
+        console.log("Button clicked");
+        const switchElement = document.getElementById('changeColorButton');
+        if (switchElement.checked) {
+            console.log("Switch checked");
+            document.getElementById('gameArea').style.backgroundColor = '#000';
+            document.getElementById('ball').style.backgroundColor = '#fff';
+            document.getElementById('player1').style.backgroundColor = '#fff';
+            document.getElementById('player2').style.backgroundColor = '#fff';
+        } else {
+            console.log("Switch unchecked");
+            document.getElementById('gameArea').style.backgroundColor = getRandomColor();
+            document.getElementById('ball').style.backgroundColor = getRandomColor();
+            document.getElementById('player1').style.backgroundColor = getRandomColor();
+            document.getElementById('player2').style.backgroundColor = getRandomColor();
+        }
+    });
 });
 
 function getRandomColor() {
@@ -321,4 +329,34 @@ function getRandomColor() {
         color += letters[Math.floor(Math.random() * 16)];
     }
     return color;
+}
+
+
+
+function submitUpdatePasswordForm(event) {
+    event.preventDefault();  // Sayfa yenilemesini engelle
+
+    const form = new FormData(event.target);  // Form verilerini al
+
+    fetch('/user/update_user', {
+        method: 'POST',
+        body: form,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',  // AJAX isteği olduğunu belirtiyoruz
+        },
+    })
+    .then(response => response.json())  // Yanıtı JSON formatında al
+    .then(data => {
+        console.log(JSON.stringify(data));
+        if (data.success) {
+            // Başarılı olursa kullanıcıyı login sayfasına yönlendir
+            navigateTo('user');
+        } else {
+            // Hata varsa, hata mesajını göster
+            document.getElementById('message').innerHTML = data.message;
+        }
+    })
+    .catch(error => {
+        document.getElementById('message').innerHTML = 'Bir hata oluştu: ' + error.message;
+    });
 }

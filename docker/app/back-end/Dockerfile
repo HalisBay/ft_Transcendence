@@ -8,7 +8,8 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     gcc \
     make \
-    curl
+    curl \
+    Pillow
 
 COPY requirements.txt .
 RUN pip3 install -r requirements.txt

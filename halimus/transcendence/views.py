@@ -23,6 +23,10 @@ from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from .requireds import jwt_required,notlogin_required
+from django.core.files.storage import default_storage
+from .models import copy_static_to_media
+from django.core.files.base import ContentFile
+from functools import wraps
 import hashlib
 import os
 from django.utils.crypto import get_random_string
@@ -74,6 +78,7 @@ def index_page(request):
 
 @notlogin_required
 def home_page(request):
+    
     return render(request, 'pages/home.html',status = status.HTTP_200_OK)
 
 @login_required
@@ -113,6 +118,7 @@ def register_user(request):
 
 @api_view(['GET', 'POST'])
 def login_user(request):
+    copy_static_to_media()
     if request.method == 'POST':
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
@@ -227,78 +233,74 @@ def update(request):
 
 @api_view(['POST'])
 @jwt_required
-def update_nick(request):
+def update_user(request):
     user = request.user
     if user.is_anonymous:
         return Response({'error': 'Kimlik doğrulama başarısız.'}, status=401)
 
+    # Güncellenecek alanları al
     nick = request.POST.get('nick')
-    if not nick:
-        messages.error(request, "Kullanıcı adı boş olamaz.")
-        return redirect('update')
-
-
-    serializer = UserSerializer(user, data={'nick': nick}, partial=True)
-    if serializer.is_valid():
-        serializer.save()
-        update_session_auth_hash(request, user)
-        messages.success(request, "Kullanıcı adı başarıyla güncellendi.")
-        return redirect('user')
-    else:
-        print(serializer.errors)
-        messages.error(request, serializer.errors.get('nick', ["Bir hata oluştu."])[0])
-
-    return redirect('update')
-
-@api_view(['POST'])
-@jwt_required
-def update_email(request):
-    user = request.user
-    if user.is_anonymous:
-        return Response({'error': 'Kimlik doğrulama başarısız.'}, status=401)
-    
     email = request.POST.get('email')
-    if not email:
-        messages.error(request, "E-posta boş olamaz.")
-        return redirect('update')
-
-    serializer = UserSerializer(user, data={'email': email}, partial=True)
-    if serializer.is_valid():
-        serializer.save()
-        update_session_auth_hash(request, user)
-        messages.success(request, "E-posta başarıyla güncellendi.")
-        return redirect('user')
-    else:
-        messages.error(request, serializer.errors.get('email', ["Bir hata oluştu."])[0])
-    return redirect('update')
-
-@api_view(['POST'])
-@jwt_required
-def update_password(request):
-    user = request.user
-    if user.is_anonymous:
-        return Response({'error': 'Kimlik doğrulama başarısız.'}, status=401)
-    
     new_password = request.POST.get('new_password')
     new_password_confirm = request.POST.get('new_password_confirm')
-    if not new_password or not new_password_confirm:
-        messages.error(request, "Şifre alanları boş olamaz.")
-        return redirect('update')
+    selected_avatar = request.POST.get('select_avatar')
 
-    if new_password != new_password_confirm:
-        messages.error(request, "Şifreler eşleşmiyor.")
-        return redirect('update')
+    # Kullanıcı adı güncelleme
+    if nick:
+        serializer = UserSerializer(user, data={'nick': nick}, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, "Kullanıcı adı başarıyla güncellendi.")
+        else:
+            messages.error(request, serializer.errors.get('nick', ["Kullanıcı adı güncellenemedi."])[0])
 
-    serializer = UserSerializer(user, data={'password': new_password}, partial=True)
-    if serializer.is_valid():
-        serializer.save()
-        messages.success(request, "Şifre başarıyla güncellendi.")
-        logout(request)
-        return redirect('login')
-    else:
-        print(serializer.errors)
-        messages.error(request, serializer.errors.get('password', ["Bir hata oluştu."])[0])
-    return redirect('update')
+    # E-posta güncelleme
+    if email:
+        serializer = UserSerializer(user, data={'email': email}, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, "E-posta başarıyla güncellendi.")
+        else:
+            messages.error(request, serializer.errors.get('email', ["E-posta güncellenemedi."])[0])
+
+    # Şifre güncelleme
+    if new_password and new_password_confirm:
+        if new_password != new_password_confirm:
+            messages.error(request, "Şifreler eşleşmiyor.")
+        else:
+            serializer = UserSerializer(user, data={'password': new_password}, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                messages.success(request, "Şifre başarıyla güncellendi. Lütfen yeniden giriş yapın.")
+                logout(request)
+                return redirect('login')
+            else:
+                messages.error(request, serializer.errors.get('password', ["Şifre güncellenemedi."])[0])
+
+    # Avatar güncelleme
+    if selected_avatar:
+        user.avatar = selected_avatar
+        user.save()
+        messages.success(request, "Avatar başarıyla güncellendi.")
+    
+
+    return JsonResponse({'success': True}, status=200)
+
+
+def get_avatar_list():
+    avatar_dir = os.path.join(settings.MEDIA_ROOT, 'avatars')
+    avatars = [f for f in os.listdir(avatar_dir) if os.path.isfile(os.path.join(avatar_dir, f))]
+    return avatars
+
+def profile_edit_view(request):
+    avatars = get_avatar_list()
+    context = {
+        'avatars': avatars,
+    }
+    return render(request, 'pages/userInterface.html', context)
+
 
 
 
