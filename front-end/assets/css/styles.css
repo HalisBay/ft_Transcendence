@@ -1,12 +1,11 @@
 
 body{
     height: 100vh;
+    /*background: linear-gradient(45deg, #ff6b6b, #f06595, #9b59b6, #3498db);*/
     background: linear-gradient(45deg, #1a2a6c, #b21f1f, #fdbb2d);
-    /* background: linear-gradient(45deg, #150505, #570303, #0a0045, #000000); */
     background-size: 250% 250%;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     animation: gradientAnimation 10s ease infinite;
-
 } 
 
 .container{
@@ -49,7 +48,9 @@ button {
     padding: 10px 20px;
     margin-bottom: 15px;
     font-size: 1rem;
-    background: linear-gradient(45deg, #1e90ff,  #4682b4, #b22222, #800000);
+    /* background: linear-gradient(45deg, #1e90ff,  #4682b4, #b22222, #800000);
+     */
+     background: linear-gradient(45deg, #2a4d9e, #d83434, #fdbc4b);
     background-size: 350% 350%;
     background-position: center; 
     color: white; /* Buton yazı rengi */
@@ -72,14 +73,19 @@ button:visited {
 }
 
 button:hover {
-    transform: translateY(-3px); /* Hover etkisi */
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* Gölgeleme efekti */
+    background: linear-gradient(45deg, #d83434, #fdbc4b);
 
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); /* Daha belirgin gölge */
+    transform: translateY(-4px); /* Buton hafifçe yukarı hareket eder */
 }
 
+/* Aktif durum efekti */
 button:active {
-    transform: translateY(-1px); /* Buton tıklanırken hareket */
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2); /* Kapanma efekti */
+    background: linear-gradient(45deg, #d83434, #fdbc4b);
+
+
+    transform: translateY(2px); /* Buton hafifçe aşağı iner */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Daha hafif gölge */
 }
 
 button::after {
@@ -106,7 +112,8 @@ button.btn-white {
 }
 
 button.btn-white::after {
-    background: linear-gradient(45deg, #1e90ff,  #4682b4, #b22222, #800000);
+    background: linear-gradient(45deg, #d83434, #fdbc4b);
+
 }
 
 /* ---------- Lable-İnput ---------- */
@@ -176,6 +183,7 @@ button.btn-white::after {
 
 /* Mesajların bulunduğu alan */
 #messages {
+    color: white;
     max-height: 100%; /* Alanın yüksekliğini sınırlar */
     overflow-y: auto; /* Dikey kaydırma çubuğu ekler */
     padding: 10px;
@@ -188,7 +196,9 @@ button.btn-white::after {
 
 /* Her bir mesaj */
 .message {
-    background: linear-gradient(45deg, #1e90ff, #4682b4, #b22222, #800000);
+    background: linear-gradient(45deg, #000428, #004e92, #001f54, #090979);
+
+
     color: white; /* Yazı rengi */
     padding: 10px 15px; /* İç boşluk */
     margin-bottom: 10px; /* Mesajlar arasında boşluk */
@@ -468,7 +478,7 @@ img{
 }
 
 .messages .success {
-    color: green;
+    color: white;
 }
 
 .messages .error {
