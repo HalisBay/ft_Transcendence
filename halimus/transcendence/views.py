@@ -64,8 +64,7 @@ def anonymize_account(request):
         
     return render(request, 'pages/anonymize_account.html')
 
-@login_required
-@jwt_required
+
 def gdpr_page(request):
     return render(request, 'pages/gdpr.html',status = status.HTTP_200_OK)
 
@@ -252,6 +251,7 @@ def update(request):
 
 @api_view(['POST'])
 @jwt_required
+@login_required
 def update_user(request):
     user = request.user
     if user.is_anonymous:
@@ -294,7 +294,6 @@ def update_user(request):
                 serializer.save()
                 messages.success(request, "Şifre başarıyla güncellendi. Lütfen yeniden giriş yapın.")
                 logout(request)
-                return redirect('login')
             else:
                 messages.error(request, serializer.errors.get('password', ["Şifre güncellenemedi."])[0])
 

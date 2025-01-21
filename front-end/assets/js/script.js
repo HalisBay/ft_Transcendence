@@ -98,13 +98,11 @@ function submitFormOne(event) {
         if (data.success) {
             // JWT token'ı localStorage'a kaydediyoruz
             localStorage.setItem('access_token', data.access_token);
-            localStorage.setItem('refresh_token', data.refresh_token);
 
             // Başarılı olursa kullanıcıyı login sayfasına yönlendir
             navigateTo('verify');
         } else {
             localStorage.setItem('access_token', data.access_token);
-            localStorage.setItem('refresh_token', data.refresh_token);
 
             navigateTo('user');
             // Hata varsa, hata mesajını göster

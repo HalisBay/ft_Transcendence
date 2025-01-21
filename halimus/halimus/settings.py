@@ -193,7 +193,7 @@ from datetime import datetime, timedelta
 #asd
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=10),  # Access token'ın süresi
-    'REFRESH_TOKEN_LIFETIME': timedelta(weeks=1),    # Refresh token'ın süresi
+    'REFRESH_TOKEN_LIFETIME': timedelta(weeks=2),    # Refresh token'ın süresi
     'ROTATE_REFRESH_TOKENS': True,                    # Refresh token'ı döndürme özelliği
     'BLACKLIST_AFTER_ROTATION': True,                 # Eski refresh token'ları geçersiz kıl
 }
