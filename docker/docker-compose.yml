@@ -29,7 +29,7 @@ services:
       interval: 10s        # 10 saniyede bir kontrol yapılacak
       retries: 5           # 5 defa başarısız olursa konteyner sağlıksız sayılacak
       start_period: 30s    # Konteyner başlatıldığında ilk sağlık kontrolünün başlaması için bekleme süresi
-      timeout: 5s 
+      timeout: 2s 
 
   redis:
     container_name: redis

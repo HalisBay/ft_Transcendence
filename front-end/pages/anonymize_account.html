@@ -3,10 +3,17 @@
 {% block title %}Anasayfa{% endblock %}
 
 {% block content %}
-  <h2>Hesap Bilgilerinizi Anonimleştir</h2>
-  <form method="POST">
+  <h2 style="text-align: center;">Hesap Bilgilerinizi Anonimleştir</h2>
+  <form method="POST" action="/anonymize_account" onsubmit="submitAnonymizeForm(event)" style="text-align: center;">
     {% csrf_token %}
-    <p>Hesap bilgilerinizi anonimleştirdiğinizde, bir daha geri alınamaz. Devam etmek istediğinizden emin misiniz?</p>
-    <button type="submit" class="btn btn-danger">Evet, anonimleştir</button>
+    <p style="color: aliceblue; text-align: center;">
+      Hesap bilgilerinizi anonimleştirdiğinizde, hesabınız sistemde tamamen anonimleşir, giriş yapılamaz ve bir daha geri alınamaz. Devam etmek istediğinizden emin misiniz?
+    </p>
+    <div style="display: flex; justify-content: center; gap: 15px;">
+      <button type="submit" class="btn btn-danger">Evet, anonimleştir</button>
+    </div>
   </form>
+  <div style="text-align: center; margin-top: 15px;">
+    <button class="btn btn-danger"  onclick="navigateTo('user')">Vazgeç</button>
+  </div>
 {% endblock %}

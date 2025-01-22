@@ -370,3 +370,32 @@ function submitUpdatePasswordForm(event) {
         document.getElementById('message').innerHTML = 'Bir hata oluştu: ' + error.message;
     });
 }
+
+
+function submitAnonymizeForm(event) {
+    event.preventDefault();  // Sayfa yenilemesini engelle
+
+    const form = new FormData(event.target);  // Form verilerini al
+
+    fetch('/anonymize_account', {
+        method: 'POST',
+        body: form,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',  // AJAX isteği olduğunu belirtiyoruz
+        },
+    })
+    .then(response => response.json())  // Yanıtı JSON formatında al
+    .then(data => {
+        console.log(JSON.stringify(data));
+        if (data.success) {
+            // Başarılı olursa kullanıcıyı login sayfasına yönlendir
+            navigateTo('user');
+        } else {
+            // Hata varsa, hata mesajını göster
+            document.getElementById('message').innerHTML = data.message;
+        }
+    })
+    .catch(error => {
+        document.getElementById('message').innerHTML = 'Bir hata oluştu: ' + error.message;
+    });
+}

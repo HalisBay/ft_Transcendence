@@ -60,7 +60,7 @@ def anonymize_account(request):
         # Kullanıcı bilgilerini anonimleştir
         anonymize_user_data(user)
         messages.success(request, "Hesap bilgileri anonimleştirildi.")
-        return redirect('user')  # Kullanıcı bilgileri sayfasına yönlendir
+        return JsonResponse({'success': True}, status=200)
         
     return render(request, 'pages/anonymize_account.html')
 

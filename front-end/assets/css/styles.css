@@ -21,18 +21,54 @@ body{
 
 
 .GDPR {
-    position: fixed;
+    /* position: fixed; */
+    grid-column: 2;
+    text-align: center;
     bottom: 20px; /* Ekranın altından 20px yukarıda olacak */
+    width: 150px;
     left: 50%;    /* Yatay eksende ortalanacak */
     transform: translateX(-50%); /* Ortalamak için sola kaydır */
+    background-color: transparent;
+    color: white;  /* Yazı rengi */
+    cursor: pointer;
+    z-index: 1000; /* Üstte görünmesi için */
+}
+.GDPR2 {
+    /* position: fixed; */
+    grid-column: 3;
+    text-align: center;
+    bottom: 20px; /* Ekranın altından 20px yukarıda olacak */
+    width: 150px;
+    left: 50%;    /* Yatay eksende ortalanacak */
+    transform: translateX(-50%); /* Ortalamak için sola kaydır */
+    background-color: transparent;
+    color: white;  /* Yazı rengi */
+
+    z-index: 1000; /* Üstte görünmesi için */
+}
+.lazMusti{
+    margin-left: 10px;
+    margin-right: 10px;
+    display: grid;
+    grid-template-columns: 5fr 5fr 5fr 5fr 5fr;
+    position: fixed;
+    bottom: 0px; /* Ekranın altından 20px yukarıda olacak */
+    width: 100%;
+    height: 30px;
+    left: 50%;    /* Yatay eksende ortalanacak */
+    transform: translateX(-50%); /* Ortalamak için sola kaydır */
+    background-color: #9e289a;
     color: white;  /* Yazı rengi */
     padding: 10px 20px; /* İçerik dolgusu */
     border-radius: 8px; /* Köşeleri yuvarlat */
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Hafif gölge efekti */
-    cursor: pointer;
     z-index: 1000; /* Üstte görünmesi için */
 }
 
+.roww{
+    margin-top: 150px;
+    grid-column: 2/5;
+}
 
 /* -------- Button ---------- */
 
