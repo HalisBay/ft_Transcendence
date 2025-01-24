@@ -15,16 +15,23 @@
     <h1>Arkadaş Listesi</h1>
 
     <!-- Mevcut arkadaşlar -->
-    <h2>Arkadaşlarım</h2>
-    <ul>
-        {% if friend_list and friend_list.friends.exists %}
-            {% for friend in friend_list.friends.all %}
-                <li>{{ friend.nick }} - {{ friend.email }}</li>
-            {% endfor %}
-        {% else %}
-            <li>Hiç arkadaşınız yok.</li>
-        {% endif %}
-    </ul>
+        <h2>Arkadaşlarım</h2>
+        <ul class="friend-list">
+            {% if friend_list and friend_list.friends.exists %}
+                {% for friend in friend_list.friends.all %}
+                    <li class="friend-item" data-id="{{ friend.id }}" data-nick="{{ friend.nick }}">
+                        <span class="friend-name">{{ friend.nick }}</span> 
+                        <span class="friend-status">
+                            {% if friend.is_online %}Online{% else %}Offline{% endif %}
+                        </span>
+                    </li>
+                {% endfor %}
+            {% else %}
+                <li>Hiç arkadaşınız yok.</li>
+            {% endif %}
+        </ul>
+
+
 
     <!-- Gelen istekler -->
     <h2>Gelen İstekler</h2>

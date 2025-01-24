@@ -92,6 +92,11 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 def logout_page(request):
 
+    if request.user.is_authenticated:
+            user = request.user
+            user.is_online = False
+            user.save()
+            
     # Çerezleri temizle
     response = redirect('login')
     response.delete_cookie('access_token')
@@ -141,6 +146,10 @@ def login_user(request):
             password = serializer.validated_data['password']
             user = authenticate(request, username=nick, password=password)
             if user:
+                if not user.is_online:
+                    user.is_online = True
+                    user.save()
+
                 if user.is_2fa_active:
                     send_verification_email(user)
                     return Response({'success': True, 'message': '2FA doğrulaması gerekiyor. Lütfen e-postanızı kontrol edin.'})

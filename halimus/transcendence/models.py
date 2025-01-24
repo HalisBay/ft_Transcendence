@@ -18,15 +18,16 @@ class User(AbstractBaseUser):
     email = models.EmailField(unique=True, null=True, blank=True)
     password = models.CharField(max_length=128, default="Kolaydegildir123.")
     avatar = models.ImageField(upload_to='avatars/', default='user1.jpg', blank=True, null=True)
+    is_online = models.BooleanField(default=False)
 
-    anonymized_nick = models.CharField(max_length=50, null=True, blank=True)
-    anonymized_email = models.EmailField(null=True, blank=True)
 
     is_active = models.BooleanField(default=True)#default false olarak ayarlanacak kullanıcı login olurken true olucak
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)  # Varsayılan olarak şimdiye ayarlanır
     is_2fa_active = models.BooleanField(default=False)
 
+    anonymized_nick = models.CharField(max_length=50, null=True, blank=True)
+    anonymized_email = models.EmailField(null=True, blank=True)
     objects = UserManager()
 
     USERNAME_FIELD = 'nick'
