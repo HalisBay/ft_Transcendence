@@ -3,19 +3,23 @@
 {% block title %}Hesabı sil{% endblock %}
 
 {% block content %}
-<h1>Hesabınızı sonsuza kadar silin</h1>
-<h3>Dikkat! Bütün verileriniz silinir ve daha sonra tekrar erişemezsiniz!</h3>
+<h1 style="text-align: center; color: #ffffff; font-size: xx-large;">Hesabınızı sonsuza kadar silin</h1>
+<h3 style="text-align: center; color: #ff0000; font-size:larger; margin-bottom: 20px;">Dikkat! Bütün verileriniz silinir ve daha sonra tekrar erişemezsiniz!</h3>
 
 <form method="POST" action="{% url 'delete' %}" id="deleteForm">
     {% csrf_token %}
     <div class="form-group">
-        <label>Aşağıya <strong>'hesabımı sil'</strong> yazdıktan sonra hesabınız kalıcı olarak silinir:</label>
+        <label style="margin-bottom: 20px;">Aşağıya <strong>'hesabımı sil'</strong> yazdıktan sonra hesabınız kalıcı olarak silinir:</label>
         <input type="text" id="deleteInput"class="input-field" name="txt" placeholder="hesabımı sil" oninput="checkInput()">
     </div>
-    <button type="submit" id="deleteButton" disabled>Sil</button>
+    <div style="display: flex; justify-content: center; gap: 15px;">
+        <button  class="btn-glitch-fill" type="submit" id="deleteButton" disabled><span class="text-decoration">!! sil !!</span></button>
+    </div>
     
 </form>
-<button class="btn-white" onclick="navigateTo('user')">vazgeç</button>
+<div style="display: flex; justify-content: center; gap: 15px;">
+    <button class="btn-glitch-fill" onclick="navigateTo('user')"><span class="text-decoration">\\ vazgeç //</span></button>
+</div>
 
 {% if messages %}
 <div class="messages">

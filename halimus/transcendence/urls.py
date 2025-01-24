@@ -21,6 +21,7 @@ urlpatterns = [
     path('user/delete',views.delete_all, name='delete'),
     path('anonymize_account', views.anonymize_account, name='anonymize_account'),
     path('gdpr', views.gdpr_page, name='gdpr'),
+    path('about', views.about_page, name='about'),
 
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

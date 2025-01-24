@@ -64,6 +64,8 @@ def anonymize_account(request):
         
     return render(request, 'pages/anonymize_account.html')
 
+def about_page(request):
+    return render(request, 'pages/about.html',status = status.HTTP_200_OK)
 
 def gdpr_page(request):
     return render(request, 'pages/gdpr.html',status = status.HTTP_200_OK)
@@ -74,7 +76,6 @@ def index_page(request):
 
 @notlogin_required
 def home_page(request):
-    
     return render(request, 'pages/home.html',status = status.HTTP_200_OK)
 
 @login_required

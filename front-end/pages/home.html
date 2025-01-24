@@ -13,8 +13,12 @@
             {% endfor %}
         </div>
         {% endif %}
-        <button class="btn-white" onclick="navigateTo('login')">Log In</button>
-        <button class="btn-white" onclick="navigateTo('register')">Sign Up</button>
+        <div class="btn-glitch-fill" onclick="navigateTo('login')">
+            <span class="text-decoration">// giriş yap //</span>
+        </div>
+        <div class="btn-glitch-fill" onclick="navigateTo('register')">
+            <span class="text-decoration">// kayıt ol //</span>
+        </div>
     </div>
 </div>
 {% endblock %}

@@ -15,18 +15,24 @@
                 <label for="password">Şifre</label>
                 <input type="password" class="input-field" id="password" name="password" placeholder="Şifre girin" required>
             </div>
-            {% if messages %}
-                <div class="messages">
-                    {% for message in messages %}
-                        <p class="message {{ message.tags }}">{{ message }}</p>
-                    {% endfor %}
-                </div>
-            {% endif %}
-            <button type="submit">Giriş Yap</button>
+            <button class="btn-glitch-fill" type="submit">
+                <span class="text-decoration">// giriş yap //</span>
+            </button>
         </form>
         <div id="content"></div>
-        <button class="btn-white" onclick="navigateTo('register')">Kayıt Ol</button>
-        <button class="btn-white" onclick="navigateTo('home')">Home</button>
+        <div class="btn-glitch-fill" onclick="navigateTo('register')">
+            <span class="text-decoration">// KAYIT OL //</span>
+        </div>
+        <div class="btn-glitch-fill" onclick="navigateTo('home')">
+            <span class="text-decoration">// Anasayfa //</span>
+        </div>
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <p class="message {{ message.tags }}">{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

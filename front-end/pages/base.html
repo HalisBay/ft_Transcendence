@@ -10,15 +10,15 @@
     <title>{% block title %}Halimus{% endblock %}</title>
 </head>
 <body>
-    <div id="content">
-        <div class="lazMusti">
-            <div >Hakkımızda</div>
-            <div class="GDPR" onclick="navigateTo('gdpr')">Veri Gizliliği Politikası</div>
-            <div class="GDPR2">made byHalimus</div>
+        <div id="content">
+            <div class="lazMusti">
+                <div class="GDPR" onclick="navigateTo('gdpr')">Veri Gizliliği Politikası</div>
+                <div class="GDPR2" onclick="navigateTo('about')">Hakkımızda</div>
+            </div>
+            {% block content %}
+            {% endblock %}
         </div>
-        {% block content %}
-        {% endblock %}
-    </div>
+        
     <script src="{% static 'assets/js/script.js' %}" defer></script>
 </body>
 </html>
