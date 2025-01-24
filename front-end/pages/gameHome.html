@@ -5,19 +5,31 @@
 
 {% block content %}
 
-    <h2>OYUNLAR</h2>
-    
-    <button class="button-image" onclick="navigateTo('game/pong')">
-        <img src="https://via.placeholder.com/100" alt="Pong">
-    </button>
+    <h2 class="blinking-title">OYUNLAR</h2>
+    <div class="buttoon-div">
 
-    <button class="button-image" onclick="navigateTo('rockpaperscissors')">
-        <img src="https://via.placeholder.com/100" alt="Taş kağıt makas">
-    </button>
+        <div onclick="navigateTo('game/pong')">
+            <a class="btn-glitch-fill">
+                <span class="text-decoration">// PONG GAME</span><span class="text-decoration"> _</span
+                ><span class="decoration">⇒</span>
+            </a>  
+        </div>
 
-    <button class="button-image" onclick="navigateTo('user')">
-        <img src="https://via.placeholder.com/100" alt="Geri dön">
-    </button>
+
+        <div onclick="navigateTo('rockpaperscissors')">
+            <a class="btn-glitch-fill">
+                <span class="text">// TAŞ KAĞIT MAKAS</span><span class="text-decoration"> _</span
+                ><span class="decoration">⇒</span>
+            </a>  
+        </div>
+
+        <div onclick="navigateTo('user')">
+            <a class="btn-glitch-fill">
+                <span class="text-decoration"> // </span><span class="text"> Anasayfa </span
+                ><span class="text-decoration"> // </span>
+            </a>  
+        </div>
+    </div>
     <div class="content"></div>
 
 {% endblock %}

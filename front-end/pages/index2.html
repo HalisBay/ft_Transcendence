@@ -3,6 +3,7 @@
 {% block title %}Anasayfa{% endblock %}
 
 {% block content %}
+<h1 class="pong-h1">PONG</h1>
 <div>
     <div id="status">Waiting for players...</div>
     <div id="gameArea">
@@ -17,7 +18,11 @@
         <span class="toggle"></span>
     </label>
 </div>
-<button class="btn-white" onclick="navigateTo('game/home')">Geri dön</button>
+<div style="display: flex; justify-content: center; gap: 15px;">
+    <button class="btn-glitch-fill" onclick="navigateTo('game/home')"><span class="text-decoration">\\ ayrıl //</span></button>
+</div>
+
+
 <div id="content"></div>
 
 

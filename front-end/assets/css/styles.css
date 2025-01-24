@@ -1,8 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 body{
     height: 100vh;
     /*background: linear-gradient(45deg, #ff6b6b, #f06595, #9b59b6, #3498db);*/
-    background: linear-gradient(45deg, #1a2a6c, #b21f1f, #fdbb2d);
+    background: linear-gradient(45deg, #000000, #3a3535, #000000);
     background-size: 250% 250%;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     animation: gradientAnimation 10s ease infinite;
@@ -22,19 +23,6 @@ body{
 
 .GDPR {
     /* position: fixed; */
-    grid-column: 2;
-    text-align: center;
-    bottom: 20px; /* Ekranın altından 20px yukarıda olacak */
-    width: 150px;
-    left: 50%;    /* Yatay eksende ortalanacak */
-    transform: translateX(-50%); /* Ortalamak için sola kaydır */
-    background-color: transparent;
-    color: white;  /* Yazı rengi */
-    cursor: pointer;
-    z-index: 1000; /* Üstte görünmesi için */
-}
-.GDPR2 {
-    /* position: fixed; */
     grid-column: 3;
     text-align: center;
     bottom: 20px; /* Ekranın altından 20px yukarıda olacak */
@@ -42,10 +30,21 @@ body{
     left: 50%;    /* Yatay eksende ortalanacak */
     transform: translateX(-50%); /* Ortalamak için sola kaydır */
     background-color: transparent;
-    color: white;  /* Yazı rengi */
-
-    z-index: 1000; /* Üstte görünmesi için */
+    cursor: pointer;
 }
+
+.GDPR2 {
+    /* position: fixed; */
+    grid-column: 4;
+    text-align: center;
+    bottom: 20px; /* Ekranın altından 20px yukarıda olacak */
+    width: 150px;
+    left: 50%;    /* Yatay eksende ortalanacak */
+    transform: translateX(-50%); /* Ortalamak için sola kaydır */
+    background-color: transparent;
+    cursor: pointer;
+}
+
 .lazMusti{
     margin-left: 10px;
     margin-right: 10px;
@@ -54,15 +53,14 @@ body{
     position: fixed;
     bottom: 0px; /* Ekranın altından 20px yukarıda olacak */
     width: 100%;
-    height: 30px;
+    height: 1%;
     left: 50%;    /* Yatay eksende ortalanacak */
     transform: translateX(-50%); /* Ortalamak için sola kaydır */
-    background-color: #9e289a;
-    color: white;  /* Yazı rengi */
+    background-color: transparent;
+    color: rgb(255, 255, 255);  /* Yazı rengi */
     padding: 10px 20px; /* İçerik dolgusu */
     border-radius: 8px; /* Köşeleri yuvarlat */
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Hafif gölge efekti */
-    z-index: 1000; /* Üstte görünmesi için */
 }
 
 .roww{
@@ -76,81 +74,17 @@ body{
     grid-column: 3;
     grid-row: 2;
     margin: auto;
+    display: flex; /* Flexbox aktif */
+    flex-direction: column; /* Butonları alt alta sıralar */
+    justify-content: center; /* Dikeyde ortalar */
+    align-items: center; /* Yatayda ortalar */
+    gap: 10px; /* Butonlar arası boşluk */
 }
 
 button {
-    display: block;
-    width: 230px;
-    padding: 10px 20px;
-    margin-bottom: 15px;
-    font-size: 1rem;
-    /* background: linear-gradient(45deg, #1e90ff,  #4682b4, #b22222, #800000);
-     */
-     background: linear-gradient(45deg, #2a4d9e, #d83434, #fdbc4b);
-    background-size: 350% 350%;
-    background-position: center; 
-    color: white; /* Buton yazı rengi */
-    border: none;
-    border-radius: 25px; /* Oval kenarlar */
-    cursor: pointer;
-    transition: all 0.3s ease; /* Geçiş efekti */
-    position: relative; /* İç elementlerin konumlandırılması için */
+    background-color: transparent;
 }
 
-button:link,
-button:visited {
-    text-transform: uppercase; /* Yazıyı büyük yap */
-    text-decoration: none; /* Alt çizgi kaldır */
-    padding: 15px 40px;
-    display: inline-block;
-    border-radius: 100px;
-    transition: all .2s;
-    position: absolute;
-}
-
-button:hover {
-    background: linear-gradient(45deg, #d83434, #fdbc4b);
-
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); /* Daha belirgin gölge */
-    transform: translateY(-4px); /* Buton hafifçe yukarı hareket eder */
-}
-
-/* Aktif durum efekti */
-button:active {
-    background: linear-gradient(45deg, #d83434, #fdbc4b);
-
-
-    transform: translateY(2px); /* Buton hafifçe aşağı iner */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Daha hafif gölge */
-}
-
-button::after {
-    content: "";
-    display: inline-block;
-    height: 100%;
-    width: 100%;
-    border-radius: 100px; /* Oval efekt */
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: -1; /* Butonun altına yerleştir */
-    transition: all .4s; /* Geçiş efekti */
-}
-
-button:hover::after {
-    transform: scaleX(1.4) scaleY(1.6); /* Hover etkisiyle büyütme */
-    opacity: 0; /* Yavaşça kaybolma */
-}
-
-button.btn-white {
-    background-color: #007BFF;
-    color: #ffffff;
-}
-
-button.btn-white::after {
-    background: linear-gradient(45deg, #d83434, #fdbc4b);
-
-}
 
 /* ---------- Lable-İnput ---------- */
 
@@ -158,258 +92,81 @@ button.btn-white::after {
     margin-bottom: 20px; /* Her grup arasında boşluk */
     display: flex;
     flex-direction: column; /* Elemanları dikey hizala */
+    align-items: center;
 }
 
 .form-group label {
     font-size: 16px; /* Yazı boyutu */
     font-weight: bold; /* Kalın yazı */
-    color: #000000; /* Koyu gri */
+    color: #ffffff; /* Koyu gri */
     margin-bottom: 5px; /* Input ile aralık */
 }
 
 .input-field {
     width: 100%; /* Tam genişlik */
     max-width: 200px; /* Maksimum genişlik */
+    color: white;
+    background-color: transparent;
     padding: 10px 15px; /* İç boşluk */
-    border: 2px solid #ccc; /* Kenar rengi */
+    border: 2px solid #ffffff; /* Kenar rengi */
+    border-radius: 25px; /* Oval kenarlar */
+    font-size: 16px; /* Yazı boyutu */
+    outline: none; /* Odaklandığında mavi kenarlığı kaldır */
+    transition: all 0.3s ease; /* Geçiş efekti */
+    text-align: center;
+}
+
+.input-field:focus {
+    border-color: #ffff00; /* Kenar rengi */
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5); /* Yeşil gölge efekti */
+}
+
+.input-field::placeholder {
+    color: #ffffff; /* Açık gri renk */
+    font-style: italic; /* Eğik yazı */
+}
+
+
+.avatar-select{
+    width: 235px;
+    color: white;
+    background-color: transparent;
+    padding: 10px 15px; /* İç boşluk */
+    border: 2px solid #ffffff; /* Kenar rengi */
     border-radius: 25px; /* Oval kenarlar */
     font-size: 16px; /* Yazı boyutu */
     outline: none; /* Odaklandığında mavi kenarlığı kaldır */
     transition: all 0.3s ease; /* Geçiş efekti */
 }
 
-.input-field:focus {
-    border-color: #4CAF50; /* Kenar rengi */
-    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5); /* Yeşil gölge efekti */
-}
-
-.input-field::placeholder {
-    color: #999; /* Açık gri renk */
-    font-style: italic; /* Eğik yazı */
-}
-
-
-
-
-/* ---------- Chat ---------- */
-
-.chat-btn {
-    position: fixed;
-    width: 23px;
-    height: 200px;
-    background: linear-gradient(45deg, #1e90ff, #4682b4, #b22222, #800000);
-    background-size: 350% 350%;
-    background-position: center;
-    right: 0; /* Sağ kenara yapışık */
-    top: 40%; /* Dikey olarak ortada */
-    transform: translateY(-50%);
-    padding: 10px 5px;
-    border-radius: 30px 0 0 30px;
+select.avatar-select option {
+    background-color: #fff;
+    color: #333;
+    font-family: 'Arial', sans-serif;
     font-size: 1rem;
-    z-index: 10;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    writing-mode: vertical-rl;
-    text-orientation: mixed;
-    cursor: pointer;
-    border: none;
-    transition: background-color 0.3s ease;
-}
-
-/* Mesajların bulunduğu alan */
-#messages {
-    color: white;
-    max-height: 100%; /* Alanın yüksekliğini sınırlar */
-    overflow-y: auto; /* Dikey kaydırma çubuğu ekler */
     padding: 10px;
-    background-color: transparent;
-    border-radius: 5px; /* Kenarları yuvarlar */
-    margin-bottom: 20px; /* Alt boşluk */
-    display: flex;
-    flex-direction: column; /* Mesajlar alt taraftan başlasın */
+    border: none;
+    margin: 2px 0;
 }
 
-/* Her bir mesaj */
+
 .message {
     background: linear-gradient(45deg, #000428, #004e92, #001f54, #090979);
-
-
-    color: white; /* Yazı rengi */
-    padding: 10px 15px; /* İç boşluk */
-    margin-bottom: 10px; /* Mesajlar arasında boşluk */
-    border-radius: 15px; /* Yuvarlak köşeler */
-    max-width: 70%; /* Mesajın genişliğini sınırlar */
-    word-wrap: break-word; /* Uzun kelimeleri bölerek taşmayı önler */
-    align-self: flex-end; /* Sağda hizalar */
-    animation: fadeIn 0.5s ease-in;
+    color: white; 
+    padding: 10px 15px; 
+    margin-bottom: 10px; 
+    border-radius: 15px; 
+    max-width: 100%;
+    word-wrap: break-word;
+    align-self: flex-end; 
+    text-align: center;
+    animation: fadeIn 0.5s ease-in, fadeOut 0.5s ease-out 3s forwards;
 }
 
 #messages::-webkit-scrollbar {
     display: none;
 }
 
-
-.chat-box h1{
-    height: 40px;
-    width: auto;
-    max-width: 400px;
-    background: linear-gradient(45deg, #1e90ff, #4682b4, #b22222, #800000);
-    border-radius: 30px;
-    text-align: center;
-}
-
-.d-flex{
-    grid-row: 3;
-    text-align: right;
-}
-
-.a-flex {
-    grid-row: 2;
-    align-items: center; /* Dikeyde ortala */
-    height: 100px;
-}
-
-
-.btn{
-    height: 50%;
-    width: 100%;
-    border-radius: 30px;
-    max-width: 400px;
-    display:inline-block;
-}
-
-.form-control{
-    height: 40px;
-    width: 100%;
-    border-radius: 30px;
-    max-width: 400px;
-}
-
-.chat-box {
-    grid-column: 5;
-    grid-row: 1/5;
-    top: 0;
-    width: 100%;
-    background-color: transparent;
-    height: 100%;
-    border-radius: 30px;
-    color: white;
-    display: grid;
-    visibility: hidden; /* Görünmez yapar */
-    pointer-events: none; 
-    grid-template-rows: 8fr 8fr 1fr 1fr;
-    opacity: 0;
-    transition: opacity 1s ease-in-out; /* Animasyonlar */
-}
-
-
-.chat-box.open {
-    visibility: visible; /* Görünür hale getirir */
-    pointer-events: auto; 
-    right: 0; /* Açık konum */
-    opacity: 1; /* Görünür hale gelme */
-}
-
-.chat-box.close {
-    display: none;
-    right: 0; /* Kapanma sırasında pozisyon sabit */
-    opacity: 0; /* Görünmez */
-}
-
-.chat-body {
-    flex: 1;
-    padding: 10px;
-    overflow-y: auto;
-}
-
-.container.shift-chat {
-    grid-template-columns: 1fr 4fr 4fr 4fr 4fr; /* Son kolon genişletilir */
-}
-
-/* Arkadaşlar */
-
-.friends-btn {
-    position: fixed;
-    width: 23px;
-    height: 200px;
-    background: linear-gradient(45deg, #1e90ff, #4682b4, #b22222, #800000);
-    background-size: 350% 350%;
-    background-position: center;
-    left: 0; /* Sağ kenara yapışık */
-    top: 40%; /* Dikey olarak ortada */
-    transform: translateY(-50%);
-    padding: 10px 5px;
-    border-radius: 0 30px 30px 0;
-    font-size: 1rem;
-    z-index: 10;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    writing-mode: vertical-rl;
-    text-orientation: mixed;
-    cursor: pointer;
-    border: none;
-    transition: background-color 0.3s ease;
-}
-
-
-.friends-box {
-    grid-column: 1;
-    grid-row: 1/4;
-    top: 0;
-    width: 100%;
-    background-color:transparent;
-    height: 100%;
-    color: white;
-    display: grid;
-    visibility: hidden; /* Görünmez yapar */
-    pointer-events: none; 
-    grid-template-rows: 1fr 1fr 8fr 8fr;
-    border-radius: 30px;
-    opacity: 0; /* Varsayılan olarak görünmez */
-    transition: opacity 1s ease-in-out; /* Animasyonlar */
-}
-
-.friends-box h1 {
-    height: 40px;
-    width: auto;
-    max-width: 400px;
-    background: linear-gradient(45deg, #1e90ff, #4682b4, #b22222, #800000);
-    border-radius: 30px;
-    text-align: center;
-}
-
-
-.friends-box.open {
-    visibility: visible; /* Görünür hale getirir */
-    pointer-events: auto; 
-    left: 0; /* Açık konum */
-    opacity: 1; /* Görünür hale gelme */
-}
-
-.friends-box.close {
-    display: none;
-    left: 0; /* Kapanma sırasında pozisyon sabit */
-    opacity: 0; /* Görünmez */
-}
-
-.friends-body {
-    flex: 1;
-    padding: 10px;
-    overflow-y: auto;
-}
-
-
-  
-
-.container.shift-friends {
-    grid-template-columns: 4fr 4fr 4fr 4fr 1fr; /* Son kolon genişletilir */
-}
-
-.container.shift-both {
-    grid-template-columns: 4fr 3fr 4fr 3fr 4fr; /* Her iki kutu açık */
-}
 
 /* Kullanıcı */
 
@@ -526,8 +283,6 @@ img{
     color: red;
     margin: 5px 0;
 }
-
-
 
 @keyframes fadeIn {
     0% {

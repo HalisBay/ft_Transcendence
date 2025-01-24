@@ -3,55 +3,63 @@
 {% block title %}Kullanıcı Bilgilerini Güncelle{% endblock %}
 
 {% block content %}
-<h1>Kullanıcı Bilgilerini Güncelle</h1>
+<div class="container">
+    <h1 style="grid-column: 3; text-align: center; color: white; ">Kullanıcı Bilgilerini Güncelle</h1>
+    <div class="buttons">
 
-<form method="POST" action="/user/update_user" onsubmit="submitUpdatePasswordForm(event)" enctype="multipart/form-data">
-    {% csrf_token %}
-    <!-- Kullanıcı Adı -->
-    <div class="form-group">
-        <label for="nick">Kullanıcı Adı:</label>
-        <input type="text"class="input-field" name="nick" placeholder="{{ user.nick }}">
+        <form method="POST" action="/user/update_user" onsubmit="submitUpdatePasswordForm(event)" enctype="multipart/form-data">
+            {% csrf_token %}
+            <!-- Kullanıcı Adı -->
+            <div class="form-group">
+                <label for="nick">Kullanıcı Adı:</label>
+                <input type="text"class="input-field" name="nick" placeholder="{{ user.nick }}">
+            </div>
+            
+            <!-- E-posta -->
+            <div class="form-group">
+                <label for="email">E-posta:</label>
+                <input type="email" class="input-field"name="email" placeholder="{{ user.email }}">
+            </div>
+
+            <!-- Şifre -->
+            <div class="form-group">
+                <label for="new_password">Yeni Şifre:</label>
+                <input type="password" class="input-field"name="new_password" placeholder="Yeni Şifre">
+            </div>
+            <div class="form-group">
+                <label for="new_password_confirm">Yeni Şifre (Tekrar):</label>
+                <input type="password" class="input-field"name="new_password_confirm" placeholder="Yeni Şifre (Tekrar)">
+            </div>
+
+            <!-- Avatar -->
+            <div class="form-group">
+                <label for="select_avatar">Avatar Seç:</label>
+                <select class="avatar-select" id="select_avatar" name="select_avatar">
+                    <option value="">Bir Avatar Seçin</option>
+                    <option value="Avatar1.jpg">Gözlüklü MİT</option>
+                    <option value="Avatar2.jpg">Yüzsüz MİT</option>
+                    <option value="Designer.jpeg">Dijital dalgalar</option>
+                    <option value="Avatar3.jpg">Fakir Köpek</option>
+                    <option value="Avatar4.jpg">İmam Polat</option>
+                    <option value="Avatar5.jpg">Kapı Polat</option>
+                    <option value="Avatar6.jpg">Memati Tokat</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-glitch-fill"><span class="text-decoration">// güncelle //</span></button>
+        </form>
+
+
+        <div class="btn-glitch-fill" onclick="navigateTo('user')">
+            <span class="text-decoration">// geri //</span>
+        </div>
+
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <p class="message {{ message.tags }}">{{ message }}</p>
+            {% endfor %}
+        </div>
     </div>
-    
-    <!-- E-posta -->
-    <div class="form-group">
-        <label for="email">E-posta:</label>
-        <input type="email" class="input-field"name="email" placeholder="{{ user.email }}">
-    </div>
-
-    <!-- Şifre -->
-    <div class="form-group">
-        <label for="new_password">Yeni Şifre:</label>
-        <input type="password" class="input-field"name="new_password" placeholder="Yeni Şifre">
-        <label for="new_password_confirm">Yeni Şifre (Tekrar):</label>
-        <input type="password" class="input-field"name="new_password_confirm" placeholder="Yeni Şifre (Tekrar)">
-    </div>
-
-    <!-- Avatar -->
-    <div class="form-group">
-        <label for="select_avatar">Avatar Seç:</label>
-        <select class="input-field" id="select_avatar" name="select_avatar">
-            <option value="">Bir Avatar Seçin</option>
-            <option value="Avatar1.jpg">Gözlüklü MİT</option>
-            <option value="Avatar2.jpg">Yüzsüz MİT</option>
-            <option value="Designer.jpeg">Dijital dalgalar</option>
-            <option value="Avatar3.jpg">Fakir Köpek</option>
-            <option value="Avatar4.jpg">İmam Polat</option>
-            <option value="Avatar5.jpg">Kapı Polat</option>
-            <option value="Avatar6.jpg">Memati Tokat</option>
-        </select>
-    </div>
-    <button type="submit" class="btn btn-primary">Güncelle</button>
-</form>
-
-
-<button class="btn-white" onclick="navigateTo('user')">geri dön</button>
-
-{% if messages %}
-<div class="messages">
-    {% for message in messages %}
-        <p class="message {{ message.tags }}">{{ message }}</p>
-    {% endfor %}
 </div>
 {% endif %}
 {% endblock %}

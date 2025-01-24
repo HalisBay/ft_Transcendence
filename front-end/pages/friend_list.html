@@ -11,7 +11,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Friend List</title>
 </head>
-<body>
+<body style="color: white;">
     <h1>Arkadaş Listesi</h1>
 
     <!-- Mevcut arkadaşlar -->
@@ -63,11 +63,11 @@
             {% csrf_token %}
             <label for="nick">Kullanıcı Adı:</label>
             <input type="text" id="nick" name="nick" placeholder="Kullanıcı adı girin" required>
-            <button type="submit">Gönder</button>
+            <button class="btn-glitch-fill" type="submit">Gönder</button>
         </form>
     </section>
 
-    <button class="btn-white" onclick="navigateTo('user')">geri dön</button>
+    <button class="btn-glitch-fill" onclick="navigateTo('user')">geri dön</button>
     <!-- Mesajlar -->
     {% if messages %}
     <div>

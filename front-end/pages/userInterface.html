@@ -17,14 +17,27 @@
     </div>
 
 <div class="buttons">
-    <button class="btn-white" onclick="navigateTo('game/home')">Oyun</button>
-    <button class="btn-white" onclick="navigateTo('user/update')">Düzenle</button>
-    <button class="btn-white" onclick="navigateTo('logout')">Çıkış yap</button>
-    <button class="btn-white" onclick="activate2FA()">Enable/Disable 2FA</button>
-    <button class="btn-white" onclick="navigateTo('gdpr')">Veri Gizliliği Politikası</button>
-    <button class="btn-white" onclick="navigateTo('anonymize_account')">Anonimleştir</button>
-    <button class="btn-white" onclick="navigateTo('user/delete')">Hesabı sil</button>
-    <button class="btn-white" onclick="navigateTo('friends/')">Arkadaşlar</button>
+    <div class="btn-glitch-fill" onclick="navigateTo('game/home')">
+        <span class="text-decoration">// OYUN //</span>
+    </div>
+    <div class="btn-glitch-fill" onclick="navigateTo('user/update')">
+        <span class="text-decoration">// düzenle //</span>
+    </div>
+    <div class="btn-glitch-fill" onclick="navigateTo('logout')">
+        <span class="text-decoration">// çıkış yap //</span>
+    </div>
+    <div class="btn-glitch-fill" onclick="activate2FA()">
+        <span class="text-decoration">// activate 2FA //</span>
+    </div>
+    <div class="btn-glitch-fill" onclick="navigateTo('anonymize_account')">
+        <span class="text-decoration">// anonimleştir //</span>
+    </div>
+    <div class="btn-glitch-fill" onclick="navigateTo('user/delete')">
+        <span class="text-decoration">// hesabı sil //</span>
+    </div>
+    <div class="btn-glitch-fill" onclick="navigateTo('friends/')">
+        <span class="text-decoration">// arkadaşlar //</span>
+    </div>
 
 
         {% if messages %}
@@ -35,24 +48,7 @@
         </div>
         {% endif %}
     </div>
-
-    <div class="chat-btn" onclick="toggleChatBoxes('chat-box')">CHAT</div>
-    <div class="chat-box">
-        <h1 class="h-1">SOHBET</h1>
-        <div id="messages"></div>
-        <form class="d-flex " onsubmit="return sendMessage(event)">
-            <input type="text" id="messageInput" class="form-control" placeholder="Mesaj yazın..." aria-label="Mesaj yazın">
-            <button type="submit" class="btn btn-primary" id="sendButton">Gönder</button>
-        </form>
-    </div>
     <div id="content"></div>
-    <div class="friends-btn" onclick="toggleChatBoxes('friends-box')">FRIENDS</div>
-    <div class="friends-box">
-        <h1>ARKADAŞLAR</h1>
-        <form class="a-flex">
-            <input type="text" id="addFriends" class="form-control" placeholder="Nick giriniz">
-            <button type="submit" class="btn btn-primary" id="sendButton">Gönder</button>
-        </form> 
-    </div>
+    
 </div>
 {% endblock %}

@@ -22,7 +22,6 @@ function navigateTo(page) {
                 newScript.src = script.src;
                 newScript.defer = true;
                 document.body.appendChild(newScript);
-                script.remove();
             });
 
             const newUrl = `/${page}`;
@@ -192,43 +191,6 @@ function activate2FA() {
 
 function getCsrfToken() {
     return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-}
-
-function toggleChatBoxes(targetBoxClass) {
-    const chatBox = document.querySelector('.chat-box');
-    const friendsBox = document.querySelector('.friends-box');
-    const container = document.querySelector('.container');
-
-    // Hedef kutu
-    const currentBox = document.querySelector(`.${targetBoxClass}`);
-
-    // Hedef kutu açılıyor ya da kapanıyor
-    if (!currentBox.classList.contains('open')) {
-        currentBox.classList.add('open');
-        currentBox.classList.remove('close');
-    } else {
-        currentBox.classList.remove('open');
-        currentBox.classList.add('close');
-    }
-
-    // Her iki kutunun durumunu kontrol et
-    const isChatOpen = chatBox.classList.contains('open');
-    const isFriendsOpen = friendsBox.classList.contains('open');
-
-    // Container'ın pozisyonunu belirle
-    if (isChatOpen && isFriendsOpen) {
-        container.classList.add('shift-both');
-        container.classList.remove('shift-chat', 'shift-friends');
-    } else if (isChatOpen) {
-        container.classList.add('shift-chat');
-        container.classList.remove('shift-both', 'shift-friends');
-    } else if (isFriendsOpen) {
-        container.classList.add('shift-friends');
-        container.classList.remove('shift-both', 'shift-chat');
-    } else {
-        // Kutuların hiçbiri açık değilse varsayılan duruma dön
-        container.classList.remove('shift-both', 'shift-chat', 'shift-friends');
-    }
 }
 
 function sendMessage(event) {
