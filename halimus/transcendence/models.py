@@ -62,7 +62,61 @@ def copy_static_to_media():
             shutil.copy(file_path, media_path)
 
 
+class FriendList(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="friend_list")
+    friends = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="friends")
 
+    def __str__(self):
+        return f"{self.user.nick}'s friends"
+
+    def add_friend(self, friend):
+        self.friends.add(friend)
+
+    def remove_friend(self, friend):
+        self.friends.remove(friend)
+
+    def is_friend(self, friend):
+        """Arkadaşlık kontrolü"""
+        return self.friends.filter(id=friend.id).exists()
+
+class FriendRequest(models.Model):
+    REQUEST_STATUS = [
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('rejected', 'Rejected'),
+    ]
+
+    from_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="friend_requests_sent"
+    )
+    to_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="friend_requests_received"
+    )
+    status = models.CharField(max_length=10, choices=REQUEST_STATUS, default='pending')
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"From {self.from_user.nick} to {self.to_user.nick} - {self.status}"
+
+    class Meta:
+        unique_together = ('from_user', 'to_user')  # Aynı iki kullanıcı arasında birden fazla istek olmasın.
+
+    def accept(self):
+        self.status = 'accepted'
+        self.save()
+        # Kullanıcıları arkadaş listesine ekleme
+        FriendList.objects.get_or_create(user=self.from_user)[0].add_friend(self.to_user)
+        FriendList.objects.get_or_create(user=self.to_user)[0].add_friend(self.from_user)
+        self.delete()
+
+    def reject(self):
+        self.status = 'rejected'
+        self.save()
+        self.delete()
 
 # class MatchHistory(models.Model):
 #     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='match_history')

@@ -1,0 +1,78 @@
+{% extends 'pages/base.html' %}
+
+{% block title %}Kayıt Ol{% endblock %}
+
+{% block content %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friend List</title>
+</head>
+<body>
+    <h1>Arkadaş Listesi</h1>
+
+    <!-- Mevcut arkadaşlar -->
+    <h2>Arkadaşlarım</h2>
+    <ul>
+        {% if friend_list and friend_list.friends.exists %}
+            {% for friend in friend_list.friends.all %}
+                <li>{{ friend.nick }} - {{ friend.email }}</li>
+            {% endfor %}
+        {% else %}
+            <li>Hiç arkadaşınız yok.</li>
+        {% endif %}
+    </ul>
+
+    <!-- Gelen istekler -->
+    <h2>Gelen İstekler</h2>
+    <ul>
+        {% for request in received_requests %}
+            <li>
+                {{ request.from_user.nick }} 
+                <a href="{% url 'accept_friend_request' request.id %}">Kabul Et</a> | 
+                <a href="{% url 'reject_friend_request' request.id %}">Reddet</a>
+            </li>
+        {% empty %}
+            <li>Bekleyen istek yok.</li>
+        {% endfor %}
+    </ul>
+
+    <!-- Gönderilen istekler -->
+    <h2>Gönderilen İstekler</h2>
+    <ul>
+        {% for request in sent_requests %}
+            <li>{{ request.to_user.nick }} - Beklemede</li>
+        {% empty %}
+            <li>Henüz bir istek göndermediniz.</li>
+        {% endfor %}
+    </ul>
+
+    <section>
+        <h2>Arkadaşlık İsteği Gönder</h2>
+        <form method="POST" action="{% url 'send_friend_request' %}">
+            {% csrf_token %}
+            <label for="nick">Kullanıcı Adı:</label>
+            <input type="text" id="nick" name="nick" placeholder="Kullanıcı adı girin" required>
+            <button type="submit">Gönder</button>
+        </form>
+    </section>
+
+    <button class="btn-white" onclick="navigateTo('user')">geri dön</button>
+    <!-- Mesajlar -->
+    {% if messages %}
+    <div>
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+    
+</body>
+</html>
+{% endblock %}
