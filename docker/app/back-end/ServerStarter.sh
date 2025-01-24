@@ -7,7 +7,7 @@
 
     #dockerize -wait tcp://postgre:5432 -timeout 60s şerh düşüyorum
     echo "Migrate ve collect static işlemi "
-    python manage.py makemigrations transcendence
+    python manage.py makemigrations transcendence friends
     python manage.py migrate
     python manage.py collectstatic --noinput
     exec python manage.py runserver 0.0.0.0:8000
