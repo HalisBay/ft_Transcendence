@@ -105,6 +105,7 @@ button {
 .input-field {
     width: 100%; /* Tam genişlik */
     max-width: 200px; /* Maksimum genişlik */
+    color: white;
     background-color: transparent;
     padding: 10px 15px; /* İç boşluk */
     border: 2px solid #ffffff; /* Kenar rengi */
