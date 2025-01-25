@@ -1,33 +1,59 @@
 {% extends 'pages/base.html' %}
 
-{% block title %}{{ profile_user.nick }}'s Profile{% endblock %}
+{% block title %}Profile - {{ profile_user.nick }}{% endblock %}
 
 {% block content %}
-<h1>{{ profile_user.nick }}'s Profile</h1>
+    <!-- Geri Dön Butonu -->
+    <button class="back-btn" onclick="navigateTo('home')"><span class="text-decoration">\\ geri //</span></button>
 
-<h2>Match History</h2>
-<table>
-    <thead>
-        <tr>
-            <th>Opponent</th>
-            <th>Result</th>
-            <th>Score</th>
-            <th>Date</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for match in match_history %}
-        <tr>
-            <td>{{ match.opponent.nick }}</td>
-            <td>{{ match.result|yesno:"Win,Loss" }}</td>
-            <td>{{ match.score }}</td>
-            <td>{{ match.date_time|date:"Y-m-d H:i:s" }}</td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="4">No match history available.</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <div class="profile-wrapper">
+        <!-- Profil Başlık -->
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <img src="{{ profile_user.avatar.url }}" alt="{{ profile_user.nick }}'s Avatar" class="avatar-img">
+            </div>
+            <div class="profile-details">
+                <h1 class="profile-name">{{ profile_user.nick }}</h1>
+                <p class="profile-username">{{ profile_user.username }}</p>
+                <div class="profile-stats">
+                    <p>Total Matches: <span class="stat-value">{{ total_matches }}</span></p>
+                    <p>Wins: <span class="stat-value text-green">{{ total_wins }}</span></p>
+                    <p>Losses: <span class="stat-value text-red">{{ total_losses }}</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Karşılaşma Geçmişi -->
+        <div class="match-history">
+            <h2 class="section-title">Match History</h2>
+            <div class="table-container">
+                <table class="match-table">
+                    <thead>
+                        <tr>
+                            <th>Opponent</th>
+                            <th>Result</th>
+                            <th>Score</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for match in match_details %}
+                        <tr>
+                            <td>{{ match.opponent }}</td>
+                            <td class="{% if match.result %}text-green{% else %}text-red{% endif %}">
+                                {{ match.result|yesno:"Win,Loss" }}
+                            </td>
+                            <td>{{ match.user_score }} - {{ match.opponent_score }}</td>
+                            <td>{{ match.date_time|date:"Y-m-d H:i:s" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="no-data">No match history available.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 {% endblock %}

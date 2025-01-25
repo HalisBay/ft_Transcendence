@@ -368,12 +368,9 @@ img{
 
 
 
-.friiendss{
-    color: white;
-    display: block;
-}
 
-.friiendss h1 {
+
+.friiendss {
     display: flex;
     justify-content: center;
     color: #ffffff;
@@ -383,13 +380,13 @@ img{
     
 }
 
-.friiendss h2{
+.friiendsss{
     display: flex;
     justify-content: center;
 }
 
 
-.friiendss ul{
+.friiendssss{
     height: 350px;
     border: 1px solid rgb(255, 247, 2);
     border-radius: 35px;

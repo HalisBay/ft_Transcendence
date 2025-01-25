@@ -4,20 +4,11 @@
 
 {% block content %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Friend List</title>
-</head>
-<body class="friiendss">
-
-    <h1>Arkadaş Listesi</h1>
+    <h1 class="friiendss">Arkadaş Listesi</h1>
 
     <!-- Mevcut arkadaşlar -->
-        <h2>Arkadaşlarım</h2>
-        <ul class="friend-list">
+        <h2 class="friiendsss">Arkadaşlarım</h2>
+        <ul class="friiendssss">
             {% if friend_list and friend_list.friends.exists %}
                 {% for friend in friend_list.friends.all %}
                     <li class="friend-item" data-id="{{ friend.id }}" data-nick="{{ friend.nick }}">
@@ -35,8 +26,8 @@
 
 
     <!-- Gelen istekler -->
-    <h2>Gelen İstekler</h2>
-    <ul>
+    <h2 class="friiendsss">Gelen İstekler</h2>
+    <ul class="friiendssss">
         {% for request in received_requests %}
             <li>
                 {{ request.from_user.nick }} 
@@ -49,8 +40,8 @@
     </ul>
 
     <!-- Gönderilen istekler -->
-    <h2>Gönderilen İstekler</h2>
-    <ul>
+    <h2 class="friiendsss">Gönderilen İstekler</h2>
+    <ul class="friiendssss">
         {% for request in sent_requests %}
             <li>{{ request.to_user.nick }} - Beklemede</li>
         {% empty %}
@@ -59,7 +50,7 @@
     </ul>
 
     <section>
-        <h2>Arkadaşlık İsteği Gönder</h2>
+        <h2 class="friiendsss">Arkadaşlık İsteği Gönder</h2>
         <form method="POST" action="{% url 'send_friend_request' %}">
             {% csrf_token %}
             <div class="form-group">

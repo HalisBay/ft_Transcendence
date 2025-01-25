@@ -1,0 +1,165 @@
+/* Genel Stil ve Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #1f1f1f;
+    color: #fff;
+}
+
+/* Profil Sayfası Wrapper */
+.profile-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Geri Dön Butonu */
+button.back-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background-color: transparent;
+    color: #fff;
+    border: 2px solid #fff;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+button.back-btn:hover {
+    background-color: #333;
+}
+
+/* Profil Başlık */
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    border-bottom: 2px solid #444;
+    padding-bottom: 20px;
+}
+
+.profile-avatar {
+    flex: 0 0 150px;
+    margin-right: 20px;
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #fff;
+}
+
+.profile-details {
+    flex: 1;
+}
+
+.profile-name {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.profile-username {
+    font-size: 1.2rem;
+    color: #bbb;
+    margin-bottom: 20px;
+}
+
+.profile-stats p {
+    font-size: 1.1rem;
+    margin: 5px 0;
+}
+
+.stat-value {
+    font-weight: bold;
+}
+
+.text-green {
+    color: #28a745;
+}
+
+.text-red {
+    color: #dc3545;
+}
+
+/* Karşılaşma Geçmişi */
+.match-history {
+    margin-top: 50px;
+}
+
+.section-title {
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.table-container {
+    overflow-x: auto;
+    border-radius: 10px;
+    background-color: #333;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.match-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.match-table th, .match-table td {
+    padding: 12px;
+    text-align: left;
+    font-size: 1.1rem;
+}
+
+.match-table th {
+    background-color: #444;
+    color: #fff;
+}
+
+.match-table td {
+    background-color: #222;
+}
+
+.match-table tr:nth-child(even) td {
+    background-color: #333;
+}
+
+.match-table tr:hover {
+    background-color: #444;
+}
+
+.no-data {
+    text-align: center;
+    color: #bbb;
+    padding: 20px;
+}
+
+/* Animasyonlar */
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.profile-wrapper {
+    animation: fadeIn 1s ease-out;
+}
