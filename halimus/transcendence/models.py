@@ -75,4 +75,3 @@ def copy_static_to_media():
 
 #     def __str__(self):
 #         return f"{self.user.nick} - {'Kazandı' if self.result else 'Kaybetti'}"
-
