@@ -1,3 +1,16 @@
 from django.db import models
+from django.contrib.auth import get_user_model
 
-# Create your models here.
+User = get_user_model()
+
+class MatchHistory(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='match_history')
+    opponent = models.ForeignKey(User, on_delete=models.CASCADE, related_name='opponent_history')
+    result = models.BooleanField()  # Kazandı mı? (True: kazandı, False: kaybetti)
+    win_count = models.IntegerField(default=0)  # Kazandığı oyun sayısı
+    lose_count = models.IntegerField(default=0)  # Kaybettiği oyun sayısı
+    score = models.IntegerField()  # Skor
+    date_time = models.DateTimeField(auto_now_add=True)  # Tarih ve saat
+
+    def __str__(self):
+        return f"{self.user.nick} - {'Kazandı' if self.result else 'Kaybetti'} vs {self.opponent.nick}"

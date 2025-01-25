@@ -1,0 +1,33 @@
+{% extends 'pages/base.html' %}
+
+{% block title %}{{ profile_user.nick }}'s Profile{% endblock %}
+
+{% block content %}
+<h1>{{ profile_user.nick }}'s Profile</h1>
+
+<h2>Match History</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Opponent</th>
+            <th>Result</th>
+            <th>Score</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for match in match_history %}
+        <tr>
+            <td>{{ match.opponent.nick }}</td>
+            <td>{{ match.result|yesno:"Win,Loss" }}</td>
+            <td>{{ match.score }}</td>
+            <td>{{ match.date_time|date:"Y-m-d H:i:s" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">No match history available.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

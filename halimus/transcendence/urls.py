@@ -22,10 +22,6 @@ urlpatterns = [
     path('anonymize_account', views.anonymize_account, name='anonymize_account'),
     path('gdpr', views.gdpr_page, name='gdpr'),
     path('about', views.about_page, name='about'),
-    path('friends', views.friend_list, name='friend_list'),
-    path('friends/send_request', views.send_friend_request, name='send_friend_request'),
-    path('friends/accept_request/<int:request_id>', views.accept_friend_request, name='accept_friend_request'),
-    path('friends/reject_request/<int:request_id>', views.reject_friend_request, name='reject_friend_request'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

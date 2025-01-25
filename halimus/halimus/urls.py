@@ -28,5 +28,6 @@ urlpatterns = [
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # Giriş için
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # Refresh için
     path('game/', include('pong.urls')),
+    path('friends/', include('friends.urls')),
     re_path(r'^.*$', TemplateView.as_view(template_name='pages/404.html'), name='page_not_found'),
 ]

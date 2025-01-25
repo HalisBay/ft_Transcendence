@@ -143,8 +143,8 @@ class PongConsumer(AsyncWebsocketConsumer):
             ball = game_state['ball']
             players = game_state['players']
 
-            ball['x'] += ball['vx'] * 5
-            ball['y'] += ball['vy'] * 5
+            ball['x'] += ball['vx'] * 10
+            ball['y'] += ball['vy'] * 10
 
             if ball['y'] >= 570 or ball['y'] < 2:
                 ball['vy'] = -ball['vy']
@@ -161,6 +161,14 @@ class PongConsumer(AsyncWebsocketConsumer):
                 game_state['scores']['player1'] += 1
                 await self.reset_ball(-1)
 
+            # Skor 2'ye ulaşan oyuncu kazanır, oyunu bitir
+            if game_state['scores']['player1'] == 2:
+                await self.end_game("player1")
+                break
+            elif game_state['scores']['player2'] == 2:
+                await self.end_game("player2")
+                break
+
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
@@ -169,6 +177,51 @@ class PongConsumer(AsyncWebsocketConsumer):
                 }
             )
             await asyncio.sleep(0.05)
+
+    async def end_game(self, winner):
+        global rooms
+        room = rooms[self.room_group_name]
+        game_state = room['game_state']
+
+        # Determine the winner and loser messages
+        if winner == "player1":
+            winner_message = "You Win!"
+            loser_message = "You Lose!"
+        else:
+            winner_message = "You Win!"
+            loser_message = "You Lose!"
+
+        # Check if players are stored as a list or dictionary
+        players = room['players']
+        if isinstance(players, dict):
+            winner_channel = players['player1'] if winner == 'player1' else players['player2']
+            loser_channel = players['player1'] if winner != 'player1' else players['player2']
+        elif isinstance(players, list):
+            winner_channel = players[0] if winner == 'player1' else players[1]
+            loser_channel = players[0] if winner != 'player1' else players[1]
+
+        # Send "You Win!" message to the winner
+        await self.channel_layer.send(
+            winner_channel,
+            {
+                'type': 'game_message',
+                'message': winner_message
+            }
+        )
+
+        # Send "You Lose!" message to the loser
+        await self.channel_layer.send(
+            loser_channel,
+            {
+                'type': 'game_message',
+                'message': loser_message
+            }
+        )
+
+        # Clear players from the room
+        del rooms[self.room_group_name]
+
+
 
     async def reset_ball(self, direction):
         global rooms
