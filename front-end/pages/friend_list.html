@@ -11,7 +11,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Friend List</title>
 </head>
-<body style="color: white;">
+<body class="friiendss">
+
     <h1>Arkadaş Listesi</h1>
 
     <!-- Mevcut arkadaşlar -->
@@ -61,14 +62,19 @@
         <h2>Arkadaşlık İsteği Gönder</h2>
         <form method="POST" action="{% url 'send_friend_request' %}">
             {% csrf_token %}
-            <label for="nick">Kullanıcı Adı:</label>
-            <input type="text" id="nick" name="nick" placeholder="Kullanıcı adı girin" required>
-            <button class="btn-glitch-fill" type="submit">Gönder</button>
+            <div class="form-group">
+                <label for="nick">Kullanıcı Adı:</label>
+                <input type="text" id="nick" name="nick" placeholder="Kullanıcı adı girin" required>
+            </div>
+            <div style="display: flex; justify-content: center; gap: 15px;">
+            <button class="btn-glitch-fill" type="submit"><span class="text-decoration">\\ gönder //</span></button>
         </form>
     </section>
 
-    <button class="btn-glitch-fill" onclick="navigateTo('user')">geri dön</button>
-    <!-- Mesajlar -->
+    <div style="display: flex; justify-content: center; gap: 15px;">
+        <button class="btn-glitch-fill" onclick="navigateTo('user')"><span class="text-decoration">\\ kapat //</span></button>
+    </div>
+        <!-- Mesajlar -->
     {% if messages %}
     <div>
         {% for message in messages %}

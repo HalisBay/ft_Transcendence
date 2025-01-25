@@ -373,7 +373,7 @@ def send_friend_request(request):
         nick = request.POST.get('nick')
         if not nick:
             messages.error(request, "Kullanıcı adı girilmelidir.")
-            return redirect('friend_list')
+            return redirect('user')
 
         try:
             to_user = User.objects.get(nick=nick)  # Kullanıcıyı nick ile arıyoruz
@@ -384,7 +384,7 @@ def send_friend_request(request):
                 friend_list, created = FriendList.objects.get_or_create(user=request.user)
                 if friend_list.is_friend(to_user):
                     messages.info(request, "Bu kullanıcı zaten arkadaşınız.")
-                    return redirect('friend_list')
+                    return redirect('user')
 
                 # Aynı isteği daha önce göndermiş mi kontrol ediyoruz
                 existing_request = FriendRequest.objects.filter(from_user=request.user, to_user=to_user, status='pending').exists()
@@ -395,7 +395,7 @@ def send_friend_request(request):
                     messages.success(request, f"{nick} adlı kullanıcıya arkadaşlık isteği gönderildi.")
         except User.DoesNotExist:
             messages.error(request, "Kullanıcı bulunamadı.")
-        return redirect('friend_list')
+        return redirect('user')
 
 
 @login_required

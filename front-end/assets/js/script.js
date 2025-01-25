@@ -361,3 +361,21 @@ function submitAnonymizeForm(event) {
         document.getElementById('message').innerHTML = 'Bir hata oluştu: ' + error.message;
     });
 }
+
+
+function toggleFriendsBox(friendsBoxId) {
+    var element = document.getElementById(friendsBoxId);
+    var container = document.querySelector('.container');
+
+    if (element.style.display === "none" || element.style.display === "") {
+        element.style.display = "block";
+        container.classList.add('shifted');
+    } else {
+        element.classList.add('fade-out-slide');
+        container.classList.remove('shifted');
+        setTimeout(function() {
+            element.style.display = "none";
+            element.classList.remove('fade-out-slide');
+        }, 1000); // Animasyon süresi ile uyumlu olmalı
+    }
+}

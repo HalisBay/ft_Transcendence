@@ -168,6 +168,9 @@ select.avatar-select option {
 }
 
 
+
+
+
 /* Kullanıcı */
 
 .user-card {
@@ -177,7 +180,7 @@ select.avatar-select option {
     margin: auto;
     position: relative;
     border-radius: 50%;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* Kartın etrafına gölge */
+    box-shadow: 0 4px 12px rgb(0, 0, 0); /* Kartın etrafına gölge */
     transition: height 0.4s ease, width 0.4s ease, border-radius 0.4s ease;
 }
 
@@ -212,8 +215,8 @@ select.avatar-select option {
 .user-card:hover {
     width: 250px; /* Kart genişler */
     height: 250px; /* Kart uzar */
-    border-radius: 15px; /* Kart köşeleri yuvarlanır */
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); /* Hover olduğunda daha fazla gölge */
+    border: 2px solid rgb(255, 174, 0);
+
 }
 
 .user-card:hover .user-image {
@@ -227,7 +230,7 @@ select.avatar-select option {
 }
 
 .user-card:hover {
-    background: linear-gradient(45deg, #1e90ff, #4682b4, #b22222, #800000);
+    background: transparent;
     background-size: 350% 350%;
     background-position: center;
 }
@@ -340,3 +343,54 @@ img{
     100% { transform: rotate(360deg) scale(1); }
   }
   
+
+
+
+/* posizyon animasyonu */
+
+
+.friends-list {
+    display: none;
+    animation: fadeIn 1s forwards;
+    grid-column: 1;
+    grid-row: 1/5;
+}
+
+.container.shifted {
+    grid-template-columns: 4fr 2fr 4fr 1fr 1fr;
+    animation: fade-in 1s forwards;
+
+}
+
+.friends-list.fade-out-slide { 
+    animation: fadeOut 1s forwards;
+}
+
+
+
+.friiendss{
+    color: white;
+    display: block;
+}
+
+.friiendss h1 {
+    display: flex;
+    justify-content: center;
+    color: #ffffff;
+    font-size: x-large;
+    font-family: 'Press Start 2P', cursive;
+    border-bottom: 3px solid rgb(255, 255, 255);
+    
+}
+
+.friiendss h2{
+    display: flex;
+    justify-content: center;
+}
+
+
+.friiendss ul{
+    height: 350px;
+    border: 1px solid rgb(255, 247, 2);
+    border-radius: 35px;
+}

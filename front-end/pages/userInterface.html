@@ -16,39 +16,51 @@
         </div>
     </div>
 
-<div class="buttons">
-    <div class="btn-glitch-fill" onclick="navigateTo('game/home')">
-        <span class="text-decoration">// OYUN //</span>
-    </div>
-    <div class="btn-glitch-fill" onclick="navigateTo('user/update')">
-        <span class="text-decoration">// düzenle //</span>
-    </div>
-    <div class="btn-glitch-fill" onclick="navigateTo('logout')">
-        <span class="text-decoration">// çıkış yap //</span>
-    </div>
-    <div class="btn-glitch-fill" onclick="activate2FA()">
-        <span class="text-decoration">// activate 2FA //</span>
-    </div>
-    <div class="btn-glitch-fill" onclick="navigateTo('anonymize_account')">
-        <span class="text-decoration">// anonimleştir //</span>
-    </div>
-    <div class="btn-glitch-fill" onclick="navigateTo('user/delete')">
-        <span class="text-decoration">// hesabı sil //</span>
-    </div>
-    <div class="btn-glitch-fill" onclick="navigateTo('friends')">
-        <span class="text-decoration">// arkadaşlar //</span>
+
+    <div id="friends-list" class="friends-list">
+        {% include 'pages/friend_list.html' %} 
     </div>
 
 
-        {% if messages %}
-        <div class="messages">
-            {% for message in messages %}
-                <p class="message {{ message.tags }}">{{ message }}</p>
-            {% endfor %}
+    <div class="buttons">
+        <div class="btn-glitch-fill" onclick="navigateTo('game/home')">
+            <span class="text-decoration">// OYUN //</span>
         </div>
-        {% endif %}
+        <div class="btn-glitch-fill" onclick="navigateTo('user/update')">
+            <span class="text-decoration">// düzenle //</span>
+        </div>
+        <div class="btn-glitch-fill" onclick="navigateTo('logout')">
+            <span class="text-decoration">// çıkış yap //</span>
+        </div>
+        <div class="btn-glitch-fill" onclick="activate2FA()">
+            <span class="text-decoration">// activate 2FA //</span>
+        </div>
+        <div class="btn-glitch-fill" onclick="navigateTo('anonymize_account')">
+            <span class="text-decoration">// anonimleştir //</span>
+        </div>
+        <div class="btn-glitch-fill" onclick="navigateTo('user/delete')">
+            <span class="text-decoration">// hesabı sil //</span>
+        </div>
+        <div class="btn-glitch-fill" onclick="navigateTo('friends')">
+            <span class="text-decoration">// Arkadaş //</span>
+        </div>
+
+
+
+        <div class="friends-button-fill" onclick="toggleFriendsBox('friends-list')">
+            <span class="text-decoration">+ ARKADAŞLAR -</span>
+        </div>
+
+
+
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <p class="message {{ message.tags }}">{{ message }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
     </div>
     <div id="content"></div>
-    
 </div>
 {% endblock %}
