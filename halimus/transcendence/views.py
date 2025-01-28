@@ -30,6 +30,8 @@ from functools import wraps
 import hashlib
 import os
 from django.utils.crypto import get_random_string
+from django.core.files.storage import FileSystemStorage
+from mimetypes import guess_type
 
 
 logger = logging.getLogger(__name__)
@@ -274,6 +276,7 @@ def update_user(request):
     new_password = request.POST.get('new_password')
     new_password_confirm = request.POST.get('new_password_confirm')
     selected_avatar = request.POST.get('select_avatar')
+    avatar_file = request.FILES.get('avatar_file')
 
     # Kullanıcı adı güncelleme
     if nick:
@@ -309,7 +312,23 @@ def update_user(request):
                 messages.error(request, serializer.errors.get('password', ["Şifre güncellenemedi."])[0])
 
     # Avatar güncelleme
-    if selected_avatar:
+    if avatar_file:
+        # İzin verilen MIME türleri
+        allowed_mime_types = ['image/jpeg', 'image/png', 'image/gif']
+        
+        # MIME türünü belirleme
+        mime_type, _ = guess_type(avatar_file.name)
+
+        if mime_type not in allowed_mime_types:
+            messages.error(request, "Yalnızca JPEG, PNG veya GIF dosyaları yükleyebilirsiniz.")
+        else:
+            fs = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'avatars'))
+            filename = fs.save(avatar_file.name, avatar_file)
+            request.user.avatar = os.path.join('avatars', filename)
+            request.user.save()
+            messages.success(request, "Avatar başarıyla yüklendi ve güncellendi.")
+
+    elif selected_avatar:
         user.avatar = selected_avatar
         user.save()
         messages.success(request, "Avatar başarıyla güncellendi.")

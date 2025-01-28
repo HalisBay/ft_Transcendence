@@ -391,3 +391,35 @@ img{
     border: 1px solid rgb(255, 247, 2);
     border-radius: 35px;
 }
+
+
+
+.file-label {
+    display: inline-block;
+    background-color:transparent;
+    width: 205px;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 25px;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    border: 2px solid #ffffff;
+}
+
+.file-input {
+    display: none;
+}
+
+.file-text {
+    pointer-events: none;
+}
+
+.file-name {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #555;
+    font-style: italic;
+}
+
