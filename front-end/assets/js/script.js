@@ -28,9 +28,9 @@ function navigateTo(page) {
             window.history.pushState({ page }, '', newUrl);
 
             // WebSocket'i sadece belirli sayfada başlat
-            if (page === 'game/pong') {
+            if (page === 'game/pong')
                 initiateWebSocketConnection();
-            } else if (socket && socket.readyState === WebSocket.OPEN) {
+            else if (socket && socket.readyState === WebSocket.OPEN) {
                 socket.close(); // WebSocket'i diğer sayfalarda kapat
             }
         })
@@ -115,6 +115,42 @@ function submitFormOne(event) {
     });
 }
 
+function getCsrfToken() {
+    return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+}
+function waitingRoom(event) {
+    event.preventDefault();
+
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      socket.close();
+    }
+
+    socket = new WebSocket('ws://' + window.location.host + '/ws/tournament/');
+
+    socket.onopen = () => {
+      console.log('WebSocket bağlantısı başarıyla açıldı.');
+      document.getElementById('status').innerHTML = 'Connecting...';
+    };
+
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === 'user_count_update') {
+        document.getElementById('user-count').innerHTML = `Bağlı Kullanıcı Sayısı: ${data.user_count}`;
+      } else if (data.type === 'start_tournament') {
+        alert('Turnuva başlıyor!');
+        // Oyunu başlatma işlemleri burada yapılabilir
+      }
+    };
+
+    socket.onerror = (error) => {
+      console.error('WebSocket hatası:', error);
+    };
+
+    socket.onclose = (event) => {
+      console.log('WebSocket bağlantısı kapandı:', event);
+    };
+
+}
 
 function initiateWebSocketConnection() {
     if (socket && socket.readyState === WebSocket.OPEN) {
@@ -189,9 +225,6 @@ function activate2FA() {
     });
 }
 
-function getCsrfToken() {
-    return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-}
 
 function sendMessage(event) {
     // Formun varsayılan davranışını engelle (sayfa yenilenmesini önler)

@@ -1,0 +1,38 @@
+{% extends 'pages/base.html' %}
+
+{% block title %}Turnuva - Pong{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <!-- Turnuva Oluşturma Formu (Sol Taraf) -->
+    <div style="float: left; width: 45%; padding: 20px;">
+      <h2 class="blinking-title">Turnuva Oluştur</h2>
+      <form id="create-tournament-form" onsubmit="waitingRoom(event)" method="POST">
+        {% csrf_token %}
+        <label for="creator-alias">Alias (Turnuva Oluşturucu):</label>
+        <input type="text" id="creator-alias" name="creator-alias" class="input-field" placeholder="Alias" required>
+
+        <label for="tournament-name">Turnuva Adı:</label>
+        <input type="text" id="tournament-name" name="tournament-name" class="input-field" placeholder="Turnuva Adı" required>
+
+        <button class="btn-glitch-fill" type="submit">Turnuva Oluştur</button>
+      </form>
+      <div id="status" style="color: white; margin-top: 20px;"></div>
+      <div id="user-count" style="color: white; margin-top: 20px;"></div>
+    </div>
+
+    <!-- Turnuvaya Katılma Formu (Sağ Taraf) -->
+    <div style="float: right; width: 45%; padding: 20px;">
+      <h2 class="blinking-title">Turnuvaya Katıl</h2>
+      <form id="join-tournament-form">
+        <label for="player-alias">Alias (Katılımcı):</label>
+        <input type="text" id="player-alias" name="player-alias" class="input-field" placeholder="Alias" required>
+
+        <label for="tournament-id">Turnuva ID:</label>
+        <input type="text" id="tournament-id" name="tournament-id" class="input-field" placeholder="Turnuva ID" required>
+
+        <button class="btn-glitch-fill" type="submit">Katıl</button>
+      </form>
+    </div>
+  </div>
+{% endblock %}

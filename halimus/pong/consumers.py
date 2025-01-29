@@ -235,3 +235,112 @@ class PongConsumer(AsyncWebsocketConsumer):
             'type': 'game_state',
             'state': state
         }))
+
+import json
+from channels.generic.websocket import AsyncWebsocketConsumer
+
+class TournamentConsumer(AsyncWebsocketConsumer):
+    connected_users = []  # Bağlı kullanıcıları tutacak liste
+
+    async def connect(self):
+        self.room_name = "tournament_room"
+        self.room_group_name = f"tournament_{self.room_name}"
+
+        # Odaya katılma
+        await self.channel_layer.group_add(
+            self.room_group_name,
+            self.channel_name
+        )
+
+        await self.accept()
+
+        # Kullanıcıyı bağlı kullanıcılar listesine ekle
+        self.connected_users.append(self.channel_name)
+        await self.update_user_count()
+
+    async def disconnect(self, close_code):
+        # Kullanıcıyı bağlı kullanıcılar listesinden çıkar
+        if self.channel_name in self.connected_users:
+            self.connected_users.remove(self.channel_name)
+            await self.update_user_count()
+
+        await self.channel_layer.group_discard(
+            self.room_group_name,
+            self.channel_name
+        )
+
+    async def update_user_count(self):
+        # Bağlı kullanıcı sayısını tüm kullanıcılara gönder
+        user_count = len(self.connected_users)
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'user_count_update',
+                'user_count': user_count,
+            }
+        )
+
+        # 5 kullanıcı olduğunda oyunu başlat
+        if user_count == 5:
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'start_tournament',
+                }
+            )
+
+    async def receive(self, text_data):
+        text_data_json = json.loads(text_data)
+        message_type = text_data_json['type']
+
+        if message_type == 'create_tournament':
+            creator_alias = text_data_json['creatorAlias']
+            tournament_name = text_data_json['tournamentName']
+
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'tournament_created',
+                    'creatorAlias': creator_alias,
+                    'tournamentName': tournament_name,
+                }
+            )
+
+        elif message_type == 'join_tournament':
+            player_alias = text_data_json['playerAlias']
+            tournament_id = text_data_json['tournamentId']
+
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'player_joined',
+                    'playerAlias': player_alias,
+                    'tournamentId': tournament_id,
+                }
+            )
+
+    async def tournament_created(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'tournament_created',
+            'creatorAlias': event['creatorAlias'],
+            'tournamentName': event['tournamentName']
+        }))
+
+    async def player_joined(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'player_joined',
+            'playerAlias': event['playerAlias'],
+            'tournamentId': event['tournamentId']
+        }))
+
+    async def user_count_update(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'user_count_update',
+            'user_count': event['user_count']
+        }))
+
+    async def start_tournament(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'start_tournament',
+            'message': 'Turnuva başlıyor!'
+        }))

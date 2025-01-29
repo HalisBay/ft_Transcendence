@@ -14,3 +14,13 @@ class MatchHistory(models.Model):
 
     def __str__(self):
         return f"{self.user.nick} - {'Kazandı' if self.result else 'Kaybetti'} vs {self.opponent.nick}"
+
+from django.db import models
+
+class Tournament(models.Model):
+    creator_alias = models.CharField(max_length=100)
+    tournament_name = models.CharField(max_length=100)
+    players = models.JSONField(default=list)  # Katılımcıları tutmak için
+
+    def __str__(self):
+        return self.tournament_name
