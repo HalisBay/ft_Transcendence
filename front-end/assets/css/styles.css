@@ -371,6 +371,26 @@ img{
 }
 
 /* Her arkadaş öğesi için stil */
+.file-label {
+    display: inline-block;
+    background-color:transparent;
+    width: 205px;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 25px;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    border: 2px solid #FFFFFF;
+}
+.file-input {
+    display: none;
+}
+.file-text {
+    pointer-events: none;
+}
+
 .friend-item {
     display: flex;
     align-items: center;
