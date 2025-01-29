@@ -128,8 +128,8 @@ class PongConsumer(AsyncWebsocketConsumer):
         while len(room['players']) == 2:
             ball = game_state['ball']
             players = game_state['players']
-            ball['x'] += ball['vx'] * 500
-            ball['y'] += ball['vy'] * 500
+            ball['x'] += ball['vx'] * 10
+            ball['y'] += ball['vy'] * 10
             if ball['y'] >= 570 or ball['y'] < 2:
                 ball['vy'] = -ball['vy']
             if ball['x'] <= 5 and players['player1']['y'] <= ball['y'] <= players['player1']['y'] + 60:
