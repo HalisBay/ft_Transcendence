@@ -15,7 +15,15 @@
                         <span class="friend-status">
                             <span class="status-indicator {% if friend.is_online %}online{% else %}offline{% endif %}"></span>
                         </span>
-                        <span class="friend-name">{{ friend.nick }}</span> 
+                        <span class="friend-name">{{ friend.nick }} </span> 
+                        <div class="profile-button"  onclick="navigateTo('game/profile/{{ friend.id }}')">
+                            <span class="circle1"></span>
+                            <span class="circle2"></span>
+                            <span class="circle3"></span>
+                            <span class="circle4"></span>
+                            <span class="circle5"></span>
+                            <span class="text-decoration">Profile Git</span>
+                        </div>
                     </div>
                 </li>
             {% endfor %}
