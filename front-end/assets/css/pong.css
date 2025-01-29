@@ -16,8 +16,10 @@
 
 
 #gameArea {
-    width: 1000px;
-    height: 580px;
+    width: 90vw;
+    height: 90vh;
+    max-width: 1000px;
+    max-height: 580px;
     border: 2px solid #ffffff;
     position: relative;
     background: #000;
@@ -32,6 +34,7 @@
     left: 50%;
     transform: translate(-50%, -50%);
     border-radius: 50%;
+    transition: top 0.1s, left 0.1s;
 }
 
 .paddle {
@@ -39,6 +42,7 @@
     height: 60px;
     background-color: rgb(255, 255, 255);
     position: absolute;
+    transition: top 0.1s, left 0.1s;
 }
 
 #player1 {
