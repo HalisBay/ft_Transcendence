@@ -179,11 +179,12 @@ def perform_login(request, user):
                         'success': False,
                         'message': 'Giriş başarılı!',
                     })
+    # TODO: https olunca buraya secure=True eklencek
     response.set_cookie(
-        'access_token', access_token, httponly=True, secure=True, samesite='Lax'
+        'access_token', access_token, httponly=True, samesite='Lax'
     )
     response.set_cookie(
-        'refresh_token', refresh_token, httponly=True, secure=True, samesite='Lax'
+        'refresh_token', refresh_token, httponly=True, samesite='Lax'
     )
     print(f"Debug mesaji", {user})
     return response
@@ -368,4 +369,5 @@ def delete_all(request):
             messages.error(request, "Yanlış metin girdiniz. Lütfen 'hesabımı sil' yazın.")
             return render(request, 'pages/deleteall.html')
     return render(request, 'pages/deleteall.html')
+
 

@@ -17,7 +17,11 @@
     </div>
 
 
-    
+    <div id="friendsPanel" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="toggleFriendsPanel()">×</span>
+        </div>
+    </div>
 
 
     <div class="buttons">
@@ -45,12 +49,9 @@
         <div class="btn-glitch-fill" onclick="navigateTo('game/profile/1')">
             <span class="text-decoration">// profil //</span>
         </div>
-
-
-
-
-    
-
+        <div class="btn-glitch-fill" onclick="toggleFriendsPanel()">
+            <span class="text-decoration">// Arkadaş //</span>
+        </div>
 
 
             {% if messages %}

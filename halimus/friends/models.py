@@ -49,12 +49,17 @@ class FriendRequest(models.Model):
     def accept(self):
         self.status = 'accepted'
         self.save()
-        # Kullanıcıları arkadaş listesine ekleme
         FriendList.objects.get_or_create(user=self.from_user)[0].add_friend(self.to_user)
         FriendList.objects.get_or_create(user=self.to_user)[0].add_friend(self.from_user)
+        FriendRequest.objects.filter(
+            from_user=self.to_user, to_user=self.from_user, status='pending'
+        ).delete()
         self.delete()
 
     def reject(self):
         self.status = 'rejected'
         self.save()
+        FriendRequest.objects.filter(
+            from_user=self.to_user, to_user=self.from_user, status='pending'
+        ).delete()
         self.delete()

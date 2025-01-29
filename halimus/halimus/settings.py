@@ -104,7 +104,7 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
+ALLOWED_HOSTS = ['*']
 
 EMAIL_BACKEND = env('EMAIL_BACKEND')
 EMAIL_HOST=env('EMAIL_HOST')

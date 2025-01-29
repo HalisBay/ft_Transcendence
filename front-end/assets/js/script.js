@@ -363,4 +363,26 @@ function submitAnonymizeForm(event) {
 }
 
 
+function toggleFriendsPanel() {
+    const panel = document.getElementById('friendsPanel');
+    const body = document.body;
 
+    if (panel.classList.contains('active')) {
+        // Paneli kapat (fade-out ve kaydırma)
+        panel.style.animation = 'fadeOut 0.3s'; // Fade-out animasyonu
+        setTimeout(() => {
+            panel.classList.remove('active'); // Paneli gizle
+            body.classList.remove('shifted'); // Sayfayı eski haline getir
+        }, 300); // Animasyon süresi kadar bekler
+    } else {
+        // Paneli aç (fade-in ve kaydırma)
+        fetch('/friends/') // Arkadaş sayfanızın URL'si
+            .then(response => response.text())
+            .then(html => {
+                panel.querySelector('.modal-content').innerHTML = html;
+                panel.classList.add('active'); // Paneli göster
+                panel.style.animation = 'fadeIn 0.3s'; // Fade-in efekti
+                body.classList.add('shifted'); // Sayfayı sağa kaydır
+            });
+    }
+}
