@@ -633,3 +633,18 @@ img{
     z-index: -1; 
   }
    */
+
+
+
+
+
+   .room-one{
+    grid-column: 2;
+    grid-row: 2;
+   }
+
+
+   .room-two{
+    grid-column: 4;
+    grid-row: 2;
+   }

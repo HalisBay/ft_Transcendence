@@ -1,4 +1,5 @@
 let socket = null; // Global bir WebSocket değişkeni tanımlayın
+let pageHistory = [];
 
 window.addEventListener('DOMContentLoaded', (event) => {
     const initialPage = window.location.pathname.substring(1) || 'home';
@@ -7,6 +8,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
 function navigateTo(page) {
     const content = document.getElementById('content');
+
+      // Aynı URL'yi tekrar eklememek için kontrol et
+      if (pageHistory[pageHistory.length - 1] !== page) {
+        pageHistory.push(page); // Yeni sayfayı geçmişe ekle
+    }
 
     fetch(`/${page}`)
         .then(response => {
@@ -421,4 +427,14 @@ function toggleFriendsPanel() {
 }
 
 
+function goBack() {
+    if (pageHistory.length > 1) {
+        pageHistory.pop(); // Son sayfayı diziden sil
+        const previousPage = pageHistory[pageHistory.length - 1]; // Sonraki sayfayı al
 
+        navigateTo(previousPage); // Geri gitmek için bu sayfayı yükle
+    } else {
+        // Eğer geçmişte başka sayfa yoksa, ilk sayfaya geri dön
+        navigateTo('home')
+    }
+}
