@@ -18,21 +18,32 @@
         <button class="btn-glitch-fill" type="submit">Turnuva Oluştur</button>
       </form>
       <div id="status" style="color: white; margin-top: 20px;"></div>
-      <div id="user-count" style="color: white; margin-top: 20px;"></div>
     </div>
 
     <!-- Turnuvaya Katılma Formu (Sağ Taraf) -->
     <div style="float: right; width: 45%; padding: 20px;">
       <h2 class="blinking-title">Turnuvaya Katıl</h2>
-      <form id="join-tournament-form">
+      <form id="join-tournament-form" onsubmit="joinTournament(event)">
         <label for="player-alias">Alias (Katılımcı):</label>
         <input type="text" id="player-alias" name="player-alias" class="input-field" placeholder="Alias" required>
-
-        <label for="tournament-id">Turnuva ID:</label>
-        <input type="text" id="tournament-id" name="tournament-id" class="input-field" placeholder="Turnuva ID" required>
-
+    
+        <label for="tournament-id">Turnuva Adı:</label>
+        <input type="text" id="tournament-id" name="tournament-id" class="input-field" placeholder="Turnuva Adı" required>
+    
         <button class="btn-glitch-fill" type="submit">Katıl</button>
-      </form>
+    </form>    
+    </div>
+
+    <!-- Aktif Turnuvalar Listesi (Formların Altında) -->
+    <div style="clear: both; padding: 20px; text-align: center;">
+      <h2 class="blinking-title">Aktif Turnuvalar</h2>
+      <ul>
+        {% for tournament in tournaments %}
+          <li>{{ tournament.tournament_name }} - Oluşturan: {{ tournament.creator_alias }}</li>
+        {% empty %}
+          <li>Aktif turnuva yok.</li>
+        {% endfor %}
+      </ul>
     </div>
   </div>
 {% endblock %}

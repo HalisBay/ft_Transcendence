@@ -121,36 +121,92 @@ function getCsrfToken() {
 function waitingRoom(event) {
     event.preventDefault();
 
-    if (socket && socket.readyState === WebSocket.OPEN) {
-      socket.close();
+    const form = document.getElementById('create-tournament-form');
+    const creatorAlias = document.getElementById('creator-alias').value;
+    const tournamentName = document.getElementById('tournament-name').value;
+    
+    const socket = new WebSocket('ws://' + window.location.host + '/ws/tournament/');
+
+    socket.onopen = function() {
+        // Once the connection is open, send the data
+        socket.send(JSON.stringify({
+            'action': 'create_tournament',
+            'creator_alias': creatorAlias,
+            'tournament_name': tournamentName
+        }));
+    };
+
+    socket.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        if (data.error) {
+            document.getElementById('status').innerText = data.error;
+        } else {
+            document.getElementById('status').innerText = data.message;
+        }
+    };
+
+    socket.onclose = function(event) {
+        // Bağlantı kapandığında yapılacaklar
+        if (event.code === 1000) {
+            console.log("Bağlantı başarılı bir şekilde kapatıldı.");
+        } else {
+            console.log("Bağlantı kapatıldı:", event.code);
+        }
+    };
+
+    socket.onerror = function(event) {
+        document.getElementById('status').innerText = "Error: Unable to connect to the WebSocket.";
+    };
+}
+
+function joinTournament(event) {
+    event.preventDefault();
+
+    const form = document.getElementById('join-tournament-form');
+    const playerAlias = document.getElementById('player-alias').value; // Alias
+    const tournamentName = document.getElementById('tournament-id').value; // Turnuva ismi (tournament name)
+
+    // Eğer inputlardan biri null veya boşsa, form gönderilmesin
+    if (!playerAlias || !tournamentName) {
+        alert("Lütfen tüm alanları doldurun!");
+        return;
     }
 
-    socket = new WebSocket('ws://' + window.location.host + '/ws/tournament/');
+    const socket = new WebSocket('ws://' + window.location.host + '/ws/tournament/');
 
-    socket.onopen = () => {
-      console.log('WebSocket bağlantısı başarıyla açıldı.');
-      document.getElementById('status').innerHTML = 'Connecting...';
+    socket.onopen = function() {
+        // Once the connection is open, send the data
+        socket.send(JSON.stringify({
+            'action': 'join_tournament',
+            'player_alias': playerAlias,
+            'tournament_name': tournamentName // Burada tournament-id yerine tournament-name kullanıyoruz
+        }));
     };
 
-    socket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.type === 'user_count_update') {
-        document.getElementById('user-count').innerHTML = `Bağlı Kullanıcı Sayısı: ${data.user_count}`;
-      } else if (data.type === 'start_tournament') {
-        alert('Turnuva başlıyor!');
-        // Oyunu başlatma işlemleri burada yapılabilir
-      }
+    socket.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        console.log("Sunucudan mesaj:", data.message);
+    
+        // Hata mesajı kontrolü
+        if (data.message.includes("Could not add player") || data.message.includes("not found")) {
+            alert(data.message);  // Kullanıcıya hata mesajını göster
+            socket.close();       // ❗ Hata durumunda WebSocket bağlantısını kapat
+        }
     };
-
-    socket.onerror = (error) => {
-      console.error('WebSocket hatası:', error);
+    
+    // Bağlantı kapatıldığında çalışacak kısım
+    socket.onclose = function(event) {
+        console.log("WebSocket bağlantısı kapatıldı:", event.code);
     };
-
-    socket.onclose = (event) => {
-      console.log('WebSocket bağlantısı kapandı:', event);
+    
+    // Hata durumunda çalışacak kısım
+    socket.onerror = function(error) {
+        console.error("WebSocket hatası:", error);
+        socket.close();  // ❗ Hata durumunda bağlantıyı kapat
     };
-
 }
+
+
 
 function initiateWebSocketConnection() {
     if (socket && socket.readyState === WebSocket.OPEN) {

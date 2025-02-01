@@ -17,16 +17,12 @@ def gameHome(request):
 from django.shortcuts import render
 from .models import Tournament
 
+@login_required
+@jwt_required
 def tournamentRoom(request):
-    if request.method == 'POST':
-        creator_alias = request.POST.get('creator-alias')
-        tournament_name = request.POST.get('tournament-name')
-        
-        tournament = Tournament.objects.create(creator_alias=creator_alias, tournament_name=tournament_name)
-        
-        return render(request, 'pages/tRoom.html', {'status': 'Turnuva başarıyla oluşturuldu!'})
-    
-    return render(request, 'pages/tRoom.html')
+    tournaments = Tournament.objects.all()
+
+    return render(request, 'pages/tRoom.html', {'tournaments': tournaments})
 
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required

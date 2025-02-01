@@ -2,8 +2,9 @@ import json
 import asyncio
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.contrib.auth import get_user_model
-from .models import MatchHistory
+from .models import MatchHistory,Tournament,TournamentParticipant
 from channels.db import database_sync_to_async
+
 User = get_user_model()
 # Global oyun durumu ve oda yönetimi
 rooms = {}  # {'room_name': {'players': [user1, user2], 'game_state': {...}, 'user_channel_map': {user_id: channel_name}}}
@@ -236,111 +237,162 @@ class PongConsumer(AsyncWebsocketConsumer):
             'state': state
         }))
 
+from channels.db import database_sync_to_async
+from .models import Tournament, TournamentParticipant, User
 import json
-from channels.generic.websocket import AsyncWebsocketConsumer
 
 class TournamentConsumer(AsyncWebsocketConsumer):
-    connected_users = []  # Bağlı kullanıcıları tutacak liste
-
     async def connect(self):
-        self.room_name = "tournament_room"
-        self.room_group_name = f"tournament_{self.room_name}"
+        self.room_group_name = "tournament_group"
+        self.user = self.scope['user']
 
-        # Odaya katılma
+        # Kullanıcı doğrulaması
+        if not self.user.is_authenticated:
+            await self.close()  # Bağlantıyı kapat
+            return
+
+        await self.accept()  # WebSocket bağlantısını kabul et
+
+        # Grupta bu kanal adı ile katılım sağla
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
         )
 
-        await self.accept()
+        # Başlangıç mesajı gönderme
+        try:
+            await self.send(text_data=json.dumps({
+                'message': 'Connected to tournament room'
+            }))
+        except Exception as e:
+            print(f"Error while sending initial message: {e}")
 
-        # Kullanıcıyı bağlı kullanıcılar listesine ekle
-        self.connected_users.append(self.channel_name)
-        await self.update_user_count()
+
 
     async def disconnect(self, close_code):
-        # Kullanıcıyı bağlı kullanıcılar listesinden çıkar
-        if self.channel_name in self.connected_users:
-            self.connected_users.remove(self.channel_name)
-            await self.update_user_count()
-
+        # Kanalı gruptan çıkar
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
         )
-
-    async def update_user_count(self):
-        # Bağlı kullanıcı sayısını tüm kullanıcılara gönder
-        user_count = len(self.connected_users)
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type': 'user_count_update',
-                'user_count': user_count,
-            }
-        )
-
-        # 5 kullanıcı olduğunda oyunu başlat
-        if user_count == 5:
-            await self.channel_layer.group_send(
-                self.room_group_name,
-                {
-                    'type': 'start_tournament',
-                }
-            )
+        print(f"Disconnected: {self.channel_name}, code: {close_code}")
 
     async def receive(self, text_data):
-        text_data_json = json.loads(text_data)
-        message_type = text_data_json['type']
+        data = json.loads(text_data)
+        action = data.get('action', None)
 
-        if message_type == 'create_tournament':
-            creator_alias = text_data_json['creatorAlias']
-            tournament_name = text_data_json['tournamentName']
+        if action == 'create_tournament':
+            creator_alias = data.get('creator_alias')
+            tournament_name = data.get('tournament_name')
 
-            await self.channel_layer.group_send(
-                self.room_group_name,
-                {
-                    'type': 'tournament_created',
-                    'creatorAlias': creator_alias,
-                    'tournamentName': tournament_name,
-                }
+            tournament = await self.create_tournament(creator_alias, tournament_name)
+            if not tournament:
+               return
+            if isinstance(tournament, str):  # Hata mesajı dönüyorsa
+                if self.channel_name:
+                    await self.send(text_data=json.dumps({
+                        'message': tournament  # Bu, hata mesajını döndürecek
+                    }))
+                await self.close()
+            elif tournament:
+                await self.send(text_data=json.dumps({
+                    'message': f"Tournament '{tournament_name}' created by {creator_alias}"
+                }))
+            else:
+                await self.send(text_data=json.dumps({
+                    'message': "An unknown error occurred while creating the tournament."
+                }))
+
+        elif action == 'join_tournament':
+            player_alias = data.get('player_alias')
+            tournament_name = data.get('tournament_name')
+
+            tournament = await self.get_tournament_by_name(tournament_name)
+            if tournament:
+                # Oturum açmış kullanıcıyla katılım işlemi
+                participant = await self.add_player_to_tournament(tournament, player_alias)
+
+                if participant:
+                    await self.send(text_data=json.dumps({
+                        'message': f"User with alias '{player_alias}' joined the tournament '{tournament_name}'."
+                    }))
+                else:
+                    await self.send(text_data=json.dumps({
+                        'message': f"Could not add player to the tournament '{tournament_name}'."
+                    }))
+                    await self.close()
+            else:
+                await self.send(text_data=json.dumps({
+                    'message': f"Tournament '{tournament_name}' not found."
+                }))
+                await self.close()
+
+    async def create_tournament(self, creator_alias, tournament_name):
+        if await database_sync_to_async(Tournament.objects.filter(tournament_name=tournament_name).exists)():
+            await self.send(text_data=json.dumps({'error': 'Tournament with this name already exists'}))
+            await self.close(code=4000)  # Bağlantıyı kapat
+            return None
+
+        try:
+            # Create the tournament
+            tournament = await database_sync_to_async(Tournament.objects.create)(
+                creator_alias=creator_alias,
+                tournament_name=tournament_name
             )
 
-        elif message_type == 'join_tournament':
-            player_alias = text_data_json['playerAlias']
-            tournament_id = text_data_json['tournamentId']
-
-            await self.channel_layer.group_send(
-                self.room_group_name,
-                {
-                    'type': 'player_joined',
-                    'playerAlias': player_alias,
-                    'tournamentId': tournament_id,
-                }
+            # Add the creator as a participant
+            await database_sync_to_async(TournamentParticipant.objects.create)(
+                user=self.user,
+                tournament=tournament,
+                alias=creator_alias
             )
 
-    async def tournament_created(self, event):
-        await self.send(text_data=json.dumps({
-            'type': 'tournament_created',
-            'creatorAlias': event['creatorAlias'],
-            'tournamentName': event['tournamentName']
-        }))
+            # Send success message if the connection is still open
+            if self.channel_name:
+                await self.send(text_data=json.dumps({'message': f'Tournament {tournament_name} created successfully.'}))
 
-    async def player_joined(self, event):
-        await self.send(text_data=json.dumps({
-            'type': 'player_joined',
-            'playerAlias': event['playerAlias'],
-            'tournamentId': event['tournamentId']
-        }))
+            return tournament
 
-    async def user_count_update(self, event):
-        await self.send(text_data=json.dumps({
-            'type': 'user_count_update',
-            'user_count': event['user_count']
-        }))
+        except Exception as e:
+            print(f"Error while creating tournament: {e}")
+            # Send error message if the connection is still open
+            if self.channel_name:
+                await self.send(text_data=json.dumps({'error': 'An error occurred while creating the tournament'}))
+            await self.close()  # Close the WebSocket connection
+            return None
 
-    async def start_tournament(self, event):
-        await self.send(text_data=json.dumps({
-            'type': 'start_tournament',
-            'message': 'Turnuva başlıyor!'
-        }))
+
+        
+
+    @database_sync_to_async
+    def get_tournament_by_name(self, tournament_name):
+        return Tournament.objects.filter(tournament_name=tournament_name).first()
+
+    @database_sync_to_async
+    def add_player_to_tournament(self, tournament, player_alias):
+        try:
+            # Turnuvada bu alias'a sahip bir katılımcı var mı diye kontrol et
+            existing_participant = TournamentParticipant.objects.filter(
+                alias=player_alias, tournament=tournament).first()
+
+            if existing_participant:
+                # Eğer alias zaten varsa, hata mesajı gönder
+                return None
+
+            # Katılımcı kullanıcıyı oturum açmış kullanıcıyla eşleştir
+            participant = TournamentParticipant.objects.create(
+                user=self.user,  # Burada oturum açmış kullanıcıyı alıyoruz
+                tournament=tournament,
+                alias=player_alias
+            )
+
+            return participant  # Katılım başarıyla oluşturuldu
+
+        except Exception as e:
+            print(f"Error while adding player to tournament: {e}")
+            return None
+
+    @database_sync_to_async
+    def get_participant_by_alias(self, player_alias, tournament):
+        # Turnuvada bu alias'a sahip bir katılımcı var mı diye kontrol et
+        return TournamentParticipant.objects.filter(alias=player_alias, tournament=tournament).first()
