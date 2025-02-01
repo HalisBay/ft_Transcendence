@@ -19,6 +19,13 @@ class Tournament(models.Model):
     tournament_name = models.CharField(max_length=100)
     creator_alias = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    @property
+    def participant_count(self):
+        return TournamentParticipant.objects.filter(tournament=self).count()
+
+    def is_user_participant(self, user):
+        return TournamentParticipant.objects.filter(tournament=self, user=user).exists()
 
     def __str__(self):
         return self.name
@@ -30,3 +37,4 @@ class TournamentParticipant(models.Model):
 
     def __str__(self):
         return f"{self.alias} in {self.tournament.tournament_name}"
+    

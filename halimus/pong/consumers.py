@@ -270,7 +270,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
 
     async def disconnect(self, close_code):
-        # Kanalı gruptan çıkar
+        # Kanalı gruptan çı
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
@@ -284,6 +284,13 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         if action == 'create_tournament':
             creator_alias = data.get('creator_alias')
             tournament_name = data.get('tournament_name')
+
+            if await self.is_user_in_any_tournament():
+                await self.send(text_data=json.dumps({
+                    'message': "You are already a participant in another tournament. You cannot create a new tournament."
+                }))
+                await self.close()
+                return
 
             tournament = await self.create_tournament(creator_alias, tournament_name)
             if not tournament:
@@ -306,6 +313,13 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         elif action == 'join_tournament':
             player_alias = data.get('player_alias')
             tournament_name = data.get('tournament_name')
+
+            if await self.is_user_in_any_tournament():
+                await self.send(text_data=json.dumps({
+                    'message': "You are already a participant in another tournament. You cannot join a new tournament."
+                }))
+                await self.close()
+                return
 
             tournament = await self.get_tournament_by_name(tournament_name)
             if tournament:
@@ -379,6 +393,12 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                 # Eğer alias zaten varsa, hata mesajı gönder
                 return None
 
+            existing_user_participant = TournamentParticipant.objects.filter(
+            user=self.user, tournament=tournament).first()
+
+            if existing_user_participant:
+                return None
+
             # Katılımcı kullanıcıyı oturum açmış kullanıcıyla eşleştir
             participant = TournamentParticipant.objects.create(
                 user=self.user,  # Burada oturum açmış kullanıcıyı alıyoruz
@@ -396,3 +416,9 @@ class TournamentConsumer(AsyncWebsocketConsumer):
     def get_participant_by_alias(self, player_alias, tournament):
         # Turnuvada bu alias'a sahip bir katılımcı var mı diye kontrol et
         return TournamentParticipant.objects.filter(alias=player_alias, tournament=tournament).first()
+
+
+    @database_sync_to_async
+    def is_user_in_any_tournament(self):
+        # Kullanıcının başka bir turnuvaya katılıp katılmadığını kontrol et
+        return TournamentParticipant.objects.filter(user=self.user).exists()

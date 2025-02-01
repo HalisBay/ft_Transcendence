@@ -21,8 +21,12 @@ from .models import Tournament
 @jwt_required
 def tournamentRoom(request):
     tournaments = Tournament.objects.all()
+    
+    for tournament in tournaments:
+        tournament.is_user_participant = tournament.is_user_participant(request.user)
+    
+    return render(request, 'pages/tRoom.html', {'tournaments': tournaments, 'user': request.user})
 
-    return render(request, 'pages/tRoom.html', {'tournaments': tournaments})
 
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -59,3 +63,4 @@ def profile_view(request, user_id):
         'total_losses': match_history.filter(result=False).count(),
     }
     return render(request, 'pages/profile.html', context)
+

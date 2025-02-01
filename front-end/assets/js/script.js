@@ -185,8 +185,20 @@ function joinTournament(event) {
 
     socket.onmessage = function(event) {
         const data = JSON.parse(event.data);
-        console.log("Sunucudan mesaj:", data.message);
-    
+        if (data.error) {
+            document.getElementById('status').innerText = data.error;
+        } else {
+            document.getElementById('status').innerText = data.message;
+            if (data.success && data.tournament_name === tournamentName) {
+                // Katıldın bilgisini ilgili turnuvada anında göstermek
+                const tournamentItem = document.querySelector(`#tournament-list li[data-tournament="${tournamentName}"]`);
+                if (tournamentItem) {
+                    tournamentItem.innerHTML += ' - Katıldın';
+                }
+            }
+        }
+        
+        
         // Hata mesajı kontrolü
         if (data.message.includes("Could not add player") || data.message.includes("not found")) {
             alert(data.message);  // Kullanıcıya hata mesajını göster

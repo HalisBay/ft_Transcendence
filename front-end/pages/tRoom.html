@@ -37,12 +37,20 @@
     <!-- Aktif Turnuvalar Listesi (Formların Altında) -->
     <div style="clear: both; padding: 20px; text-align: center;">
       <h2 class="blinking-title">Aktif Turnuvalar</h2>
-      <ul>
+      <ul id="tournament-list">
         {% for tournament in tournaments %}
-          <li>{{ tournament.tournament_name }} - Oluşturan: {{ tournament.creator_alias }}</li>
+          <li data-tournament="{{ tournament.tournament_name }}">
+            {{ tournament.tournament_name }} - Oluşturan: {{ tournament.creator_alias }} ({{ tournament.participant_count }}/4)
+            {% if user.is_authenticated %}
+              {% if tournament.is_user_participant %}
+                - Katıldın
+              {% endif %}
+            {% endif %}
+          </li>
         {% empty %}
           <li>Aktif turnuva yok.</li>
         {% endfor %}
+      </ul>
       </ul>
     </div>
   </div>
