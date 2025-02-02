@@ -121,7 +121,7 @@ button.back-btn:hover {
 
 .match-table th, .match-table td {
     padding: 12px;
-    text-align: left;
+    text-align: center;
     font-size: 1.1rem;
 }
 
@@ -131,7 +131,7 @@ button.back-btn:hover {
 }
 
 .match-table td {
-    background-color: #222;
+    background-color: #000000; /* Varsayılan arka plan rengi */
 }
 
 .match-table tr:nth-child(even) td {
@@ -160,4 +160,17 @@ button.back-btn:hover {
 
 .profile-wrapper {
     animation: fadeIn 1s ease-out;
+}
+
+
+/* Kazanan Profil Arka Planı (Altın Sarısı) */
+.match-winner {
+    background-color: #FFD700 !important; /* Altın sarısı */
+    padding: 20px;
+    /* border-radius: 10px; */
+    /* text-align: center; */
+    /* font-family: Arial, sans-serif; */
+    /* box-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 30px rgba(0, 0, 0, 0.6); */
+    position: relative;
+    overflow: hidden;
 }

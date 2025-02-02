@@ -101,25 +101,45 @@ function submitFormOne(event) {
     })
     .then(response => response.json())  // Yanıtı JSON formatında al
     .then(data => {
-        console.log(JSON.stringify(data));
-        if (data.success) {
-            // JWT token'ı localStorage'a kaydediyoruz
-            localStorage.setItem('access_token', data.access_token);
+        console.log(JSON.stringify(data));  // Konsola da yazdırıyoruz (debug için)
 
-            // Başarılı olursa kullanıcıyı login sayfasına yönlendir
+        // 📝 Mesajı ekrana yazdır
+        displayMessage(data.message, data.success);
+
+        if (data.success) {
+            localStorage.setItem('access_token', data.access_token);
             navigateTo('verify');
         } else {
             localStorage.setItem('access_token', data.access_token);
-
             navigateTo('user');
-            // Hata varsa, hata mesajını göster
-            document.getElementById('message').innerHTML = data.message;
         }
     })
     .catch(error => {
-        document.getElementById('message').innerHTML = 'Bir hata oluştu: ' + error.message;
+        displayMessage('Bir hata oluştu: ' + error.message, false);
     });
 }
+
+
+function displayMessage(message, isSuccess) {
+    const messageDiv = document.getElementById('message');
+
+    // Mesajın görünür olmasını sağla
+    messageDiv.style.display = 'block';
+    messageDiv.innerText = message;
+
+    // Başarı veya hata durumuna göre stil ver
+    if (isSuccess) {
+        messageDiv.style.color = 'green';
+        messageDiv.style.backgroundColor = '#e6ffe6';
+        messageDiv.style.border = '1px solid green';
+    } else {
+        messageDiv.style.color = 'red';
+        messageDiv.style.backgroundColor = '#ffe6e6';
+        messageDiv.style.border = '1px solid red';
+    }
+}
+
+
 
 function getCsrfToken() {
     return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -232,33 +252,6 @@ function activate2FA() {
 }
 
 
-function sendMessage(event) {
-    // Formun varsayılan davranışını engelle (sayfa yenilenmesini önler)
-    event.preventDefault();
-
-    // Mesaj kutusundan girilen değeri al
-    var message = document.getElementById("messageInput").value;
-
-    // Eğer mesaj boş değilse, ekleme işlemi yap
-    if (message.trim() !== "") {
-        // Yeni bir div oluşturun ve mesajı ekleyin
-        var messageDiv = document.createElement("div");
-        messageDiv.classList.add("message"); // Mesaj kutusu sınıfını ekle
-        messageDiv.textContent = message;
-
-        // Mesajı #messages alanına ekleyin
-        document.getElementById("messages").appendChild(messageDiv);
-
-        // Mesaj kutusunu temizleyin
-        document.getElementById("messageInput").value = "";
-
-        // Mesajlar görünümünü en son mesaja kaydır
-        var messagesContainer = document.getElementById("messages");
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }
-
-    return false; // Form gönderimini tamamen engelle
-}
 
 function checkInput() {
         const inputField = document.getElementById("deleteInput");
@@ -438,3 +431,6 @@ function goBack() {
         navigateTo('home')
     }
 }
+
+
+

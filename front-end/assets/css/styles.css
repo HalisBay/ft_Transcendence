@@ -495,8 +495,6 @@ img{
 
 /* Sol panel */
 .modal {
-    top: 0;
-    left: -300px; /* Panel başlangıçta gizli */
     height: 100%;
     width: 500px; /* Panelin genişliği */
     background: transparent;
@@ -648,3 +646,4 @@ img{
     grid-column: 4;
     grid-row: 2;
    }
+

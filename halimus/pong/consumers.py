@@ -194,7 +194,8 @@ class PongConsumer(AsyncWebsocketConsumer):
             result=True,
             win_count=await database_sync_to_async(lambda: winner_user.match_history.filter(result=True).count() + 1)(),
             lose_count=await database_sync_to_async(lambda: winner_user.match_history.filter(result=False).count())(),
-            score=game_state['scores'][winner]
+            score=game_state['scores'][winner],
+            tWinner = False
         )
         await database_sync_to_async(MatchHistory.objects.create)(
             user=loser_user,
@@ -202,7 +203,8 @@ class PongConsumer(AsyncWebsocketConsumer):
             result=False,
             win_count=await database_sync_to_async(lambda: loser_user.match_history.filter(result=True).count())(),
             lose_count=await database_sync_to_async(lambda: loser_user.match_history.filter(result=False).count() + 1)(),
-            score=game_state['scores'][f'player{3 - int(winner[-1])}']
+            score=game_state['scores'][f'player{3 - int(winner[-1])}'],
+            tWinner = False
         )
         # Clear players from the room
         del rooms[self.room_group_name]

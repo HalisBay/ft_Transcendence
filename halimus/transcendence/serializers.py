@@ -11,6 +11,7 @@ class UserSerializer(serializers.ModelSerializer):
     def validate_nick(self, value):
         if User.objects.filter(nick=value).exists():
             raise serializers.ValidationError('Bu nick zaten kullanılıyor.')
+            
         return value
 
     def validate_email(self, value):

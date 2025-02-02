@@ -11,6 +11,8 @@ class MatchHistory(models.Model):
     lose_count = models.IntegerField(default=0)  # Kaybettiği oyun sayısı
     score = models.IntegerField()  # Skor
     date_time = models.DateTimeField(auto_now_add=True)  # Tarih ve saat
+    tWinner = models.BooleanField(default=True)
+
 
     def __str__(self):
         return f"{self.user.nick} - {'Kazandı' if self.result else 'Kaybetti'} vs {self.opponent.nick}"

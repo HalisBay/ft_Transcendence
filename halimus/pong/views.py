@@ -51,6 +51,7 @@ def profile_view(request, user_id):
             ),
             'result': match.result,
             'date_time': match.date_time,
+            'tWinner': match.tWinner  # Bu alanı doğru bir şekilde aktarıyoruz
         }
         for match in match_history
     ]
@@ -61,5 +62,6 @@ def profile_view(request, user_id):
         'total_matches': match_history.count(),
         'total_wins': match_history.filter(result=True).count(),
         'total_losses': match_history.filter(result=False).count(),
+        'tWinner': match_history
     }
     return render(request, 'pages/profile.html', context)

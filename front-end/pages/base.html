@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEJ1Q3RlN9gJ2J5HlQJ0gplwLOHGF1wG8Hf6h2FjITwmN2+gzP2e47PbbT1Lg" crossorigin="anonymous">
     <link rel="stylesheet" href="{% static 'assets/css/styles.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/gameHome.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/pong.css' %}">
@@ -11,7 +12,6 @@
     <title>{% block title %}Halimus{% endblock %}</title>
 </head>
 <body>
-    <!-- <div id="snowContainer"></div>  -->
 
     <div id="content">
         <div class="lazMusti">
@@ -21,46 +21,7 @@
         {% block content %}
         {% endblock %}
     </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pzjw8f+ua7Kw1TIq0v8Fq1pI5ry00vPbIvS5lJ9BPOUHR1tsN4kI0nTXfuH47+df" crossorigin="anonymous"></script>
     <script src="{% static 'assets/js/script.js' %}" defer></script>
-    <!-- <script>
-const container = document.getElementById('snowContainer');
-
-// Kar yağışı için sürekli yeni daireler oluşturulacak
-function createSnowflakes() {
-    for (let i = 0; i < 10; i++) { // Her döngüde 10 yeni daire ekleniyor
-        const circle = document.createElement('div');
-        circle.classList.add('circle');
-        circle.style.setProperty('--i', i);
-
-        // Rastgele boyut
-        const size = Math.random() * 2 + 1; // 10px ile 30px arasında rastgele boyut
-        circle.style.width = `${size}px`;
-        circle.style.height = `${size}px`;
-
-        // Rastgele başlangıç noktası (yStart ekranın üst kısmında olacak)
-        const xStart = Math.random();
-        const yStart = -Math.random(); // Başlangıç noktasının ekranın dışında olmasını sağlamak
-
-        circle.style.setProperty('--xStart', xStart);
-        circle.style.setProperty('--yStart', yStart);
-        circle.style.setProperty('--xEnd', xStart); // Sabit xEnd
-        circle.style.setProperty('--yEnd', 1); // yEnd = 1, dairelerin ekranın altına düşmesini sağlar
-
-        // Geçikmeli animasyon
-        circle.style.animationDelay = `${Math.random() * 5}s`;
-
-        container.appendChild(circle);
-    }
-}
-
-// İlk başta bazı daireler ekleyelim
-createSnowflakes();
-
-// Yeni dairelerin eklenmesi için sürekli aralıkla çalışacak bir fonksiyon
-setInterval(createSnowflakes, 2000); // 2 saniyede bir yeni kar yağacak
-
-
-    </script> -->
 </body>
 </html>
