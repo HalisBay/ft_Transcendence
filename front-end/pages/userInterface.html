@@ -31,7 +31,7 @@
         <div class="btn-glitch-fill" onclick="navigateTo('user/update')">
             <span class="text-decoration">// düzenle //</span>
         </div>
-        <div class="btn-glitch-fill" onclick="navigateTo('logout')">
+        <div class="btn-glitch-fill" onclick="logoutUser()">
             <span class="text-decoration">// çıkış yap //</span>
         </div>
         <div class="btn-glitch-fill" onclick="activate2FA()">
@@ -49,15 +49,7 @@
         <div class="btn-glitch-fill" onclick="toggleFriendsPanel()">
             <span class="text-decoration">// Arkadaş //</span>
         </div>
-
-
-            {% if messages %}
-            <div class="messages">
-                {% for message in messages %}
-                    <p class="message {{ message.tags }}">{{ message }}</p>
-                {% endfor %}
-            </div>
-            {% endif %}
+        <div id="message"></div> <!-- Mesajları göstermek için -->
     </div>
     <div id="content"></div>
 </div>

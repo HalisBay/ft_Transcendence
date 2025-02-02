@@ -6,13 +6,7 @@
 {% block content %}
 <div class="container">
     <div class="buttons">
-        {% if messages %}
-        <div class="messages">
-            {% for message in messages %}
-                <p class="message {{ message.tags }}">{{ message }}</p>
-            {% endfor %}
-        </div>
-        {% endif %}
+        <div id="message"></div>
         <div class="btn-glitch-fill" onclick="navigateTo('login')">
             <span class="text-decoration">// giriş yap //</span>
         </div>

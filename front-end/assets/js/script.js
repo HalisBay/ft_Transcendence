@@ -68,12 +68,17 @@ function submitForm(event) {
     })
     .then(response => response.json())  // Yanıtı JSON formatında al
     .then(data => {
+        const messageElement = document.getElementById('message');
         if (data.success) {
-            // Başarılı olursa kullanıcıyı login sayfasına yönlendir
+
             navigateTo('login');
         } else {
-            //TODO: Burası hallolcak 
-            document.getElementById('message').innerHTML = messageContent;  // messageContent kullan
+            // Hata mesajlarını göster
+            let errorMessage = '';
+            for (const [key, value] of Object.entries(data.errors)) {
+                errorMessage += `<p class="text-danger">${value}</p>`;
+            }
+            messageElement.innerHTML = errorMessage;
         }
     })
     .catch(error => {
@@ -95,25 +100,57 @@ function submitFormOne(event) {
     })
     .then(response => response.json())  // Yanıtı JSON formatında al
     .then(data => {
+        const messageElement = document.getElementById('message');
         console.log(JSON.stringify(data));
         if (data.success) {
-            // JWT token'ı localStorage'a kaydediyoruz
-            localStorage.setItem('access_token', data.access_token);
-
-            // Başarılı olursa kullanıcıyı login sayfasına yönlendir
-            navigateTo('verify');
+            console.log(data.message)
+            if (data.message.includes("2FA doğrulaması gerekiyor. Lütfen e-postanızı kontrol edin.")) {
+                navigateTo('verify');
+            } else {
+                localStorage.setItem('access_token', data.access_token);
+                
+                navigateTo('user');
+            }
         } else {
-            localStorage.setItem('access_token', data.access_token);
-
-            navigateTo('user');
-            // Hata varsa, hata mesajını göster
-            document.getElementById('message').innerHTML = data.message;
+            // Hata mesajını göster
+            let errorMessage = '';
+            if (data.errors) {
+                for (const [key, value] of Object.entries(data.errors)) {
+                    errorMessage += `<p class="text-danger">${value}</p>`;
+                }
+            } else {
+                errorMessage = `<p class="text-danger">${data.message}</p>`;
+            }
+            messageElement.innerHTML = errorMessage;
         }
     })
     .catch(error => {
-        document.getElementById('message').innerHTML = 'Bir hata oluştu: ' + error.message;
+        document.getElementById('message').innerHTML = `<p class="text-danger">Bir hata oluştu: ${error.message}</p>`;
     });
 }
+function logoutUser() {
+    fetch('/logout', {
+        method: 'POST',  // POST isteği yapılıyor
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',  // AJAX isteği olduğunu belirtiyoruz
+        },
+    })
+    .then(response => response.json())  // Yanıtı JSON formatında al
+    .then(data => {
+        const messageElement = document.getElementById('message');
+        messageElement.innerHTML = `<p class="text-success">${data.message}</p>`;
+        
+        // Bir süre sonra kullanıcıyı login sayfasına yönlendir
+        setTimeout(() => {
+            navigateTo('login');
+        }, 500);
+    })
+    .catch(error => {
+        document.getElementById('message').innerHTML = `<p class="text-danger">Bir hata oluştu: ${error.message}</p>`;
+    });
+}
+
+
 
 function getCsrfToken() {
     return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -294,34 +331,6 @@ function activate2FA() {
 }
 
 
-function sendMessage(event) {
-    // Formun varsayılan davranışını engelle (sayfa yenilenmesini önler)
-    event.preventDefault();
-
-    // Mesaj kutusundan girilen değeri al
-    var message = document.getElementById("messageInput").value;
-
-    // Eğer mesaj boş değilse, ekleme işlemi yap
-    if (message.trim() !== "") {
-        // Yeni bir div oluşturun ve mesajı ekleyin
-        var messageDiv = document.createElement("div");
-        messageDiv.classList.add("message"); // Mesaj kutusu sınıfını ekle
-        messageDiv.textContent = message;
-
-        // Mesajı #messages alanına ekleyin
-        document.getElementById("messages").appendChild(messageDiv);
-
-        // Mesaj kutusunu temizleyin
-        document.getElementById("messageInput").value = "";
-
-        // Mesajlar görünümünü en son mesaja kaydır
-        var messagesContainer = document.getElementById("messages");
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }
-
-    return false; // Form gönderimini tamamen engelle
-}
-
 function checkInput() {
         const inputField = document.getElementById("deleteInput");
         const deleteButton = document.getElementById("deleteButton");
@@ -421,18 +430,21 @@ function submitUpdatePasswordForm(event) {
     .then(response => response.json())  // Yanıtı JSON formatında al
     .then(data => {
         console.log(JSON.stringify(data));
-        if (data.success) {
-            // Başarılı olursa kullanıcıyı login sayfasına yönlendir
-            navigateTo('user');
-        } else {
-            // Hata varsa, hata mesajını göster
-            document.getElementById('message').innerHTML = data.message;
+        const messageElement = document.getElementById('message');
+        messageElement.innerHTML = `<p class="text-success">${data.message}</p>`;
+
+        if (data.message.includes("Şifre başarıyla güncellendi")) {
+            // 2 saniye bekleyip login sayfasına yönlendir
+            setTimeout(() => {
+                navigateTo('login');
+            }, 2000);
         }
     })
     .catch(error => {
-        document.getElementById('message').innerHTML = 'Bir hata oluştu: ' + error.message;
+        document.getElementById('message').innerHTML = `<p class="text-danger">Bir hata oluştu: ${error.message}</p>`;
     });
 }
+
 
 
 function submitAnonymizeForm(event) {

@@ -55,6 +55,8 @@
                     <input type="file" id="avatar_file" name="avatar_file" class="file-input" onchange="showFileName(this)">
                 </label>
             </div>
+
+            <div id="message"></div> <!-- Mesajları göstermek için -->
             
             <button type="submit" class="btn-glitch-fill"><span class="text-decoration">// güncelle //</span></button>
         </form>
@@ -63,14 +65,6 @@
         <div class="btn-glitch-fill" onclick="navigateTo('user')">
             <span class="text-decoration">// geri //</span>
         </div>
-
-        {% if messages %}
-        <div class="messages">
-            {% for message in messages %}
-                <p class="message {{ message.tags }}">{{ message }}</p>
-            {% endfor %}
-        </div>
     </div>
 </div>
-{% endif %}
 {% endblock %}
