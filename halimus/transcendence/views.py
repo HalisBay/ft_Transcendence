@@ -93,15 +93,21 @@ def user_page(request):
 
 from rest_framework_simplejwt.tokens import RefreshToken
 
-def logout_page(request):
+from django.http import JsonResponse
+from django.shortcuts import render
 
+@api_view(['POST'])
+def logout_page(request):
     if request.user.is_authenticated:
-            user = request.user
-            user.is_online = False
-            user.save()
-            
+        user = request.user
+        user.is_online = False
+        user.save()
+
+    # Django oturumunu sonlandır
+    logout(request)
+
     # Çerezleri temizle
-    response = redirect('login')
+    response = JsonResponse({'success': True, 'message': 'Çıkış yapılıyor.'})
     response.delete_cookie('access_token')
     response.delete_cookie('refresh_token')
     response.delete_cookie('csrftoken')
@@ -111,10 +117,8 @@ def logout_page(request):
     response['Pragma'] = 'no-cache'
     response['Expires'] = '0'
 
-    # Django oturumunu sonlandır
-    logout(request)
-    messages.success(request, "Başarıyla çıkış yaptınız.")
     return response
+
 
 
 
@@ -122,18 +126,12 @@ def logout_page(request):
 def register_user(request):
     if request.method == 'POST':
         serializers = UserSerializer(data = request.data)
-        print(serializers)
         if serializers.is_valid():
             serializers.save()
-            response_data = {
-                "success": True,
-                "data": serializers.data,
-            }
-            messages.success(request, "Kayıt başarılı! Giriş yapabilirsiniz.")
-            return Response(response_data, status=status.HTTP_201_CREATED)
+            return Response({'success':True,'message': 'Kayıt başarılı.'}, status=status.HTTP_201_CREATED)
         else:
-            print(serializers.errors)
-            return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'success': False, 'errors': serializers.errors}, status=status.HTTP_400_BAD_REQUEST)
+
     elif request.method == 'GET':
         return render(request, 'pages/signUp.html',status = status.HTTP_200_OK)
 
@@ -159,8 +157,9 @@ def login_user(request):
                 else:
                     return perform_login(request, user)
             else:
-                return Response({'success': False, 'message': 'Geçersiz kullanıcı adı veya şifre.'}, status=status.HTTP_400_BAD_REQUEST)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'success': False, 'message': 'Geçersiz kullanıcı adı veya şifre.2'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'success': False, 'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
     elif request.method == 'GET':
         return render(request, 'pages/logIn.html',status = status.HTTP_200_OK)
 
@@ -176,7 +175,7 @@ def perform_login(request, user):
     response = redirect('user')
     if not user.is_2fa_active:
         response = Response({
-                        'success': False,
+                        'success': True,
                         'message': 'Giriş başarılı!',
                     })
     # TODO: https olunca buraya secure=True eklencek
@@ -263,6 +262,9 @@ def activate_2fa(request):
 def update(request):
     return render(request, 'pages/update.html', status=200)
 
+def format_messages(messages):
+    return '<br>'.join(messages)
+
 @api_view(['POST'])
 @jwt_required
 @login_required
@@ -279,15 +281,17 @@ def update_user(request):
     selected_avatar = request.POST.get('select_avatar')
     avatar_file = request.FILES.get('avatar_file')
 
+    messages = []
+
     # Kullanıcı adı güncelleme
     if nick:
         serializer = UserSerializer(user, data={'nick': nick}, partial=True)
         if serializer.is_valid():
             serializer.save()
             update_session_auth_hash(request, user)
-            messages.success(request, "Kullanıcı adı başarıyla güncellendi.")
+            messages.append("Kullanıcı adı başarıyla güncellendi.")
         else:
-            messages.error(request, serializer.errors.get('nick', ["Kullanıcı adı güncellenemedi."])[0])
+            messages.append(serializer.errors.get('nick', ["Kullanıcı adı güncellenemedi."])[0])
 
     # E-posta güncelleme
     if email:
@@ -295,22 +299,22 @@ def update_user(request):
         if serializer.is_valid():
             serializer.save()
             update_session_auth_hash(request, user)
-            messages.success(request, "E-posta başarıyla güncellendi.")
+            messages.append("E-posta başarıyla güncellendi.")
         else:
-            messages.error(request, serializer.errors.get('email', ["E-posta güncellenemedi."])[0])
+            messages.append(serializer.errors.get('email', ["E-posta güncellenemedi."])[0])
 
     # Şifre güncelleme
     if new_password and new_password_confirm:
         if new_password != new_password_confirm:
-            messages.error(request, "Şifreler eşleşmiyor.")
+            messages.append("Şifreler eşleşmiyor.")
         else:
             serializer = UserSerializer(user, data={'password': new_password}, partial=True)
             if serializer.is_valid():
                 serializer.save()
-                messages.success(request, "Şifre başarıyla güncellendi. Lütfen yeniden giriş yapın.")
+                messages.append("Şifre başarıyla güncellendi, Çıkış yapılıyor.")
                 logout(request)
             else:
-                messages.error(request, serializer.errors.get('password', ["Şifre güncellenemedi."])[0])
+                messages.append(serializer.errors.get('password', ["Şifre güncellenemedi."])[0])
 
     # Avatar güncelleme
     if avatar_file:
@@ -321,21 +325,23 @@ def update_user(request):
         mime_type, _ = guess_type(avatar_file.name)
 
         if mime_type not in allowed_mime_types:
-            messages.error(request, "Yalnızca JPEG, PNG veya GIF dosyaları yükleyebilirsiniz.")
+            messages.append("Yalnızca JPEG, PNG veya GIF dosyaları yükleyebilirsiniz.")
         else:
             fs = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'avatars'))
             filename = fs.save(avatar_file.name, avatar_file)
             request.user.avatar = os.path.join('avatars', filename)
             request.user.save()
-            messages.success(request, "Avatar başarıyla yüklendi ve güncellendi.")
+            messages.append("Avatar başarıyla yüklendi ve güncellendi.")
 
     elif selected_avatar:
         user.avatar = selected_avatar
         user.save()
-        messages.success(request, "Avatar başarıyla güncellendi.")
-    
+        messages.append("Avatar başarıyla güncellendi.")
 
-    return JsonResponse({'success': True}, status=200)
+    formatted_messages = format_messages(messages)
+    return JsonResponse({'success': True, 'message': formatted_messages}, status=200)
+
+
 
 
 def get_avatar_list():
