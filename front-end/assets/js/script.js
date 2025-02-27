@@ -168,7 +168,7 @@ function waitingRoom(event) {
     const creatorAlias = document.getElementById('creator-alias').value;
     const tournamentName = document.getElementById('tournament-name').value;
     
-    const socket = new WebSocket('ws://' + window.location.host + '/ws/tournament/');
+    const socket = new WebSocket('wss://' + window.location.host + '/ws/tournament/');
 
     socket.onopen = function() {
         // Once the connection is open, send the data
@@ -215,7 +215,7 @@ function joinTournament(event) {
         return;
     }
 
-    const socket = new WebSocket('ws://' + window.location.host + '/ws/tournament/');
+    const socket = new WebSocket('wss://' + window.location.host + '/ws/tournament/');
 
     socket.onopen = function() {
         // Once the connection is open, send the data
@@ -268,7 +268,7 @@ function initiateWebSocketConnection() {
         socket.close(); // Eski bağlantıyı kapat
     }
 
-    socket = new WebSocket('ws://' + window.location.host + '/ws/pong/');
+    socket = new WebSocket('wss://' + window.location.host + '/ws/pong/');
 
     const statusElement = document.getElementById('status');
 

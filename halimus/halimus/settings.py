@@ -177,9 +177,8 @@ STATICFILES_DIRS = [ '/usr/share/nginx/static/' ]
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CSRF_TRUSTED_ORIGINS = [
-    'http://127.0.0.1:8000',
-    'http://localhost:8000'
-]
+    'https://localhost:8001',]
+
 
 #annotations
 LOGIN_URL  = '/login'
@@ -198,3 +197,9 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': True,                    # Refresh token'ı döndürme özelliği
     'BLACKLIST_AFTER_ROTATION': True,                 # Eski refresh token'ları geçersiz kıl
 }
+
+# Security settings
+SECURE_SSL_REDIRECT = True  # Tüm HTTP isteklerini HTTPS'ye yönlendirir
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')  # Nginx tarafından iletilen başlıkları kontrol eder
+CSRF_COOKIE_SECURE = True  # CSRF çerezlerini sadece HTTPS üzerinden gönderir
+SESSION_COOKIE_SECURE = True  # Oturum çerezlerini sadece HTTPS üzerinden gönderir

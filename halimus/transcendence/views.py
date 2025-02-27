@@ -213,7 +213,7 @@ def generate_activation_token(user):
 
 def send_verification_email(user):
     token = generate_activation_token(user)
-    activation_url = f'http://localhost:8000/verify?token={token}'
+    activation_url = f'https://localhost:8001/verify?token={token}'
 
     subject = 'Email Verification'
     message = f'Please verify your email by clicking the following link: {activation_url}'
