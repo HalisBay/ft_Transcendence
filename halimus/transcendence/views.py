@@ -169,8 +169,6 @@ def perform_login(request, user):
     access_token = str(refresh.access_token)
     refresh_token = str(refresh)
     login(request, user)
-    
-    messages.success(request, "Giriş başarılı!") # registerdeki düzgün çalışıyor buradaki bozuk çalışıyor messages.success
 
     response = redirect('user')
     if not user.is_2fa_active:
@@ -357,8 +355,6 @@ def profile_edit_view(request):
     return render(request, 'pages/userInterface.html', context)
 
 
-
-
 @login_required
 @jwt_required
 def delete_all(request):
@@ -369,10 +365,8 @@ def delete_all(request):
             if user.is_anonymous:
                 return Response({'error': 'Kimlik doğrulama başarısız.'}, status=401)
             user.delete() 
-            messages.success(request, "Hesabınız başarıyla silindi.")
             return redirect("home")
         else:
-            messages.error(request, "Yanlış metin girdiniz. Lütfen 'hesabımı sil' yazın.")
             return render(request, 'pages/deleteall.html')
     return render(request, 'pages/deleteall.html')
 

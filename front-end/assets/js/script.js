@@ -339,26 +339,32 @@ function activate2FA() {
 
 
 function checkInput() {
-        const inputField = document.getElementById("deleteInput");
-        const deleteButton = document.getElementById("deleteButton");
+    const inputField = document.getElementById("deleteInput");
+    const deleteButton = document.getElementById("deleteButton");
+    const messageDiv = document.getElementById("message");
 
-        if (inputField.value.trim().toLowerCase() === "hesabımı sil") {
-            deleteButton.disabled = false; // Butonu aktif hale getir
-        } else {
-            deleteButton.disabled = true; // Butonu devre dışı bırak
-        }
+    if (inputField.value.trim().toLowerCase() === "hesabımı sil") {
+        deleteButton.disabled = false; // Butonu aktif hale getir
+        messageDiv.textContent = "";  // Hata mesajını temizle
+    } else {
+        deleteButton.disabled = true; // Butonu devre dışı bırak
+        messageDiv.textContent = "Lütfen 'hesabımı sil' yazın.";
+        messageDiv.style.color = "red";
     }
+}
 
+document.getElementById("deleteForm").addEventListener("submit", function (event) {
+    const inputField = document.getElementById("deleteInput");
+    const messageDiv = document.getElementById("message");
 
-    document.getElementById("deleteForm").addEventListener("submit", function (event) {
-        const inputField = document.getElementById("deleteInput");
+    // Eğer input doğru değilse formu gönderme
+    if (inputField.value.trim().toLowerCase() !== "hesabımı sil") {
+        event.preventDefault();
+        messageDiv.textContent = "Lütfen doğru metni girin: 'hesabımı sil'";
+        messageDiv.style.color = "red";
+    }
+});
 
-        // Eğer input doğru değilse formu gönderme
-        if (inputField.value.trim().toLowerCase() !== "hesabımı sil") {
-            event.preventDefault();
-            alert("Lütfen doğru metni girin: 'hesabımı sil'");
-        }
-    });
 // function getUserWithToken() {
 //     const token = new URLSearchParams(window.location.search).get('token'); // URL'den token'ı al
 
@@ -521,4 +527,6 @@ function goBack() {
 }
 
 
-
+setTimeout(function() {
+    document.getElementById("message-container").style.display = "none";
+}, 5000);
