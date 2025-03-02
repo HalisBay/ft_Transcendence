@@ -39,6 +39,7 @@ from django.utils.crypto import get_random_string
 from django.core.files.storage import FileSystemStorage
 from mimetypes import guess_type
 from halimus.settings import host_ip
+from django.views.decorators.csrf import csrf_protect
 
 
 logger = logging.getLogger(__name__)
@@ -113,13 +114,16 @@ from django.http import JsonResponse
 from django.shortcuts import render
 
 
-@api_view(["POST"])  # TODO:YARIN BURAYA BAKILCAK
+@csrf_protect
+@api_view(["POST"])
+@jwt_required
 def logout_page(request):
     if request.user.is_authenticated:
         user = request.user
         user.is_online = False
         user.save()
 
+    print(f"\nuser online {request.user.is_online}\n")
     # Django oturumunu sonlandır
     logout(request)
 
@@ -212,7 +216,6 @@ def perform_login(request, user):
                 "message": "Giriş başarılı!",
             }
         )
-    # TODO: https olunca buraya secure=True eklencek
     response.set_cookie(
         "access_token", access_token, httponly=True, samesite="Lax", secure=True
     )

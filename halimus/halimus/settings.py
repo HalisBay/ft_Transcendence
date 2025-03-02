@@ -207,3 +207,5 @@ SECURE_PROXY_SSL_HEADER = (
 )  # Nginx tarafından iletilen başlıkları kontrol eder
 CSRF_COOKIE_SECURE = True  # CSRF çerezlerini sadece HTTPS üzerinden gönderir
 SESSION_COOKIE_SECURE = True  # Oturum çerezlerini sadece HTTPS üzerinden gönderir
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = True
