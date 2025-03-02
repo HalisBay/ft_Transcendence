@@ -420,3 +420,13 @@ button {
 .room-two { grid-column: 4; grid-row: 2; }
 .room-three { grid-column: 3; }
 .room-three ul { text-align: center; }
+
+.text-success {
+    color: green;  /* Başarılı mesajlar için yeşil renk */
+    font-weight: bold;
+}
+
+.text-danger {
+    color: red;  /* Hata mesajları için kırmızı renk */
+    font-weight: bold;
+}

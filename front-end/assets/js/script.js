@@ -6,7 +6,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
     navigateTo(initialPage);
 });
 
-//TODO: kullanıcı tarayıcıyı kapatınca olcak bu, bu düzeltilcek.
+// TODO: kullanıcı tarayıcıyı kapatınca olcak bu, bu düzeltilcek.
 window.onbeforeunload = function() {
     fetch('/logout', {
         method: 'POST',  // POST isteği yapılıyor
@@ -543,3 +543,76 @@ function goBack() {
 setTimeout(function() {
     document.getElementById("message-container").style.display = "none";
 }, 5000);
+
+
+
+function submitFriendsForm(event) {
+    event.preventDefault();  // Sayfa yenilemesini engelle
+    const csrfToken = getCsrfToken();
+    const form = event.target;  // Form elementini al
+    const url = form.getAttribute('action');  // Formun action URL'sini al
+    const formData = new FormData(form);  // Form verilerini al
+
+    fetch(url, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',  // AJAX isteği olduğunu belirt
+            'X-CSRFToken': csrfToken,  // CSRF token'ını ekle
+        },
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();  // Yanıtı JSON formatında al
+    })
+    .then(data => {
+        const messageElement = document.getElementById('message');
+        if (data.success) {
+            setTimeout(() => {
+                navigateTo('user');
+            }, 500); 
+            messageElement.innerHTML = `<p class="text-success">${data.message}</p>`;
+        } else {
+            messageElement.innerHTML = `<p class="text-danger">${data.message}</p>`;
+        }
+    })
+    .catch(error => {
+        console.error('Hata:', error);
+        document.getElementById('message').innerHTML = `<p class="text-danger">Bir hata oluştu: ${error.message}</p>`;
+    });
+}
+
+
+function handleFriendRequest(event, url) {
+    event.preventDefault();  // Sayfa yenilenmesini engelle
+    const csrfToken = getCsrfToken();
+
+    fetch(url, {
+        method: 'GET',  // Kabul etme ve reddetme işlemleri GET isteği ile yapılıyor
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',  // AJAX isteği olduğunu belirt
+            'X-CSRFToken': csrfToken,  // CSRF token'ını ekle
+        },
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();  // Yanıtı JSON formatında al
+    })
+    .then(data => {
+        const messageElement = document.getElementById('message');
+        if (data.success) {
+            messageElement.innerHTML = `<p class="text-success">${data.message}</p>`;
+            navigateTo('user');
+        } else {
+            messageElement.innerHTML = `<p class="text-danger">${data.message}</p>`;
+        }
+    })
+    .catch(error => {
+        console.error('Hata:', error);
+        document.getElementById('message').innerHTML = `<p class="text-danger">Bir hata oluştu: ${error.message}</p>`;
+    });
+}

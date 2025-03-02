@@ -4,6 +4,7 @@ from transcendence.requireds import jwt_required,notlogin_required
 from django.contrib.auth.decorators import login_required
 from .models import User,FriendList, FriendRequest
 from django.db.models import Case, When, IntegerField
+from django.http import JsonResponse
 from django.db import models
 
 
@@ -39,47 +40,42 @@ def friend_list(request):
 
 
 @login_required
+@jwt_required
 def send_friend_request(request):
     """Arkadaşlık isteği gönderme"""
     if request.method == 'POST':
         nick = request.POST.get('nick')
         if not nick:
-            messages.error(request, "Kullanıcı adı girilmelidir.")
-            return redirect('user')
+            return JsonResponse({'success': False, 'message': 'Kullanıcı adı girilmelidir.'})
 
         try:
-            to_user = User.objects.get(nick=nick)  # Kullanıcıyı nick ile arıyoruz
+            to_user = User.objects.get(nick=nick)
             if to_user == request.user:
-                messages.error(request, "Kendinize istek gönderemezsiniz.")
+                return JsonResponse({'success': False, 'message': 'Kendinize istek gönderemezsiniz.'})
+
+            friend_list, created = FriendList.objects.get_or_create(user=request.user)
+            if friend_list.is_friend(to_user):
+                return JsonResponse({'success': False, 'message': 'Bu kullanıcı zaten arkadaşınız.'})
+
+            existing_request = FriendRequest.objects.filter(from_user=request.user, to_user=to_user, status='pending').exists()
+            if existing_request:
+                return JsonResponse({'success': False, 'message': 'Bu kullanıcıya zaten istek gönderdiniz.'})
             else:
-                # Arkadaşlık kontrolü
-                friend_list, created = FriendList.objects.get_or_create(user=request.user)
-                if friend_list.is_friend(to_user):
-                    messages.info(request, "Bu kullanıcı zaten arkadaşınız.")
-                    return redirect('user')
-
-                # Aynı isteği daha önce göndermiş mi kontrol ediyoruz
-                existing_request = FriendRequest.objects.filter(from_user=request.user, to_user=to_user, status='pending').exists()
-                if existing_request:
-                    messages.info(request, "Bu kullanıcıya zaten istek gönderdiniz.")
-                else:
-                    FriendRequest.objects.create(from_user=request.user, to_user=to_user)
-                    messages.success(request, f"{nick} adlı kullanıcıya arkadaşlık isteği gönderildi.")
+                FriendRequest.objects.create(from_user=request.user, to_user=to_user)
+                return JsonResponse({'success': True, 'message': f'{nick} adlı kullanıcıya arkadaşlık isteği gönderildi.'})
         except User.DoesNotExist:
-            messages.error(request, "Kullanıcı bulunamadı.")
-        return redirect('user')
-
+            return JsonResponse({'success': False, 'message': 'Kullanıcı bulunamadı.'})
 
 @login_required
 def accept_friend_request(request, request_id):
     """Arkadaşlık isteğini kabul et"""
     friend_request = get_object_or_404(FriendRequest, id=request_id, to_user=request.user)
     friend_request.accept()
-    return redirect('user')
+    return JsonResponse({'success': True, 'message': 'Arkadaşlık isteği kabul edildi.'})
 
 @login_required
 def reject_friend_request(request, request_id):
     """Arkadaşlık isteğini reddet"""
     friend_request = get_object_or_404(FriendRequest, id=request_id, to_user=request.user)
     friend_request.reject()
-    return redirect('user')
+    return JsonResponse({'success': True, 'message': 'Arkadaşlık isteği reddedildi.'})

@@ -115,8 +115,8 @@ from django.shortcuts import render
 
 
 @csrf_protect
-@jwt_required
 @api_view(["POST"])
+@jwt_required
 def logout_page(request):
     if request.user.is_authenticated:
         user = request.user
