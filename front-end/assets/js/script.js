@@ -6,6 +6,19 @@ window.addEventListener('DOMContentLoaded', (event) => {
     navigateTo(initialPage);
 });
 
+//TODO: kullanıcı tarayıcıyı kapatınca olcak bu, bu düzeltilcek.
+window.onbeforeunload = function() {
+    fetch('/logout', {
+        method: 'POST',  // POST isteği yapılıyor
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',  // AJAX isteği olduğunu belirtiyoruz
+        },
+    })
+    document.cookie.split(';').forEach(function(c) {
+        document.cookie = c.trim().split('=')[0] + '=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    });
+};
+
 function navigateTo(page) {
     const content = document.getElementById('content');
 
