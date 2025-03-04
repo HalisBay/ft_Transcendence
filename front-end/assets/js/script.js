@@ -457,14 +457,19 @@ function submitUpdatePasswordForm(event) {
     .then(data => {
         console.log(JSON.stringify(data));
         const messageElement = document.getElementById('message');
-        messageElement.innerHTML = `<p class="text-success">${data.message}</p>`;
+        const message = data.success ? data.message : data.error_message;
+        messageElement.className = data.success ? "text-success" : "text-danger";
+        messageElement.innerHTML = `<p>${message}</p>`;
 
-        if (data.message.includes("Şifre başarıyla güncellendi")) {
+
+
+        if (message === "Şifre başarıyla güncellendi") {
             // 2 saniye bekleyip login sayfasına yönlendir
             setTimeout(() => {
                 navigateTo('login');
             }, 2000);
         }
+
     })
     .catch(error => {
         document.getElementById('message').innerHTML = `<p class="text-danger">Bir hata oluştu: ${error.message}</p>`;

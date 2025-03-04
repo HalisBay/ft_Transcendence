@@ -38,7 +38,7 @@
 
 
     <!-- Gelen istekler -->
-    <h2 class="friiendsss">Gelen İstekler</h2>
+    <h2 class="friiendss">Gelen İstekler</h2>
     <ul class="friiendssss">
         {% for request in received_requests %}
             <li class="request-item">
@@ -54,7 +54,7 @@
     </ul>
 
     <!-- Gönderilen istekler -->
-    <h2 class="friiendsss">Gönderilen İstekler</h2>
+    <h2 class="friiendss">Gönderilen İstekler</h2>
     <ul class="friiendssss">
         <div class="friend-expect">
             {% for request in sent_requests %}
@@ -66,7 +66,7 @@
     </ul>
 
     <section>
-        <h2 class="friiendsss">Arkadaşlık İsteği Gönder</h2>
+        <h2 class="friiendss">Arkadaşlık İsteği Gönder</h2>
         <form  method="POST" action="{% url 'send_friend_request' %}" onsubmit="submitFriendsForm(event)">
             {% csrf_token %}
             <div class="form-group">

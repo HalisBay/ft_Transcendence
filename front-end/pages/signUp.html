@@ -19,13 +19,15 @@
                 <label for="password">Şifre</label>
                 <input type="password" class="input-field" id="password" name="password" placeholder="Şifre girin" required>
             </div>
-            <div id="message"></div> 
             <div id="content"></div>
             <button class="btn-glitch-fill" type="submit"><span class="text-decoration">// kayıt ol //</span></button>
         </form>
         <div class="btn-glitch-fill" onclick="navigateTo('home')">
             <span class="text-decoration">// Anasayfa //</span>
         </div>
+    </div>
+    <div class="message" style="grid-column: 3; grid-row: 3;">
+        <div id="message"></div> 
     </div>
 </div>
 {% endblock %}

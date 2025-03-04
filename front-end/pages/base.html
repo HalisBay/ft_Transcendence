@@ -12,7 +12,7 @@
     <title>{% block title %}Halimus{% endblock %}</title>
 </head>
 <body>
-
+    <div id="snowContainer"></div> 
     <div id="content">
         <div class="lazMusti"> 
             <div class="GDPR" onclick="navigateTo('gdpr')">Veri Gizliliği Politikası</div>
@@ -23,5 +23,59 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pzjw8f+ua7Kw1TIq0v8Fq1pI5ry00vPbIvS5lJ9BPOUHR1tsN4kI0nTXfuH47+df" crossorigin="anonymous"></script>
     <script src="{% static 'assets/js/script.js' %}" defer></script>
+    <script>
+        const container = document.getElementById('snowContainer');
+        let isSnowing = true; 
+    
+        function createSnowflakes() {
+            if (!isSnowing) return;
+        
+            for (let i = 0; i < 50; i++) {
+                const circle = document.createElement('div');
+                circle.classList.add('circle');
+                circle.style.setProperty('--i', i);
+        
+         
+                const size = Math.random() * 4; 
+                circle.style.width = `${size}px`;
+                circle.style.height = `${size}px`;
+        
+             
+                const xStart = Math.random();
+                const yStart = -Math.random(); 
+        
+                circle.style.setProperty('--xStart', xStart);
+                circle.style.setProperty('--yStart', yStart);
+                circle.style.setProperty('--xEnd', xStart); 
+                circle.style.setProperty('--yEnd', 1); 
+        
+             
+                circle.style.animationDelay = `${Math.random() * 2}s`;
+        
+             
+                setTimeout(() => {
+                    circle.remove(); 
+                }, 28000); 
+        
+                container.appendChild(circle);
+            }
+        }
+        
+     
+        createSnowflakes();
+        
+        
+        setInterval(createSnowflakes, 2000); 
+       
+        const toggleButton = document.getElementById('toggleSnow'); 
+        toggleButton.addEventListener('click', () => {
+            isSnowing = !isSnowing; 
+            if (!isSnowing) {
+                container.innerHTML = ''; 
+            }
+        });
+        
+        
+    </script>
 </body>
 </html>

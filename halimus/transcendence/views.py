@@ -62,6 +62,7 @@ def anonymize_user_data(user):
     """Kullanıcı bilgilerini anonimleştirir"""
     user.email = anonymize_email(user.email)
     user.nick = anonymize_nick(user.nick)
+    
     user.save()
 
 
@@ -72,6 +73,7 @@ def anonymize_account(request):
 
     if request.method == "POST":
         # Kullanıcı bilgilerini anonimleştir
+        user.is_anonymized = True
         anonymize_user_data(user)
         messages.success(request, "Hesap bilgileri anonimleştirildi.")
         return JsonResponse({"success": True}, status=200)
@@ -329,7 +331,7 @@ def format_messages(messages):
 @login_required
 def update_user(request):
     user = request.user
-    if user.is_anonymous:
+    if user.is_anonymized:
         return Response({"error": "Kimlik doğrulama başarısız."}, status=401)
 
     # Güncellenecek alanları al
@@ -341,6 +343,7 @@ def update_user(request):
     avatar_file = request.FILES.get("avatar_file")
 
     messages = []
+    errors = []
 
     # Kullanıcı adı güncelleme
     if nick:
@@ -350,7 +353,7 @@ def update_user(request):
             update_session_auth_hash(request, user)
             messages.append("Kullanıcı adı başarıyla güncellendi.")
         else:
-            messages.append(
+            errors.append(
                 serializer.errors.get("nick", ["Kullanıcı adı güncellenemedi."])[0]
             )
 
@@ -362,14 +365,14 @@ def update_user(request):
             update_session_auth_hash(request, user)
             messages.append("E-posta başarıyla güncellendi.")
         else:
-            messages.append(
+            errors.append(
                 serializer.errors.get("email", ["E-posta güncellenemedi."])[0]
             )
 
     # Şifre güncelleme
     if new_password and new_password_confirm:
         if new_password != new_password_confirm:
-            messages.append("Şifreler eşleşmiyor.")
+            errors.append("Şifreler eşleşmiyor.")
         else:
             serializer = UserSerializer(
                 user, data={"password": new_password}, partial=True
@@ -377,9 +380,9 @@ def update_user(request):
             if serializer.is_valid():
                 serializer.save()
                 messages.append("Şifre başarıyla güncellendi, Çıkış yapılıyor.")
-                logout(request)
+                logout_page(request)
             else:
-                messages.append(
+                errors.append(
                     serializer.errors.get("password", ["Şifre güncellenemedi."])[0]
                 )
 
@@ -392,7 +395,7 @@ def update_user(request):
         mime_type, _ = guess_type(avatar_file.name)
 
         if mime_type not in allowed_mime_types:
-            messages.append("Yalnızca JPEG, PNG veya GIF dosyaları yükleyebilirsiniz.")
+            errors.append("Yalnızca JPEG, PNG veya GIF dosyaları yükleyebilirsiniz.")
         else:
             fs = FileSystemStorage(
                 location=os.path.join(settings.MEDIA_ROOT, "avatars")
@@ -407,6 +410,12 @@ def update_user(request):
         user.save()
         messages.append("Avatar başarıyla güncellendi.")
 
+    # Hata mesajları varsa success False olarak döndür
+    if errors:
+        format_error = format_messages(errors)
+        return JsonResponse({"success": False, "error_message": format_error}, status=400)
+
+    # Hata yoksa success True olarak döndür
     formatted_messages = format_messages(messages)
     return JsonResponse({"success": True, "message": formatted_messages}, status=200)
 
@@ -427,8 +436,8 @@ def profile_edit_view(request):
     return render(request, "pages/userInterface.html", context)
 
 
-@login_required
 @jwt_required
+@login_required
 def delete_all(request):
     if request.method == "POST":
         input_text = (
