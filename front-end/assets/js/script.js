@@ -34,6 +34,7 @@ function navigateTo(page) {
         })
         .then(html => {
             content.innerHTML = html;
+            updateButtonVisibility(page);
 
             const newScripts = content.querySelectorAll('script');
             newScripts.forEach(script => {
@@ -46,11 +47,10 @@ function navigateTo(page) {
             const newUrl = `/${page}`;
             window.history.pushState({ page }, '', newUrl);
 
-            // WebSocket'i sadece belirli sayfada başlat
             if (page === 'game/pong')
                 initiateWebSocketConnection();
             else if (socket && socket.readyState === WebSocket.OPEN) {
-                socket.close(); // WebSocket'i diğer sayfalarda kapat
+                socket.close();
             }
         })
         .catch(error => {
@@ -520,27 +520,32 @@ function submitAnonymizeForm(event) {
 
 function toggleFriendsPanel() {
     const panel = document.getElementById('friendsPanel');
-    const body = document.body;
+    const overlay = document.getElementById('overlay'); // Overlay seç
 
     if (panel.classList.contains('active')) {
-        // Paneli kapat (fade-out ve kaydırma)
-        panel.style.animation = 'fadeOut 0.3s'; // Fade-out animasyonu
+        // Paneli kapat
+        panel.style.animation = 'fadeOut 0.3s';
+        overlay.classList.remove('active'); // Overlay'i kapat
         setTimeout(() => {
-            panel.classList.remove('active'); // Paneli gizle
-            body.classList.remove('shifted'); // Sayfayı eski haline getir
-        }, 300); // Animasyon süresi kadar bekler
+            panel.classList.remove('active');
+            panel.style.display = 'none';
+            overlay.style.display = 'none';
+        }, 300);
     } else {
-        // Paneli aç (fade-in ve kaydırma)
-        fetch('/friends/') // Arkadaş sayfanızın URL'si
+        // Paneli aç
+        fetch('/friends/')
             .then(response => response.text())
             .then(html => {
                 panel.querySelector('.modal-content').innerHTML = html;
-                panel.classList.add('active'); // Paneli göster
-                panel.style.animation = 'fadeIn 0.3s'; // Fade-in efekti
-                body.classList.add('shifted'); // Sayfayı sağa kaydır
+                panel.classList.add('active');
+                panel.style.animation = 'fadeIn 0.3s';
+                panel.style.display = 'block';
+                overlay.classList.add('active'); // Overlay'i aç
+                overlay.style.display = 'block';
             });
     }
 }
+
 
 
 function goBack() {
@@ -631,4 +636,19 @@ function handleFriendRequest(event, url) {
         console.error('Hata:', error);
         document.getElementById('message').innerHTML = `<p class="text-danger">Bir hata oluştu: ${error.message}</p>`;
     });
+}
+
+
+function updateButtonVisibility(currentPage) {
+    const gdprButton = document.querySelector(".GDPR");
+    const aboutButton = document.querySelector(".GDPR2");
+    const friendsButton = document.querySelector(".GDPR3");
+
+    if (currentPage === "gdpr" || currentPage === "about") {
+        gdprButton.style.display = "none"; // GDPR butonunu gizle
+        aboutButton.style.display = "none"; // Hakkımızda butonunu gizle
+    } else {
+        gdprButton.style.display = "block"; // GDPR butonunu tekrar göster
+        aboutButton.style.display = "block"; // Hakkımızda butonunu tekrar göster
+    }
 }
