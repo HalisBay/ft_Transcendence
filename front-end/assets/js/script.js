@@ -7,17 +7,17 @@ window.addEventListener('DOMContentLoaded', (event) => {
 });
 
 // TODO: kullanıcı tarayıcıyı kapatınca olcak bu, bu düzeltilcek.
-window.onbeforeunload = function() {
-    fetch('/logout', {
-        method: 'POST',  // POST isteği yapılıyor
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',  // AJAX isteği olduğunu belirtiyoruz
-        },
-    })
-    document.cookie.split(';').forEach(function(c) {
-        document.cookie = c.trim().split('=')[0] + '=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-    });
-};
+// window.onbeforeunload = function() {
+//     fetch('/logout', {
+//         method: 'POST',  // POST isteği yapılıyor
+//         headers: {
+//             'X-Requested-With': 'XMLHttpRequest',  // AJAX isteği olduğunu belirtiyoruz
+//         },
+//     })
+//     document.cookie.split(';').forEach(function(c) {
+//         document.cookie = c.trim().split('=')[0] + '=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+//     });
+// };
 
 function navigateTo(page) {
     const content = document.getElementById('content');
@@ -293,6 +293,9 @@ function initiateWebSocketConnection() {
     socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
 
+        if (data.type === "enable_next_game_button") {
+            document.getElementById("nextGameBtn").disabled = false;
+        }
         if (data.type === 'game_message') {
             statusElement.innerHTML = data.message;
             if (data.scores) {
@@ -322,6 +325,14 @@ function initiateWebSocketConnection() {
         } else if (e.key === 's' || e.key === 'ArrowDown') {
             socket.send(JSON.stringify({ move: 'down' }));
         }
+    });
+    const nextGameButton = document.getElementById('nextGameBtn');
+
+    nextGameButton.addEventListener('click', function() {
+        // WebSocket'e yeni bir oyun başlatılması için mesaj gönder
+        socket.send(JSON.stringify({
+            'type': 'start_new_game'
+        }));
     });
 }
 
