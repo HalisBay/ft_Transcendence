@@ -445,6 +445,7 @@ button {
 .text-danger {
     display: flex;
     border-radius: 15px;
+    border: 6px solid #af0202;
     width: auto;
     height: auto;
     align-items: center;
@@ -502,4 +503,16 @@ button {
     animation-timing-function: ease-in-out;
     opacity: 0.8;
     z-index: -1;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Karanlık arka plan */
+    backdrop-filter: blur(5px); /* Bulanıklaştırma efekti */
+    z-index: 9; /* Panelden bir tık aşağıda */
+    display: none; /* Başlangıçta gizli */
 }
