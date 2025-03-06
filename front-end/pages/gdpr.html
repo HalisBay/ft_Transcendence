@@ -3,13 +3,13 @@
 {% block title %}Anasayfa{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="roww">
-    <div class="card shadow-lg" style="color: rgb(255, 255, 255);">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<div class="container py-5 d-flex justify-content-center">
+    <div class="card shadow-lg text-white bg-transparent" style="color: rgb(255, 255, 255);">
         <div class="card-header bg-primary text-white text-center">
             <h3>Veri Gizliliği Politikası</h3>
         </div>
-        <div class="card-body lh-base">
+        <div class="card-body lh-base" style="max-height: calc(100vh - 200px); overflow-y: auto;">
             <p><strong>Giriş</strong><br> Web sitemizi kullanırken kişisel verilerinizin korunmasına büyük önem veriyoruz. Bu Veri Gizliliği Politikası, sizin kişisel verilerinizin nasıl toplandığını, kullanıldığını, işlendiğini ve saklandığını açıkça açıklamak amacıyla hazırlanmıştır. Kişisel verilerinizi yalnızca belirtilen amaçlar doğrultusunda toplar, kullanır ve güvende tutarız.</p>
             <p><strong>Toplanan Kişisel Veriler</strong><br> Web sitemiz üzerinden kayıt olduğunuzda veya hizmetlerimizi kullandığınızda aşağıdaki kişisel verileri toplayabiliriz:
                 <ul>
@@ -51,15 +51,12 @@
             <p><strong>Değişiklikler</strong><br> Bu veri gizliliği politikası zaman zaman güncellenebilir. Politikada yapılan değişiklikler, bu sayfada yayımlandığı tarihten itibaren geçerli olacaktır. Bu yüzden, poliçenin güncel halini düzenli olarak kontrol etmeniz önemlidir.</p>
             <p><strong>İletişim</strong><br> Bu Veri Gizliliği Politikası ile ilgili herhangi bir sorunuz olursa, bizimle iletişime geçebilirsiniz.</p>
         </div>
+        <div class="d-flex justify-content-center mt-3">
+            <button class="btn-glitch-fill" style="max-width: 215px; max-height: 65px;" onclick="goBack()">
+                <span class="text-decoration">\\ geri //</span>
+            </button>
+        </div>
     </div>
-    </div>
-    <button class="btn-glitch-fill" 
-    style="grid-column: 3; max-width: 215px; max-height: 65px;" 
-    onclick="goBack()">
-    <span class="text-decoration">\\ geri //</span>
-    </button>
-
-
-
 </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 {% endblock %}
