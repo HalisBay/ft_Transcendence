@@ -4,6 +4,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from django.contrib.auth import get_user_model
 from .models import MatchHistory, Tournament, TournamentParticipant
 from channels.db import database_sync_to_async
+import string,random
 
 User = get_user_model()
 # Global oyun durumu ve oda yönetimi
@@ -11,18 +12,34 @@ rooms = (
     {}
 )  # {'room_name': {'players': [user1, user2], 'game_state': {...}, 'user_channel_map': {user_id: channel_name}}}
 
-
 class PongConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         global rooms
+        self.user = self.scope["user"]
+
+        if not self.user.is_authenticated:
+            await self.close()
+            return
+
+        # Eğer oyuncu daha önce bir odadaysa, onu o odadan çıkar ve (zorunlu ise) bağlantısını kapat.
+        for room_name, room_data in list(rooms.items()):
+            if self.user in room_data["players"]:
+                # Bu oyuncunun eski odadan ayrılması için force disconnect mesajı gönderelim
+                await self.leave_room(room_name)
+                break
+
         # Uygun oda bul veya yeni bir oda oluştur
         for room_name, room_data in rooms.items():
             if len(room_data["players"]) < 2:
                 self.room_group_name = room_name
+                print(f"✔️ Mevcut oda bulundu: {self.room_group_name}")
                 break
         else:
             # Yeni oda oluştur
-            self.room_group_name = f"pong_game_{len(rooms) + 1}"
+            def generate_room_name():
+                return ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+
+            self.room_group_name = f"pong_game_{generate_room_name()}"
             rooms[self.room_group_name] = {
                 "players": [],
                 "game_state": {
@@ -32,29 +49,32 @@ class PongConsumer(AsyncWebsocketConsumer):
                 },
                 "user_channel_map": {},
             }
+            print(f"🆕 Yeni oda oluşturuldu: {self.room_group_name}")
+
         room = rooms[self.room_group_name]
-        user = self.scope["user"]
-        # print(room['players'])
-        self.user = user
-        for room_name, room_data in rooms.items():
-            if self.user in room_data["players"]:
-                self.room_group_name = room_name
-                break
-        # Aynı kullanıcının kendisiyle oynamasını engelle
+        print(f"📋 Oda durumu: {room}")
+
+        # Aynı kullanıcının kendisiyle oynamasını engelle (örn. aynı odada iki kez olmaması)
         if len(room["players"]) == 1 and room["players"][0] == self.user:
             await self.close()
             return
-        room["players"].append(user)
-        room["user_channel_map"][user.id] = self.channel_name
-        # Add user to game state
+
+        room["players"].append(self.user)
+        room["user_channel_map"][self.user.id] = self.channel_name
+
+        # Oyuncuya bir player ID ata
         player_id = f'player{len(room["players"])}'
         room["game_state"]["players"][player_id] = {"y": 270.0}
         room["game_state"]["scores"][player_id] = 0
         self.player_id = player_id
+
         # Gruba katıl ve bağlantıyı kabul et
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
-        # Oyun durumu güncellemesi
+        
+        print(f"✅ Kullanıcı {self.user} odaya eklendi. Oda oyuncu durumu: {room['players']}")
+        
+        # Eğer oda doluysa oyunu başlat
         if len(room["players"]) == 2:
             await self.channel_layer.group_send(
                 self.room_group_name,
@@ -66,24 +86,49 @@ class PongConsumer(AsyncWebsocketConsumer):
             await asyncio.sleep(1)
             asyncio.create_task(self.start_game())
 
+
+    async def leave_room(self, room_name):
+        global rooms
+        if room_name in rooms:
+            room = rooms[room_name]
+            if self.user in room["players"]:
+                room["players"].remove(self.user)
+                room["user_channel_map"].pop(self.user.id, None)
+            # Eğer oda boşsa tamamen kaldır
+            if not room["players"]:
+                del rooms[room_name]
+            else:
+                # Eğer odada hâlâ oyuncu varsa, "force disconnect" mesajı göndererek
+                # diğer oyuncunun da bağlantısını kapatmasını sağlayabilirsiniz.
+                await self.channel_layer.group_send(
+                    room_name,
+                    {"type": "force_disconnect"}
+            )
+
+    async def force_disconnect(self, event):
+        # Bu mesajı alan oyuncu, bağlantısını kapatır.
+        await self.close()
+
+
+
     async def disconnect(self, close_code):
         global rooms
         room = rooms.get(self.room_group_name, None)
+
         if room:
-            # Önce, çıkış yapan oyuncuyu odadan çıkarıyoruz.
+            # First, remove the user from the room
             if self.user in room["players"]:
                 room["players"].remove(self.user)
                 del room["user_channel_map"][self.user.id]
             
-            # Eğer odada hiç oyuncu kalmadıysa, sadece odayı siliyoruz.
+            # If there are no players left, delete the room entirely
             if not room["players"]:
                 del rooms[self.room_group_name]
             else:
-                # Eğer odada hala en az 1 oyuncu kaldıysa:
-                # 1v1 oyunu olduğundan kalan oyuncu, kazanan olarak kabul ediliyor.
+                # If there is still a player left, consider them the winner
                 remaining_player = room["players"][0]
                 
-                # MatchHistory kayıtlarını veritabanına ekleyelim.
+                # Log the match result (no actual game played, score is 0)
                 await database_sync_to_async(MatchHistory.objects.create)(
                     user=remaining_player,
                     opponent=self.user,
@@ -94,7 +139,7 @@ class PongConsumer(AsyncWebsocketConsumer):
                     lose_count=await database_sync_to_async(
                         lambda: remaining_player.match_history.filter(result=False).count()
                     )(),
-                    score=0,  # Maç oynanmadığı için skor 0
+                    score=0,  # No game played, so score is 0
                     tWinner=False,
                 )
                 await database_sync_to_async(MatchHistory.objects.create)(
@@ -107,11 +152,11 @@ class PongConsumer(AsyncWebsocketConsumer):
                     lose_count=await database_sync_to_async(
                         lambda: self.user.match_history.filter(result=False).count() + 1
                     )(),
-                    score=0,  # Aynı şekilde, skor 0
+                    score=0,  # No game played, so score is 0
                     tWinner=False,
                 )
                 
-                # Oyunu iptal ettiğimizi ve oyuncuya durumu bildiren mesajı gönderelim.
+                # Notify that a player disconnected and the game is canceled
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {
@@ -120,17 +165,18 @@ class PongConsumer(AsyncWebsocketConsumer):
                     },
                 )
                 
-                # Ayrıca, "Next Game" butonunun aktif olması için mesaj gönderelim.
+                # Enable "Next Game" button for the next round
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {"type": "enable_next_game_button"}
                 )
-                
-                # Oyuncu sayısı artık 1 olduğu için odayı temizliyoruz.
-                del rooms[self.room_group_name]
-        
-        # Son olarak, bu kanal grubundan çıkıyoruz.
-        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+            
+            # Finally, make sure to remove the player from the room and discard the group
+            del rooms[self.room_group_name]
+            await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+
+
+
 
 
 
@@ -152,7 +198,21 @@ class PongConsumer(AsyncWebsocketConsumer):
 
     async def start_game(self):
         global rooms
-        room = rooms[self.room_group_name]
+        print(f"📝 Oda adı start_game: {self.room_group_name}")
+        if self.room_group_name not in rooms:
+            print(f"⚠️ Hata: {self.room_group_name} odası bulunamadı, oyun başlatılamıyor.")
+            return  # Eğer oda silinmişse oyunu başlatma
+
+
+    # Oyun başlatma mantığını burada devam ettir
+        print(f"✅ {self.room_group_name} için oyun başlatılıyor.")
+        try:
+            room = rooms[self.room_group_name]
+        except KeyError:
+            print(f"⚠️ Hata: {self.room_group_name} odası bulunamadı, oyun başlatılamıyor.")
+            return
+
+        print(f"✅ Oda durumu: {room}")
         game_state = room["game_state"]
         for countdown in range(4, 0, -1):
            if not len(room["players"]) < 2:
