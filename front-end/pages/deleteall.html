@@ -1,24 +1,24 @@
 {% extends 'pages/base.html' %}
 
-{% block title %}Hesabı sil{% endblock %}
+{% block title %}Delete Account{% endblock %}
 
 {% block content %}
-<h1 style="text-align: center; color: #ffffff; font-size: xx-large;">Hesabınızı sonsuza kadar silin</h1>
-<h3 style="text-align: center; color: #ff0000; font-size:larger; margin-bottom: 20px;">Dikkat! Bütün verileriniz silinir ve daha sonra tekrar erişemezsiniz!</h3>
+<h1 style="text-align: center; color: #ffffff; font-size: xx-large;">Permanently Delete Your Account</h1>
+<h3 style="text-align: center; color: #ff0000; font-size:larger; margin-bottom: 20px;">Warning! All your data will be deleted and you will not be able to access it again!</h3>
 
 <form method="POST" action="{% url 'delete' %}" id="deleteForm">
     {% csrf_token %}
     <div class="form-group">
-        <label style="margin-bottom: 20px;">Aşağıya <strong>'hesabımı sil'</strong> yazdıktan sonra hesabınız kalıcı olarak silinir:</label>
-        <input type="text" id="deleteInput"class="input-field" name="txt" placeholder="hesabımı sil" oninput="checkInput()">
+        <label style="margin-bottom: 20px;">After typing <strong>'delete my account'</strong> below, your account will be permanently deleted:</label>
+        <input type="text" id="deleteInput" class="input-field" name="txt" placeholder="delete my account" oninput="checkInput()">
     </div>
     <div style="display: flex; justify-content: center; gap: 15px;">
-        <button  class="btn-glitch-fill" type="submit" id="deleteButton" disabled><span class="text-decoration">!! sil !!</span></button>
+        <button class="btn-glitch-fill" type="submit" id="deleteButton" disabled><span class="text-decoration">!! delete !!</span></button>
     </div>
     
 </form>
 <div style="display: flex; justify-content: center; gap: 15px;">
-    <button class="btn-glitch-fill" onclick="navigateTo('user')"><span class="text-decoration">\\ vazgeç //</span></button>
+    <button class="btn-glitch-fill" onclick="navigateTo('user')"><span class="text-decoration">\\ cancel //</span></button>
 </div>
 
 <div class="message" id="message"></div>

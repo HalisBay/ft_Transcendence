@@ -75,7 +75,7 @@ def anonymize_account(request):
         # Kullanıcı bilgilerini anonimleştir
         user.is_anonymized = True
         anonymize_user_data(user)
-        messages.success(request, "Hesap bilgileri anonimleştirildi.")
+        messages.success(request, "Account information is anonymized.")
         return JsonResponse({"success": True}, status=200)
 
     return render(request, "pages/anonymize_account.html")
@@ -151,7 +151,7 @@ def register_user(request):
         if serializers.is_valid():
             serializers.save()
             return Response(
-                {"success": True, "message": "Kayıt başarılı."},
+                {"success": True, "message": "The recording is successful."},
                 status=status.HTTP_201_CREATED,
             )
         else:
@@ -183,7 +183,7 @@ def login_user(request):
                     return Response(
                         {
                             "success": True,
-                            "message": "2FA doğrulaması gerekiyor. Lütfen e-postanızı kontrol edin.",
+                            "message": "2FA verification required. Please check your email.",
                         }
                     )
                 else:
@@ -192,7 +192,7 @@ def login_user(request):
                 return Response(
                     {
                         "success": False,
-                        "message": "Geçersiz kullanıcı adı veya şifre.2",
+                        "message": "Invalid username or password.2",
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
@@ -216,7 +216,7 @@ def perform_login(request, user):
         response = Response(
             {
                 "success": True,
-                "message": "Giriş başarılı!",
+                "message": "Entry successful!",
             }
         )
     response.set_cookie(
@@ -241,7 +241,7 @@ def activate_user(request):
         user.save()
 
         return Response(
-            {"success": True, "message": "Email başarıyla doğrulandı!"}, status=200
+            {"success": True, "message": "Email successfully verified!"}, status=200
         )
     except Exception as e:
         return Response({"success": False, "message": str(e)}, status=400)
@@ -278,7 +278,7 @@ def verify_token(request):
     token = request.GET.get("token")
     if not token:
         return Response(
-            {"success": False, "message": "Token bulunamadı."},
+            {"success": False, "message": "Token not found."},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
@@ -289,7 +289,7 @@ def verify_token(request):
         return perform_login(request, user)
     except (InvalidToken, TokenError, User.DoesNotExist):
         return Response(
-            {"success": False, "message": "Geçersiz veya süresi dolmuş token."},
+            {"success": False, "message": "Invalid or expired token."},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
@@ -379,7 +379,8 @@ def update_user(request):
             )
             if serializer.is_valid():
                 serializer.save()
-                messages.append("Şifre başarıyla güncellendi, Çıkış yapılıyor.")
+                messages.append("Password updated successfully, logging out.")
+                request = request._request
                 logout_page(request)
             else:
                 errors.append(
@@ -435,20 +436,18 @@ def profile_edit_view(request):
     }
     return render(request, "pages/userInterface.html", context)
 
-
+@api_view(["GET", "POST"])
 @jwt_required
 @login_required
 def delete_all(request):
     if request.method == "POST":
-        input_text = (
-            request.POST.get("txt", "").strip().lower()
-        )  # Gelen metni al ve küçük harfe çevir
-        if input_text == "hesabımı sil":
+        input_text = request.POST.get("txt", "").strip().lower()
+        if input_text == "delete my account":
             user = request.user
             if user.is_anonymous:
-                return Response({"error": "Kimlik doğrulama başarısız."}, status=401)
+                return Response({"error": "Authentication failed."}, status=401)
             user.delete()
-            return redirect("home")
+            return JsonResponse({"success": True, "message": "Successfully deleted"}, status=200)
         else:
-            return render(request, "pages/deleteall.html")
+            return JsonResponse({"success": False, "message": "Incorrect input. Please type 'delete my account'."}, status=400)
     return render(request, "pages/deleteall.html")

@@ -29,7 +29,7 @@ function navigateTo(page) {
 
     fetch(`/${page}`)
         .then(response => {
-            if (!response.ok) throw new Error(`Sayfa bulunamadı: ${response.status}`);
+            if (!response.ok) throw new Error(`Page not found: ${response.status}`);
             return response.text();
         })
         .then(html => {
@@ -74,25 +74,24 @@ window.addEventListener('beforeunload', () => {
 });
 
 function submitForm(event) {
-    event.preventDefault();  // Sayfa yenilemesini engelle
+    event.preventDefault(); 
 
-    const form = new FormData(event.target);  // Form verilerini al
+    const form = new FormData(event.target);  
 
     fetch('/register', {
         method: 'POST',
         body: form,
         headers: {
-            'X-Requested-With': 'XMLHttpRequest',  // AJAX isteği olduğunu belirtiyoruz
+            'X-Requested-With': 'XMLHttpRequest', 
         },
     })
-    .then(response => response.json())  // Yanıtı JSON formatında al
+    .then(response => response.json()) 
     .then(data => {
         const messageElement = document.getElementById('message');
         if (data.success) {
 
             navigateTo('login');
         } else {
-            // Hata mesajlarını göster
             let errorMessage = '';
             for (const [key, value] of Object.entries(data.errors)) {
                 errorMessage += `<p class="text-danger">${value}</p>`;
@@ -101,29 +100,29 @@ function submitForm(event) {
         }
     })
     .catch(error => {
-        document.getElementById('message').innerHTML = 'Bir hata oluştu: ' + error.message;
+        document.getElementById('message').innerHTML = 'An error occurred: ' + error.message;
     });
 }
 
 function submitFormOne(event) {
-    event.preventDefault();  // Sayfa yenilemesini engelle
+    event.preventDefault();
 
-    const form = new FormData(event.target);  // Form verilerini al
+    const form = new FormData(event.target); 
 
     fetch('/login', {
         method: 'POST',
         body: form,
         headers: {
-            'X-Requested-With': 'XMLHttpRequest',  // AJAX isteği olduğunu belirtiyoruz
+            'X-Requested-With': 'XMLHttpRequest', 
         },
     })
-    .then(response => response.json())  // Yanıtı JSON formatında al
+    .then(response => response.json())  
     .then(data => {
         const messageElement = document.getElementById('message');
         console.log(JSON.stringify(data));
         if (data.success) {
             console.log(data.message)
-            if (data.message.includes("2FA doğrulaması gerekiyor. Lütfen e-postanızı kontrol edin.")) {
+            if (data.message.includes("2FA verification required. Please check your email.")) {
                 navigateTo('verify');
             } else {
                 localStorage.setItem('access_token', data.access_token);
@@ -131,7 +130,6 @@ function submitFormOne(event) {
                 navigateTo('user');
             }
         } else {
-            // Hata mesajını göster
             let errorMessage = '';
             if (data.errors) {
                 for (const [key, value] of Object.entries(data.errors)) {
@@ -144,28 +142,27 @@ function submitFormOne(event) {
         }
     })
     .catch(error => {
-        document.getElementById('message').innerHTML = `<p class="text-danger">Bir hata oluştu: ${error.message}</p>`;
+        document.getElementById('message').innerHTML = `<p class="text-danger">An error occurred: ${error.message}</p>`;
     });
 }
 function logoutUser() {
     fetch('/logout', {
-        method: 'POST',  // POST isteği yapılıyor
+        method: 'POST',  
         headers: {
-            'X-Requested-With': 'XMLHttpRequest',  // AJAX isteği olduğunu belirtiyoruz
+            'X-Requested-With': 'XMLHttpRequest',  
         },
     })
-    .then(response => response.json())  // Yanıtı JSON formatında al
+    .then(response => response.json())  
     .then(data => {
         const messageElement = document.getElementById('message');
         messageElement.innerHTML = `<p class="text-success">${data.message}</p>`;
-        
-        // Bir süre sonra kullanıcıyı login sayfasına yönlendir
+
         setTimeout(() => {
             navigateTo('login');
         }, 500);
     })
     .catch(error => {
-        document.getElementById('message').innerHTML = `<p class="text-danger">Bir hata oluştu: ${error.message}</p>`;
+        document.getElementById('message').innerHTML = `<p class="text-danger">An error occurred: ${error.message}</p>`;
     });
 }
 
@@ -184,7 +181,6 @@ function waitingRoom(event) {
     socket = new WebSocket('wss://' + window.location.host + '/ws/tournament/');
 
     socket.onopen = function() {
-        // Once the connection is open, send the data
         socket.send(JSON.stringify({
             'action': 'create_tournament',
             'creator_alias': creatorAlias,
@@ -202,11 +198,10 @@ function waitingRoom(event) {
     };
 
     socket.onclose = function(event) {
-        // Bağlantı kapandığında yapılacaklar
         if (event.code === 1000) {
-            console.log("Bağlantı başarılı bir şekilde kapatıldı.");
+            console.log("The connection was successfully closed.");
         } else {
-            console.log("Bağlantı kapatıldı:", event.code);
+            console.log("Connection closed:", event.code);
         }
     };
 
@@ -219,23 +214,21 @@ function joinTournament(event) {
     event.preventDefault();
 
     const form = document.getElementById('join-tournament-form');
-    const playerAlias = document.getElementById('player-alias').value; // Alias
-    const tournamentName = document.getElementById('tournament-id').value; // Turnuva ismi (tournament name)
+    const playerAlias = document.getElementById('player-alias').value; 
+    const tournamentName = document.getElementById('tournament-id').value; 
 
-    // Eğer inputlardan biri null veya boşsa, form gönderilmesin
     if (!playerAlias || !tournamentName) {
-        alert("Lütfen tüm alanları doldurun!");
+        alert("Please fill in all fields!");
         return;
     }
 
     socket = new WebSocket('wss://' + window.location.host + '/ws/tournament/');
 
     socket.onopen = function() {
-        // Once the connection is open, send the data
         socket.send(JSON.stringify({
             'action': 'join_tournament',
             'player_alias': playerAlias,
-            'tournament_name': tournamentName // Burada tournament-id yerine tournament-name kullanıyoruz
+            'tournament_name': tournamentName
         }));
     };
 
@@ -246,7 +239,6 @@ function joinTournament(event) {
         } else {
             document.getElementById('status').innerText = data.message;
             if (data.success && data.tournament_name === tournamentName) {
-                // Katıldın bilgisini ilgili turnuvada anında göstermek
                 const tournamentItem = document.querySelector(`#tournament-list li[data-tournament="${tournamentName}"]`);
                 if (tournamentItem) {
                     tournamentItem.innerHTML += ' - Katıldın';
@@ -255,22 +247,21 @@ function joinTournament(event) {
         }
         
         
-        // Hata mesajı kontrolü
         if (data.message.includes("Could not add player") || data.message.includes("not found")) {
-            alert(data.message);  // Kullanıcıya hata mesajını göster
-            socket.close();       // ❗ Hata durumunda WebSocket bağlantısını kapat
+            alert(data.message);  
+            socket.close();      
         }
     };
     
-    // Bağlantı kapatıldığında çalışacak kısım
+
     socket.onclose = function(event) {
-        console.log("WebSocket bağlantısı kapatıldı:", event.code);
+        console.log("WebSocket connection closed:", event.code);
     };
     
     // Hata durumunda çalışacak kısım
     socket.onerror = function(error) {
-        console.error("WebSocket hatası:", error);
-        socket.close();  // ❗ Hata durumunda bağlantıyı kapat
+        console.error("WebSocket error:", error);
+        socket.close();  
     };
 }
 
@@ -278,7 +269,7 @@ function joinTournament(event) {
 
 function initiateWebSocketConnection() {
     if (socket && socket.readyState === WebSocket.OPEN) {
-        socket.close(); // Eski bağlantıyı kapat
+        socket.close(); 
     }
 
     socket = new WebSocket('wss://' + window.location.host + '/ws/pong/');
@@ -286,7 +277,7 @@ function initiateWebSocketConnection() {
     const statusElement = document.getElementById('status');
 
     socket.onopen = () => {
-        console.log('WebSocket bağlantısı başarıyla açıldı.');
+        console.log('WebSocket connection opened successfully.');
         statusElement.innerHTML = 'Connecting...';
     };
 
@@ -302,7 +293,6 @@ function initiateWebSocketConnection() {
                 statusElement.innerHTML += `<br>Score: ${data.scores.player1} - ${data.scores.player2}`;
             }
         } else if (data.type === 'game_state') {
-            // Update status and score
             ball.style.left = data.state.ball.x + 'px';
             ball.style.top = data.state.ball.y + 'px';
             player1.style.top = data.state.players.player1.y + 'px';
@@ -311,11 +301,11 @@ function initiateWebSocketConnection() {
     };
 
     socket.onerror = (error) => {
-        console.error('WebSocket hatası:', error);
+        console.error('WebSocket error:', error);
     };
 
     socket.onclose = (event) => {
-        console.log('WebSocket bağlantısı kapandı:', event);
+        console.log('WebSocket connection closed:', event);
     };
 
     // Handle player movement
@@ -335,7 +325,7 @@ function initiateWebSocketConnection() {
 
 function activate2FA() {
     const csrfToken = getCsrfToken();
-    fetch('/user/activate2fa', {  // URL burada 'user/activate-2fa/' olarak kaldı
+    fetch('/user/activate2fa', { 
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -345,11 +335,11 @@ function activate2FA() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert('2FA Tercihi Güncellendi!');
+            alert('2FA Preference Updated!');
         }
     })
     .catch(error => {
-        console.error('Hata oluştu:', error);
+        console.error('Error occurred:', error);
     });
 }
 
@@ -359,28 +349,74 @@ function checkInput() {
     const inputField = document.getElementById("deleteInput");
     const deleteButton = document.getElementById("deleteButton");
     const messageDiv = document.getElementById("message");
+    
+    if (inputField.value.trim().toLowerCase() === "delete my account") {
+        deleteButton.disabled = false; 
+        messageDiv.textContent = "";  
 
-    if (inputField.value.trim().toLowerCase() === "hesabımı sil") {
-        deleteButton.disabled = false; // Butonu aktif hale getir
-        messageDiv.textContent = "";  // Hata mesajını temizle
+        fetch('/user/delete', { 
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                navigateTo('user');
+            } else {
+                messageDiv.textContent = "Error: " + data.message || "An error occurred.";
+                messageDiv.style.color = "red";
+            }
+        })
+        .catch(error => {
+            console.error('Error occurred:', error);
+            messageDiv.textContent = "An error occurred. Please try again.";
+            messageDiv.style.color = "red";
+        });
     } else {
-        deleteButton.disabled = true; // Butonu devre dışı bırak
-        messageDiv.textContent = "Lütfen 'hesabımı sil' yazın.";
+        deleteButton.disabled = true; 
+        messageDiv.textContent = "Please type 'delete my account'.";
         messageDiv.style.color = "red";
     }
 }
 
-document.getElementById("deleteForm").addEventListener("submit", function (event) {
-    const inputField = document.getElementById("deleteInput");
-    const messageDiv = document.getElementById("message");
 
-    // Eğer input doğru değilse formu gönderme
-    if (inputField.value.trim().toLowerCase() !== "hesabımı sil") {
-        event.preventDefault();
-        messageDiv.textContent = "Lütfen doğru metni girin: 'hesabımı sil'";
-        messageDiv.style.color = "red";
-    }
-});
+function delemOne(event) {
+    event.preventDefault();
+
+    const form = new FormData(event.target); 
+
+    fetch('/user/delete', {
+        method: 'POST',
+        body: form,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest', 
+        },
+    })
+    .then(response => response.json())  
+    .then(data => {
+        const messageElement = document.getElementById('message');
+        console.log(JSON.stringify(data));
+        if (data.success) {
+            navigateTo('home')
+        } else {
+            let errorMessage = '';
+            if (data.errors) {
+                for (const [key, value] of Object.entries(data.errors)) {
+                    errorMessage += `<p class="text-danger">${value}</p>`;
+                }
+            } else {
+                errorMessage = `<p class="text-danger">${data.message}</p>`;
+            }
+            messageElement.innerHTML = errorMessage;
+        }
+    })
+    .catch(error => {
+        document.getElementById('message').innerHTML = `<p class="text-danger">An error occurred: ${error.message}</p>`;
+    });
+}
+
 
 // function getUserWithToken() {
 //     const token = new URLSearchParams(window.location.search).get('token'); // URL'den token'ı al
@@ -408,8 +444,8 @@ document.getElementById("deleteForm").addEventListener("submit", function (event
 //         }
 //     })
 //     .catch(error => {
-//         console.error('Bir hata oluştu: ', error.message);
-//         document.getElementById('message').innerHTML = 'Bir hata oluştu: ' + error.message;
+//         console.error('An error occurred: ', error.message);
+//         document.getElementById('message').innerHTML = 'An error occurred: ' + error.message;
 //     });
 // }
 
@@ -417,7 +453,7 @@ document.getElementById("deleteForm").addEventListener("submit", function (event
 
 function changeColors() {
     console.log("Button clicked");
-    const switchElement = document.getElementById('colorSwitch'); // Doğru input elemanını seçiyoruz
+    const switchElement = document.getElementById('colorSwitch'); 
     if (switchElement.checked) {
         console.log("Switch checked");
         document.getElementById('gameArea').style.backgroundColor = getRandomColor();
@@ -446,18 +482,18 @@ function getRandomColor() {
 
 
 function submitUpdatePasswordForm(event) {
-    event.preventDefault();  // Sayfa yenilemesini engelle
+    event.preventDefault(); 
 
-    const form = new FormData(event.target);  // Form verilerini al
+    const form = new FormData(event.target);  
 
     fetch('/user/update_user', {
         method: 'POST',
         body: form,
         headers: {
-            'X-Requested-With': 'XMLHttpRequest',  // AJAX isteği olduğunu belirtiyoruz
+            'X-Requested-With': 'XMLHttpRequest',  
         },
     })
-    .then(response => response.json())  // Yanıtı JSON formatında al
+    .then(response => response.json())  
     .then(data => {
         console.log(JSON.stringify(data));
         const messageElement = document.getElementById('message');
@@ -467,8 +503,7 @@ function submitUpdatePasswordForm(event) {
 
 
 
-        if (message === "Şifre başarıyla güncellendi") {
-            // 2 saniye bekleyip login sayfasına yönlendir
+        if (message === "Password updated successfully, logging out.") {
             setTimeout(() => {
                 navigateTo('login');
             }, 2000);
@@ -476,49 +511,47 @@ function submitUpdatePasswordForm(event) {
 
     })
     .catch(error => {
-        document.getElementById('message').innerHTML = `<p class="text-danger">Bir hata oluştu: ${error.message}</p>`;
+        document.getElementById('message').innerHTML = `<p class="text-danger">An error occurred: ${error.message}</p>`;
     });
 }
 
 
 
 function submitAnonymizeForm(event) {
-    event.preventDefault();  // Sayfa yenilemesini engelle
+    event.preventDefault();  
 
-    const form = new FormData(event.target);  // Form verilerini al
+    const form = new FormData(event.target); 
 
     fetch('/anonymize_account', {
         method: 'POST',
         body: form,
         headers: {
-            'X-Requested-With': 'XMLHttpRequest',  // AJAX isteği olduğunu belirtiyoruz
+            'X-Requested-With': 'XMLHttpRequest',  
         },
     })
-    .then(response => response.json())  // Yanıtı JSON formatında al
+    .then(response => response.json())  
     .then(data => {
         console.log(JSON.stringify(data));
         if (data.success) {
-            // Başarılı olursa kullanıcıyı login sayfasına yönlendir
             navigateTo('user');
         } else {
-            // Hata varsa, hata mesajını göster
             document.getElementById('message').innerHTML = data.message;
         }
     })
     .catch(error => {
-        document.getElementById('message').innerHTML = 'Bir hata oluştu: ' + error.message;
+        document.getElementById('message').innerHTML = 'An error occurred: ' + error.message;
     });
 }
 
 
 function toggleFriendsPanel() {
     const panel = document.getElementById('friendsPanel');
-    const overlay = document.getElementById('overlay'); // Overlay seç
+    const overlay = document.getElementById('overlay');
 
     if (panel.classList.contains('active')) {
         // Paneli kapat
         panel.style.animation = 'fadeOut 0.3s';
-        overlay.classList.remove('active'); // Overlay'i kapat
+        overlay.classList.remove('active'); 
         setTimeout(() => {
             panel.classList.remove('active');
             panel.style.display = 'none';
@@ -533,7 +566,7 @@ function toggleFriendsPanel() {
                 panel.classList.add('active');
                 panel.style.animation = 'fadeIn 0.3s';
                 panel.style.display = 'block';
-                overlay.classList.add('active'); // Overlay'i aç
+                overlay.classList.add('active');
                 overlay.style.display = 'block';
             });
     }
@@ -543,12 +576,11 @@ function toggleFriendsPanel() {
 
 function goBack() {
     if (pageHistory.length > 1) {
-        pageHistory.pop(); // Son sayfayı diziden sil
-        const previousPage = pageHistory[pageHistory.length - 1]; // Sonraki sayfayı al
+        pageHistory.pop();
+        const previousPage = pageHistory[pageHistory.length - 1]; 
 
-        navigateTo(previousPage); // Geri gitmek için bu sayfayı yükle
+        navigateTo(previousPage);
     } else {
-        // Eğer geçmişte başka sayfa yoksa, ilk sayfaya geri dön
         navigateTo('home')
     }
 }
@@ -561,25 +593,25 @@ setTimeout(function() {
 
 
 function submitFriendsForm(event) {
-    event.preventDefault();  // Sayfa yenilemesini engelle
+    event.preventDefault();  
     const csrfToken = getCsrfToken();
-    const form = event.target;  // Form elementini al
-    const url = form.getAttribute('action');  // Formun action URL'sini al
-    const formData = new FormData(form);  // Form verilerini al
+    const form = event.target; 
+    const url = form.getAttribute('action'); 
+    const formData = new FormData(form);  
 
     fetch(url, {
         method: 'POST',
         body: formData,
         headers: {
-            'X-Requested-With': 'XMLHttpRequest',  // AJAX isteği olduğunu belirt
-            'X-CSRFToken': csrfToken,  // CSRF token'ını ekle
+            'X-Requested-With': 'XMLHttpRequest', 
+            'X-CSRFToken': csrfToken,  
         },
     })
     .then(response => {
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
-        return response.json();  // Yanıtı JSON formatında al
+        return response.json();
     })
     .then(data => {
         const messageElement = document.getElementById('message');
@@ -594,27 +626,27 @@ function submitFriendsForm(event) {
     })
     .catch(error => {
         console.error('Hata:', error);
-        document.getElementById('message').innerHTML = `<p class="text-danger">Bir hata oluştu: ${error.message}</p>`;
+        document.getElementById('message').innerHTML = `<p class="text-danger">An error occurred: ${error.message}</p>`;
     });
 }
 
 
 function handleFriendRequest(event, url) {
-    event.preventDefault();  // Sayfa yenilenmesini engelle
+    event.preventDefault();  
     const csrfToken = getCsrfToken();
 
     fetch(url, {
-        method: 'GET',  // Kabul etme ve reddetme işlemleri GET isteği ile yapılıyor
+        method: 'GET',  
         headers: {
-            'X-Requested-With': 'XMLHttpRequest',  // AJAX isteği olduğunu belirt
-            'X-CSRFToken': csrfToken,  // CSRF token'ını ekle
+            'X-Requested-With': 'XMLHttpRequest',  
+            'X-CSRFToken': csrfToken,  
         },
     })
     .then(response => {
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
-        return response.json();  // Yanıtı JSON formatında al
+        return response.json();  
     })
     .then(data => {
         const messageElement = document.getElementById('message');
@@ -627,7 +659,7 @@ function handleFriendRequest(event, url) {
     })
     .catch(error => {
         console.error('Hata:', error);
-        document.getElementById('message').innerHTML = `<p class="text-danger">Bir hata oluştu: ${error.message}</p>`;
+        document.getElementById('message').innerHTML = `<p class="text-danger">An error occurred: ${error.message}</p>`;
     });
 }
 
@@ -638,10 +670,10 @@ function updateButtonVisibility(currentPage) {
     const friendsButton = document.querySelector(".GDPR3");
 
     if (currentPage === "gdpr" || currentPage === "about") {
-        gdprButton.style.display = "none"; // GDPR butonunu gizle
-        aboutButton.style.display = "none"; // Hakkımızda butonunu gizle
+        gdprButton.style.display = "none"; 
+        aboutButton.style.display = "none"; 
     } else {
-        gdprButton.style.display = "block"; // GDPR butonunu tekrar göster
-        aboutButton.style.display = "block"; // Hakkımızda butonunu tekrar göster
+        gdprButton.style.display = "block"; 
+        aboutButton.style.display = "block";
     }
 }

@@ -1,6 +1,6 @@
 {% extends 'pages/base.html' %}
 
-{% block title %}Kayıt Ol{% endblock %}
+{% block title %}Sign Up{% endblock %}
 
 {% block content %}
 <div class="container">
@@ -8,22 +8,22 @@
         <form method="post" action="/register" onsubmit="submitForm(event)">
             {% csrf_token %}
             <div class="form-group">
-                <label for="nick">Kullanıcı Adı</label>
-                <input type="text" class="input-field" id="nick" name="nick" placeholder="Nickname giriniz" required>
+                <label for="nick">Username</label>
+                <input type="text" class="input-field" id="nick" name="nick" placeholder="Enter your nickname" required>
             </div>
             <div class="form-group">
                 <label for="email">Email</label>
-                <input type="email" class="input-field" id="email" name="email" placeholder="Email girin" required>
+                <input type="email" class="input-field" id="email" name="email" placeholder="Enter your email" required>
             </div>
             <div class="form-group">
-                <label for="password">Şifre</label>
-                <input type="password" class="input-field" id="password" name="password" placeholder="Şifre girin" required>
+                <label for="password">Password</label>
+                <input type="password" class="input-field" id="password" name="password" placeholder="Enter your password" required>
             </div>
             <div id="content"></div>
-            <button class="btn-glitch-fill" type="submit"><span class="text-decoration">// kayıt ol //</span></button>
+            <button class="btn-glitch-fill" type="submit"><span class="text-decoration">// sign up //</span></button>
         </form>
         <div class="btn-glitch-fill" onclick="navigateTo('home')">
-            <span class="text-decoration">// Anasayfa //</span>
+            <span class="text-decoration">// Home //</span>
         </div>
     </div>
     <div class="message" style="grid-column: 3; grid-row: 3;">

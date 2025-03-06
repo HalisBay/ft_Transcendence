@@ -1,12 +1,12 @@
 {% extends 'pages/base.html' %}
 
-{% block title %}Kayıt Ol{% endblock %}
+{% block title %}Sign Up{% endblock %}
 
 {% block content %}
 
-    <h1 class="friiendss">Arkadaş Listesi</h1>
+    <h1 class="friiendss">Friend List</h1>
 
-    <!-- Mevcut arkadaşlar -->
+    <!-- Existing friends -->
     <ul class="friiendssss">
         {% if sorted_friends and sorted_friends.exists %}
             {% for friend in sorted_friends %}
@@ -22,67 +22,62 @@
                             <span class="circle3"></span>
                             <span class="circle4"></span>
                             <span class="circle5"></span>
-                            <span class="text-decoration">Profile Git</span>
+                            <span class="text-decoration">Go to Profile</span>
                         </div>
                     </div>
                 </li>
             {% endfor %}
         {% else %}
-            <li>Hiç arkadaşınız yok.</li>
+            <li>You have no friends.</li>
         {% endif %}
     </ul>
     
-    
-    
-
-
-
-    <!-- Gelen istekler -->
-    <h2 class="friiendss">Gelen İstekler</h2>
+    <!-- Incoming requests -->
+    <h2 class="friiendss">Incoming Requests</h2>
     <ul class="friiendssss">
         {% for request in received_requests %}
             <li class="request-item">
                <div style="font-size: x-large;">    
                    {{ request.from_user.nick }} =
                </div> 
-                <a class="requesst"  style="color: green;" href="{% url 'accept_friend_request' request.id %}" onclick="handleFriendRequest(event, this.href)">Kabul Et</a> | 
-                <a class="requesstt" style="color: red;" href="{% url 'reject_friend_request' request.id %}" onclick="handleFriendRequest(event, this.href)">Reddet</a>
+                <a class="requesst"  style="color: green;" href="{% url 'accept_friend_request' request.id %}" onclick="handleFriendRequest(event, this.href)">Accept</a> | 
+                <a class="requesstt" style="color: red;" href="{% url 'reject_friend_request' request.id %}" onclick="handleFriendRequest(event, this.href)">Reject</a>
             </li>
         {% empty %}
-            <li>Bekleyen istek yok.</li>
+            <li>No pending requests.</li>
         {% endfor %}
     </ul>
 
-    <!-- Gönderilen istekler -->
-    <h2 class="friiendss">Gönderilen İstekler</h2>
+    <!-- Sent requests -->
+    <h2 class="friiendss">Sent Requests</h2>
     <ul class="friiendssss">
         <div class="friend-expect">
             {% for request in sent_requests %}
-            <li>{{ request.to_user.nick }} - Beklemede</li>
+            <li>{{ request.to_user.nick }} - Pending</li>
             {% empty %}
-            <li>Henüz bir istek göndermediniz.</li>
+            <li>You haven't sent any requests yet.</li>
             {% endfor %}
         </div>
     </ul>
 
     <section>
-        <h2 class="friiendss">Arkadaşlık İsteği Gönder</h2>
+        <h2 class="friiendss">Send Friend Request</h2>
         <form  method="POST" action="{% url 'send_friend_request' %}" onsubmit="submitFriendsForm(event)">
             {% csrf_token %}
             <div class="form-group">
-                <label for="nick">Kullanıcı Adı:</label>
-                <input type="text" id="nick" name="nick" class="input-field" placeholder="Kullanıcı adı girin" required>
+                <label for="nick">Username:</label>
+                <input type="text" id="nick" name="nick" class="input-field" placeholder="Enter username" required>
             </div>
             <div style="display: flex; justify-content: center; gap: 15px;">
                 <button class="btn-glitch-fill" type="submit">
-                    <span class="text-decoration">\\ gönder //</span>
+                    <span class="text-decoration">\\ send //</span>
                 </button>
             </div>
         </form>
     </section>
 
     <div style="display: flex; justify-content: center; gap: 15px;">
-        <button class="btn-glitch-fill" onclick="navigateTo('user')"><span class="text-decoration">\\ kapat //</span></button>
+        <button class="btn-glitch-fill" onclick="navigateTo('user')"><span class="text-decoration">\\ close //</span></button>
     </div>
 
     <div class="message">

@@ -172,7 +172,8 @@ class PongConsumer(AsyncWebsocketConsumer):
                 )
             
             # Finally, make sure to remove the player from the room and discard the group
-            del rooms[self.room_group_name]
+            if self.room_group_name in rooms:
+                del rooms[self.room_group_name]
             await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
 
 

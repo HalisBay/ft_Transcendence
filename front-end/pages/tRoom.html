@@ -1,62 +1,62 @@
 {% extends 'pages/base.html' %}
 
-{% block title %}Turnuva - Pong{% endblock %}
+{% block title %}Tournament - Pong{% endblock %}
 
 {% block content %}
   <div class="container">
-    <!-- Turnuva Oluşturma Formu (Sol Taraf) -->
+    <!-- Tournament Creation Form (Left Side) -->
     <div class="room-one">
-      <h2 class="blinking-title">Turnuva Oluştur</h2>
+      <h2 class="blinking-title">Create Tournament</h2>
       <form class="buttoon-div" id="create-tournament-form" onsubmit="waitingRoom(event)" method="POST">
         {% csrf_token %}
-        <label for="creator-alias">Alias (Turnuva Oluşturucu):</label>
+        <label for="creator-alias">Alias (Tournament Creator):</label>
         <input type="text" id="creator-alias" name="creator-alias" class="input-field" placeholder="Alias" required>
 
-        <label for="tournament-name">Turnuva Adı:</label>
-        <input type="text" id="tournament-name" name="tournament-name" class="input-field" placeholder="Turnuva Adı" required>
+        <label for="tournament-name">Tournament Name:</label>
+        <input type="text" id="tournament-name" name="tournament-name" class="input-field" placeholder="Tournament Name" required>
 
         <button class="btn-glitch-fill" type="submit">
-          <span class="text-decoration">// Turnuva Oluştur //</span>
+          <span class="text-decoration">// Create Tournament //</span>
         </button>
       </form>
       <div id="status" style="color: white; margin-top: 20px;"></div>
     </div>
 
-    <!-- Turnuvaya Katılma Formu (Sağ Taraf) -->
+    <!-- Join Tournament Form (Right Side) -->
     <div class="room-two">
-      <h2 class="blinking-title">Turnuvaya Katıl</h2>
+      <h2 class="blinking-title">Join Tournament</h2>
       <form class="buttoon-div" id="join-tournament-form" onsubmit="joinTournament(event)">
-        <label for="player-alias">Alias (Katılımcı):</label>
+        <label for="player-alias">Alias (Participant):</label>
         <input type="text" id="player-alias" name="player-alias" class="input-field" placeholder="Alias" required>
     
-        <label for="tournament-id">Turnuva Adı:</label>
-        <input type="text" id="tournament-id" name="tournament-id" class="input-field" placeholder="Turnuva Adı" required>
+        <label for="tournament-id">Tournament Name:</label>
+        <input type="text" id="tournament-id" name="tournament-id" class="input-field" placeholder="Tournament Name" required>
     
-        <button class="btn-glitch-fill" type="submit">Katıl</button>
+        <button class="btn-glitch-fill" type="submit">Join</button>
     </form>    
     </div>
 
-    <!-- Aktif Turnuvalar Listesi (Formların Altında) -->
+    <!-- Active Tournaments List (Under the Forms) -->
      <div class="room-three">
-         <h2 class="blinking-title">Aktif Turnuvalar</h2>
+         <h2 class="blinking-title">Active Tournaments</h2>
          <ul id="tournament-list">
            {% for tournament in tournaments %}
            <li data-tournament="{{ tournament.tournament_name }}">
-             {{ tournament.tournament_name }} - Oluşturan: {{ tournament.creator_alias }} ({{ tournament.participant_count }}/4)
+             {{ tournament.tournament_name }} - Creator: {{ tournament.creator_alias }} ({{ tournament.participant_count }}/4)
              {% if user.is_authenticated %}
              {% if tournament.is_user_participant %}
-             - Katıldın
+             - You Joined
              {% endif %}
              {% endif %}
             </li>
             {% empty %}
-            <li>Aktif turnuva yok.</li>
+            <li>No active tournaments.</li>
             {% endfor %}
           </ul>
         </ul>
     </div>
     <div class="btn-glitch-fill" onclick="navigateTo('game/home')" style="grid-column: 3; grid-row: 3;">
-      <span class="text-decoration">// Geri //</span>
+      <span class="text-decoration">// Back //</span>
   </div>
   </div>
 {% endblock %}

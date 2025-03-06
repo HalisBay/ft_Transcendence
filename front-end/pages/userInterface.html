@@ -1,7 +1,7 @@
 <!-- userInterface.html -->
 {% extends 'pages/base.html' %}
 
-{% block title %}Kullanıcı Arayüzü{% endblock %}
+{% block title %}User Interface{% endblock %}
 
 {% block content %}
 <div class="container">
@@ -11,8 +11,8 @@
             <img src="{{ user.avatar.url }}" alt="Avatar">
         </div>
         <div class="user-info">
-            <p><strong>Adı:</strong> {{ username }}<span id="username"></span></p>
-            <p><strong>E-posta:</strong> {{ email }}<span id="email"></span></p>
+            <p><strong>Name:</strong> {{ username }}<span id="username"></span></p>
+            <p><strong>Email:</strong> {{ email }}<span id="email"></span></p>
         </div>
     </div>
 
@@ -27,28 +27,28 @@
 
     <div class="buttons">
         <div class="btn-glitch-fill" onclick="navigateTo('game/home')">
-            <span class="text-decoration">// OYUN //</span>
+            <span class="text-decoration">// GAME //</span>
         </div>
         <div class="btn-glitch-fill" onclick="navigateTo('user/update')">
-            <span class="text-decoration">// düzenle //</span>
+            <span class="text-decoration">// edit //</span>
         </div>
         <div class="btn-glitch-fill" onclick="logoutUser()">
-            <span class="text-decoration">// çıkış yap //</span>
+            <span class="text-decoration">// logout //</span>
         </div>
         <div class="btn-glitch-fill" onclick="activate2FA()">
             <span class="text-decoration">// activate 2FA //</span>
         </div>
         <div class="btn-glitch-fill" onclick="navigateTo('anonymize_account')">
-            <span class="text-decoration">// anonimleştir //</span>
+            <span class="text-decoration">// anonymize //</span>
         </div>
         <div class="btn-glitch-fill" onclick="navigateTo('user/delete')">
-            <span class="text-decoration">// hesabı sil //</span>
+            <span class="text-decoration">// delete account //</span>
         </div>
         <div class="btn-glitch-fill" onclick="navigateTo('game/profile/{{user.id}}')">
-            <span class="text-decoration">// profil //</span>
+            <span class="text-decoration">// profile //</span>
         </div>
         <div class="btn-glitch-fill" onclick="toggleFriendsPanel()">
-            <span class="text-decoration">// Arkadaş //</span>
+            <span class="text-decoration">// Friends //</span>
         </div>
     </div>
     <div id="content"></div>

@@ -1,6 +1,6 @@
 {% extends 'pages/base.html' %}
 
-{% block title %}Anasayfa{% endblock %}
+{% block title %}Home{% endblock %}
 
 {% block content %}
 <h1 class="pong-h1">PONG</h1>
@@ -14,20 +14,19 @@
     </div>
 
     <label class="switch">
-        <input type="checkbox" id="colorSwitch" onchange="changeColors()"> <!-- onchange kullanıldı -->
+        <input type="checkbox" id="colorSwitch" onchange="changeColors()"> <!-- onchange used -->
         <span class="toggle"></span>
     </label>
 </div>
 <div style="display: flex; justify-content: center; gap: 15px;">
-    <button class="btn-glitch-fill" onclick="navigateTo('game/home')"><span class="text-decoration">\\ ayrıl //</span></button>
+    <button class="btn-glitch-fill" onclick="navigateTo('game/home')"><span class="text-decoration">\\ leave //</span></button>
 </div>
 <div style="display: flex; justify-content: center; gap: 15px;">
-    <button id="nextGameBtn" class="btn-glitch-fill" onclick="navigateTo('game/pong')" disabled><span class="text-decoration">\\ Sıradaki Oyun //</span></button>
+    <button id="nextGameBtn" class="btn-glitch-fill" onclick="navigateTo('game/pong')" disabled><span class="text-decoration">\\ Next Game //</span></button>
 </div>
 
 
 
 <div id="content"></div>
-
 
 {% endblock %}

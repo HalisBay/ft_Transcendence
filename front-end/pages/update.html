@@ -1,68 +1,68 @@
 {% extends 'pages/base.html' %}
 
-{% block title %}Kullanıcı Bilgilerini Güncelle{% endblock %}
+{% block title %}Update User Information{% endblock %}
 
 {% block content %}
 <div class="container">
-    <h1 style="grid-column: 3; text-align: center; color: white; font-family: 'Press Start 2P', cursive;">Kullanıcı Bilgilerini Güncelle</h1>
+    <h1 style="grid-column: 3; text-align: center; color: white; font-family: 'Press Start 2P', cursive;">Update User Information</h1>
     <div class="buttons">
 
         <form method="POST" action="/user/update_user" onsubmit="submitUpdatePasswordForm(event)" enctype="multipart/form-data">
             {% csrf_token %}
-            <!-- Kullanıcı Adı -->
+            <!-- Username -->
             <div class="form-group">
-                <label for="nick">Kullanıcı Adı:</label>
-                <input type="text"class="input-field" name="nick" placeholder="{{ user.nick }}">
+                <label for="nick">Username:</label>
+                <input type="text" class="input-field" name="nick" placeholder="{{ user.nick }}">
             </div>
             
-            <!-- E-posta -->
+            <!-- Email -->
             <div class="form-group">
-                <label for="email">E-posta:</label>
-                <input type="email" class="input-field"name="email" placeholder="{{ user.email }}">
+                <label for="email">Email:</label>
+                <input type="email" class="input-field" name="email" placeholder="{{ user.email }}">
             </div>
 
-            <!-- Şifre -->
+            <!-- New Password -->
             <div class="form-group">
-                <label for="new_password">Yeni Şifre:</label>
-                <input type="password" class="input-field"name="new_password" placeholder="Yeni Şifre">
+                <label for="new_password">New Password:</label>
+                <input type="password" class="input-field" name="new_password" placeholder="New Password">
             </div>
             <div class="form-group">
-                <label for="new_password_confirm">Yeni Şifre (Tekrar):</label>
-                <input type="password" class="input-field"name="new_password_confirm" placeholder="Yeni Şifre (Tekrar)">
+                <label for="new_password_confirm">Confirm New Password:</label>
+                <input type="password" class="input-field" name="new_password_confirm" placeholder="Confirm New Password">
             </div>
 
             <!-- Avatar -->
             <div class="form-group">
-                <label for="select_avatar">Avatar Seç:</label>
+                <label for="select_avatar">Choose Avatar:</label>
                 <select class="avatar-select" id="select_avatar" name="select_avatar">
-                    <option value="">Bir Avatar Seçin</option>
-                    <option value="Avatar1.jpg">Gözlüklü MİT</option>
-                    <option value="Avatar2.jpg">Yüzsüz Erkek MİT</option>
-                    <option value="Avatar7.jpeg">Yüzsüz Kadın MİT</option>
-                    <option value="Designer.jpeg">Dijital dalgalar</option>
-                    <option value="Avatar3.jpg">Fakir Köpek</option>
-                    <option value="Avatar4.jpg">İmam Polat</option>
-                    <option value="Avatar5.jpg">Kapı Polat</option>
+                    <option value="">Select an Avatar</option>
+                    <option value="Avatar1.jpg">Glasses MIT</option>
+                    <option value="Avatar2.jpg">Faceless Man MIT</option>
+                    <option value="Avatar7.jpeg">Faceless Woman MIT</option>
+                    <option value="Designer.jpeg">Digital Waves</option>
+                    <option value="Avatar3.jpg">Poor Dog</option>
+                    <option value="Avatar4.jpg">Imam Polat</option>
+                    <option value="Avatar5.jpg">Door Polat</option>
                     <option value="Avatar6.jpg">Memati Tokat</option>
-                    <option value="Avatar8.jpg">Korkunç MİT</option>
-                    <option value="Avatar9.jpg">Mistik</option>
+                    <option value="Avatar8.jpg">Terrifying MIT</option>
+                    <option value="Avatar9.jpg">Mystic</option>
                 </select>
             </div>
-            <!-- Avatar Dosyası Yükleme -->
+            <!-- Avatar File Upload -->
             <div class="form-group">
                 <label for="avatar_file" class="file-label">
-                    <span class="file-text">Avatar Yükle</span>
+                    <span class="file-text">Upload Avatar</span>
                     <input type="file" id="avatar_file" name="avatar_file" class="file-input" onchange="showFileName(this)">
                 </label>
             </div>
 
             
-            <button type="submit" class="btn-glitch-fill"><span class="text-decoration">// güncelle //</span></button>
+            <button type="submit" class="btn-glitch-fill"><span class="text-decoration">// update //</span></button>
         </form>
         
         
         <div class="btn-glitch-fill" onclick="navigateTo('user')">
-            <span class="text-decoration">// geri //</span>
+            <span class="text-decoration">// back //</span>
         </div>
         <div class="message">
             <div id ="message"></div>
