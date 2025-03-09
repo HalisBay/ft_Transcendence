@@ -5,6 +5,7 @@ from rest_framework_simplejwt.exceptions import InvalidToken
 from django.shortcuts import redirect
 from datetime import timedelta
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import logout
 
 
 def refresh_access_token(refresh_token):
@@ -15,7 +16,7 @@ def refresh_access_token(refresh_token):
         new_access_token = str(refresh.access_token)
         return new_access_token
     except Exception as e:
-        raise Exception("Refresh token doğrulama hatası: " + str(e))
+        raise Exception("Refresh token validation failure: " + str(e))
 
 
 def jwt_required(view_func):
@@ -26,7 +27,7 @@ def jwt_required(view_func):
 
         if not raw_token:
             return JsonResponse(
-                {"success": False, "message": "Geçersiz veya eksik access token."},
+                {"success": False, "message": "Invalid or missing access token."},
                 status=401,
             )
 
@@ -42,7 +43,7 @@ def jwt_required(view_func):
                     response = JsonResponse(
                         {
                             "success": True,
-                            "message": "Token süresi dolmuş, yeni access token alındı.",
+                            "message": "Token expired, new access token received.",
                         }
                     )
                     response.set_cookie(
@@ -63,12 +64,12 @@ def jwt_required(view_func):
                     )
                 except Exception as e:
                     return JsonResponse(
-                        {"success": False, "message": "Geçersiz refresh token."},
+                        {"success": False, "message": "Invalid refresh token."},
                         status=401,
                     )
             else:
                 return JsonResponse(
-                    {"success": False, "message": "Geçersiz veya eksik refresh token."},
+                    {"success": False, "message": "Invalid or missing refresh token."},
                     status=401,
                 )
 
@@ -84,3 +85,18 @@ def notlogin_required(view_function):
         return view_function(request, *args, **kwargs)
 
     return wrapper_function
+
+def logout_and_clear_cache(request,message):
+    logout(request)
+
+    # Çerezleri temizle
+    response = JsonResponse({"success": True, "message": message})
+    response.delete_cookie("access_token")
+    response.delete_cookie("refresh_token")
+    response.delete_cookie("csrftoken")
+
+    # Önbelleği temizle
+    response["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response["Pragma"] = "no-cache"
+    response["Expires"] = "0"
+    return response

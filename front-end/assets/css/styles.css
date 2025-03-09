@@ -481,14 +481,9 @@ button {
 
 /* Kaydırma çubuğunun hareketli kısmı */
 ::-webkit-scrollbar-thumb {
-    background: linear-gradient(45deg, #ff0000, #ff8c00);
+    background: linear-gradient(45deg, rgb(255, 174, 0), #ff8c00);
     border-radius: 10px;
     transition: background 0.3s ease-in-out;
-}
-
-/* Kaydırma çubuğuna hover yapınca rengi değiştir */
-::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(45deg, #ff8c00, #ff0000);
 }
 
 
@@ -511,4 +506,101 @@ button {
     100% {
         text-shadow: 0 0 20px #000000, 0 0 30px #000000, 0 0 40px #000000;
     }
+}
+
+
+.switch-holder {
+    display: flex;
+    padding: 10px 20px;
+    font-family: 'Press Start 2P', cursive;
+    border-radius: 10px;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .switch-label {
+    padding: 0 20px 0 10px
+  }
+  
+  .switch-label i {
+    margin-right: 5px;
+  }
+  
+  .switch-toggle {
+    height: 40px;
+  }
+  
+  .switch-toggle input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    z-index: -2;
+  }
+  
+  .switch-toggle input[type="checkbox"]+label {
+    position: relative;
+    display: inline-block;
+    width: 100px;
+    height: 40px;
+    border-radius: 20px;
+    margin: 0;
+    cursor: pointer;
+    box-shadow: inset -8px -8px 15px rgba(255, 255, 255, .6),
+          inset 10px 10px 10px rgba(0, 0, 0, .25);
+  }
+  
+  .switch-toggle input[type="checkbox"]+label::before {
+    position: absolute;
+    content: 'OFF';
+    font-size: 13px;
+    text-align: center;
+    line-height: 25px;
+    top: 8px;
+    left: 8px;
+    width: 45px;
+    height: 25px;
+    border-radius: 20px;
+    background-color: transparent;
+    box-shadow: -3px -3px 5px rgba(255, 255, 255, .5),
+          3px 3px 5px rgba(0, 0, 0, .25);
+    transition: .3s ease-in-out;
+  }
+  
+  .switch-toggle input[type="checkbox"]:checked+label::before {
+    left: 50%;
+    content: 'ON';
+    color: #fff;
+    background-color: #00b33c;
+    box-shadow: -3px -3px 5px rgba(255, 255, 255, .5),
+          3px 3px 5px #00b33c;
+  }
+
+  ::placeholder {
+    color: rgba(255, 255, 255, 0.7); /* Beyazın şeffaf tonu */
+    font-style: italic;
+    font-size: 14px;
+    transition: all 0.3s ease-in-out;
+    opacity: 0.8;
+}
+
+/* Tüm input alanları için geçerli */
+input::placeholder,
+textarea::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+    font-style: italic;
+    font-size: 14px;
+}
+
+/* Input alanı üzerine gelindiğinde placeholder değişimi */
+input:hover::placeholder,
+textarea:hover::placeholder {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 15px;
+}
+
+/* Input aktifken (focus) placeholder değişimi */
+input:focus::placeholder,
+textarea:focus::placeholder {
+    color: var(--secondary-color); /* Seçiliyse sarı olur */
+    font-size: 13px;
+    opacity: 1;
 }

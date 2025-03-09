@@ -13,7 +13,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     def validate_nick(self, value):
         if User.objects.filter(nick=value).exists():
-            raise serializers.ValidationError("Bu nick zaten kullanılıyor.")
+            raise serializers.ValidationError("This nick is already in use.")
 
         return value
 
@@ -22,27 +22,27 @@ class UserSerializer(serializers.ModelSerializer):
         try:
             EmailValidator()(value)
         except ValidationError:
-            raise serializers.ValidationError("Geçersiz e-posta adresi formatı.")
+            raise serializers.ValidationError("Invalid email address format.")
 
         if User.objects.filter(email=value).exists():
-            raise serializers.ValidationError("Bu e-posta zaten kullanılıyor.")
+            raise serializers.ValidationError("This email is already in use.")
         return value
 
     def validate_password(self, value):
         # Şifre doğrulama
         if len(value) < 8:
-            raise serializers.ValidationError("Şifre en az 8 karakter olmalı.")
+            raise serializers.ValidationError("The password must be at least 8 characters.")
         if not any(char.isupper() for char in value):
             raise serializers.ValidationError(
-                "Şifre en az bir büyük karakter içermelidir."
+                "The password must contain at least one capital character."
             )
         if not any(char.islower() for char in value):
             raise serializers.ValidationError(
-                "Şifre en az bir küçük karakter içermelidir."
+                "The password must contain at least one lowercase character."
             )
         if not any(char in '!@#$%^&*()_+-=[{]}|;:",.<>?/`~' for char in value):
             raise serializers.ValidationError(
-                "Şifre en az bir özel karakter içermelidir."
+                "The password must contain at least one special character."
             )
         return value
 
@@ -77,14 +77,14 @@ class LoginSerializer(serializers.Serializer):
                 user = User.objects.get(nick=username)
                 if not check_password(password, user.password):
                     raise serializers.ValidationError(
-                        "Geçersiz kullanıcı adı veya şifre."
+                        "Invalid username or password."
                     )
                 if user.is_online == True:
-                    raise serializers.ValidationError("Oturum zaten açık")
+                    raise serializers.ValidationError("The session is already open")
             except User.DoesNotExist:
-                raise serializers.ValidationError("Geçersiz kullanıcı adı veya şifre.")
+                raise serializers.ValidationError("Invalid username or password.")
         else:
-            raise serializers.ValidationError("Kullanıcı adı ve şifre gereklidir.")
+            raise serializers.ValidationError("Username and password required.")
 
         data["user"] = user
         return data
