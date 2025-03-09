@@ -35,9 +35,6 @@
         <div class="btn-glitch-fill" onclick="logoutUser()">
             <span class="text-decoration">// logout //</span>
         </div>
-        <div class="btn-glitch-fill" onclick="activate2FA()">
-            <span class="text-decoration">// activate 2FA //</span>
-        </div>
         <div class="btn-glitch-fill" onclick="navigateTo('anonymize_account')">
             <span class="text-decoration">// anonymize //</span>
         </div>
@@ -49,6 +46,15 @@
         </div>
         <div class="btn-glitch-fill" onclick="toggleFriendsPanel()">
             <span class="text-decoration">// Friends //</span>
+        </div>
+        <div class="switch-holder btn-glitch-fill">
+            <div class="switch-label">
+                <i class="fa fa-toggle2FA-b"></i><span class="text-decoration">ACTIVATE 2FA</span>
+            </div>
+            <div class="switch-toggle">
+                <input type="checkbox" id="toggle2FA" onclick="activate2FA()" {% if request.user.is_2fa_active %}checked{% endif %}>
+                <label for="toggle2FA"></label>
+            </div>
         </div>
     </div>
     <div id="content"></div>

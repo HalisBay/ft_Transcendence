@@ -325,129 +325,63 @@ function initiateWebSocketConnection() {
 
 function activate2FA() {
     const csrfToken = getCsrfToken();
-    fetch('/user/activate2fa', { 
+    const toggle = document.getElementById('toggle2FA');
+    const isEnabled = toggle.checked;  // Açık/Kapalı durumunu kontrol et
+
+    fetch('/user/activate2fa', {  
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': csrfToken
         },
+        body: JSON.stringify({ enable_2fa: isEnabled })  // Sunucuya durumu gönder
     })
     .then(response => response.json())
     .then(data => {
-        if (data.success) {
-            alert('2FA Preference Updated!');
-        }
     })
     .catch(error => {
-        console.error('Error occurred:', error);
+        console.error('Hata oluştu:', error);
+        toggle.checked = !isEnabled; // Hata olursa geri al
     });
 }
 
 
 
-function checkInput() {
-    const inputField = document.getElementById("deleteInput");
-    const deleteButton = document.getElementById("deleteButton");
-    const messageDiv = document.getElementById("message");
+function deleteAccount() {
+    const inputText = document.getElementById('inputText').value.trim().toLowerCase();
+    const responseMessage = document.getElementById('responseMessage');
     
-    if (inputField.value.trim().toLowerCase() === "delete my account") {
-        deleteButton.disabled = false; 
-        messageDiv.textContent = "";  
-
-        fetch('/user/delete', { 
+    if (inputText === "delete my account") {
+        fetch('/user/delete', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
             },
+            body: JSON.stringify({ txt: inputText }),
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                navigateTo('user');
+                console.log(JSON.stringify(data));
+                const messageElement = document.getElementById('message');
+                const message = data.success ? data.message : data.error_message;
+                messageElement.className = data.success ? "text-success" : "text-danger";
+                messageElement.innerHTML = `<p>${message}</p>`;
+                setTimeout(() => {
+                    navigateTo('register');
+                }, 1000);
             } else {
-                messageDiv.textContent = "Error: " + data.message || "An error occurred.";
-                messageDiv.style.color = "red";
+                responseMessage.innerHTML = `<span style="color: red;">${data.message}</span>`;
             }
         })
         .catch(error => {
-            console.error('Error occurred:', error);
-            messageDiv.textContent = "An error occurred. Please try again.";
-            messageDiv.style.color = "red";
+            responseMessage.innerHTML = `<span style="color: red;">Something went wrong. Please try again.</span>`;
         });
     } else {
-        deleteButton.disabled = true; 
-        messageDiv.textContent = "Please type 'delete my account'.";
-        messageDiv.style.color = "red";
+        responseMessage.innerHTML = "<span style='color: red;'>Incorrect input. Please type 'delete my account'.</span>";
     }
 }
-
-
-function delemOne(event) {
-    event.preventDefault();
-
-    const form = new FormData(event.target); 
-
-    fetch('/user/delete', {
-        method: 'POST',
-        body: form,
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest', 
-        },
-    })
-    .then(response => response.json())  
-    .then(data => {
-        const messageElement = document.getElementById('message');
-        console.log(JSON.stringify(data));
-        if (data.success) {
-            navigateTo('home')
-        } else {
-            let errorMessage = '';
-            if (data.errors) {
-                for (const [key, value] of Object.entries(data.errors)) {
-                    errorMessage += `<p class="text-danger">${value}</p>`;
-                }
-            } else {
-                errorMessage = `<p class="text-danger">${data.message}</p>`;
-            }
-            messageElement.innerHTML = errorMessage;
-        }
-    })
-    .catch(error => {
-        document.getElementById('message').innerHTML = `<p class="text-danger">An error occurred: ${error.message}</p>`;
-    });
-}
-
-
-// function getUserWithToken() {
-//     const token = new URLSearchParams(window.location.search).get('token'); // URL'den token'ı al
-
-//     if (!token) {
-//         document.getElementById('message').innerHTML = 'Token bulunamadı.';
-//         return;
-//     }
-
-//     fetch(`/verify?token=${token}`, {  // URL'ye token'ı ekle
-//         method: 'GET',
-//         headers: {
-//             'X-Requested-With': 'XMLHttpRequest',  // AJAX isteği olduğunu belirtiyoruz
-//         },
-//     })
-//     .then(response => response.json())  // Yanıtı JSON formatında al
-//     .then(data => {
-//         console.log(JSON.stringify(data));
-//         if (data.success) {
-//             console.log('Token doğrulandı, kullanıcı sayfasına yönlendiriliyor...');
-//             navigateTo('user');  // Yönlendirme yap
-//         } else {
-//             console.error('Token doğrulanamadı: ', data.message);
-//             document.getElementById('message').innerHTML = data.message;
-//         }
-//     })
-//     .catch(error => {
-//         console.error('An error occurred: ', error.message);
-//         document.getElementById('message').innerHTML = 'An error occurred: ' + error.message;
-//     });
-// }
 
 
 

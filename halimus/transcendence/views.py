@@ -28,7 +28,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from .requireds import jwt_required, notlogin_required
+from .requireds import jwt_required, notlogin_required,logout_and_clear_cache
 from django.core.files.storage import default_storage
 from .models import copy_static_to_media
 from django.core.files.base import ContentFile
@@ -125,22 +125,7 @@ def logout_page(request):
         user.is_online = False
         user.save()
 
-    print(f"\nuser online {request.user.is_online}\n")
-    # Django oturumunu sonlandır
-    logout(request)
-
-    # Çerezleri temizle
-    response = JsonResponse({"success": True, "message": "Çıkış yapılıyor."})
-    response.delete_cookie("access_token")
-    response.delete_cookie("refresh_token")
-    response.delete_cookie("csrftoken")
-
-    # Önbelleği temizle
-    response["Cache-Control"] = "no-cache, no-store, must-revalidate"
-    response["Pragma"] = "no-cache"
-    response["Expires"] = "0"
-
-    return response
+    return logout_and_clear_cache(request,"exit with successfully")
 
 
 @notlogin_required
@@ -311,9 +296,9 @@ def activate_2fa(request):
         print(user)
         print(user.is_2fa_active)
         return JsonResponse(
-            {"success": True, "message": "2FA başarıyla etkinleştirildi."}
+            {"success": True, "message": "2FA has been successfully activated."}
         )
-    return JsonResponse({"success": False, "message": "Geçersiz istek."}, status=400)
+    return JsonResponse({"success": False, "message": "Invalid request."}, status=400)
 
 
 @login_required
@@ -332,7 +317,7 @@ def format_messages(messages):
 def update_user(request):
     user = request.user
     if user.is_anonymized:
-        return Response({"error": "Kimlik doğrulama başarısız."}, status=401)
+        return Response({"error": "Authentication failed."}, status=401)
 
     # Güncellenecek alanları al
     nick = request.POST.get("nick")
@@ -351,10 +336,10 @@ def update_user(request):
         if serializer.is_valid():
             serializer.save()
             update_session_auth_hash(request, user)
-            messages.append("Kullanıcı adı başarıyla güncellendi.")
+            messages.append("Username updated successfully.")
         else:
             errors.append(
-                serializer.errors.get("nick", ["Kullanıcı adı güncellenemedi."])[0]
+                serializer.errors.get("nick", ["Failed to update username."])[0]
             )
 
     # E-posta güncelleme
@@ -363,16 +348,16 @@ def update_user(request):
         if serializer.is_valid():
             serializer.save()
             update_session_auth_hash(request, user)
-            messages.append("E-posta başarıyla güncellendi.")
+            messages.append("Email updated successfully.")
         else:
             errors.append(
-                serializer.errors.get("email", ["E-posta güncellenemedi."])[0]
+                serializer.errors.get("email", ["Failed to update email."])[0]
             )
 
     # Şifre güncelleme
     if new_password and new_password_confirm:
         if new_password != new_password_confirm:
-            errors.append("Şifreler eşleşmiyor.")
+            errors.append("Passwords do not match.")
         else:
             serializer = UserSerializer(
                 user, data={"password": new_password}, partial=True
@@ -384,7 +369,7 @@ def update_user(request):
                 logout_page(request)
             else:
                 errors.append(
-                    serializer.errors.get("password", ["Şifre güncellenemedi."])[0]
+                    serializer.errors.get("password", ["Failed to update password."])[0]
                 )
 
     # Avatar güncelleme
@@ -396,7 +381,7 @@ def update_user(request):
         mime_type, _ = guess_type(avatar_file.name)
 
         if mime_type not in allowed_mime_types:
-            errors.append("Yalnızca JPEG, PNG veya GIF dosyaları yükleyebilirsiniz.")
+            errors.append("You can only upload JPEG, PNG or GIF files.")
         else:
             fs = FileSystemStorage(
                 location=os.path.join(settings.MEDIA_ROOT, "avatars")
@@ -404,12 +389,12 @@ def update_user(request):
             filename = fs.save(avatar_file.name, avatar_file)
             request.user.avatar = os.path.join("avatars", filename)
             request.user.save()
-            messages.append("Avatar başarıyla yüklendi ve güncellendi.")
+            messages.append("Avatar successfully uploaded and updated.")
 
     elif selected_avatar:
         user.avatar = selected_avatar
         user.save()
-        messages.append("Avatar başarıyla güncellendi.")
+        messages.append("Avatar successfully updated.")
 
     # Hata mesajları varsa success False olarak döndür
     if errors:
@@ -436,18 +421,20 @@ def profile_edit_view(request):
     }
     return render(request, "pages/userInterface.html", context)
 
-@api_view(["GET", "POST"])
+@api_view(["POST","GET"])
 @jwt_required
 @login_required
 def delete_all(request):
     if request.method == "POST":
-        input_text = request.POST.get("txt", "").strip().lower()
-        if input_text == "delete my account":
-            user = request.user
-            if user.is_anonymous:
-                return Response({"error": "Authentication failed."}, status=401)
-            user.delete()
-            return JsonResponse({"success": True, "message": "Successfully deleted"}, status=200)
-        else:
-            return JsonResponse({"success": False, "message": "Incorrect input. Please type 'delete my account'."}, status=400)
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":  
+            input_text = request.data.get("txt", "").strip().lower()  # JSON formatını doğru al
+            if input_text == "delete my account":
+                user = request.user
+                if user.is_anonymous:
+                    return JsonResponse({"error": "Authentication failed."}, status=401)
+                response = logout_and_clear_cache(request,"successfully deleted your account.")
+                user.delete()
+                return response
+            else:
+                return JsonResponse({"success": False, "message": "Incorrect input. Please type 'delete my account'."}, status=400)
     return render(request, "pages/deleteall.html")
