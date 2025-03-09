@@ -210,6 +210,39 @@ function waitingRoom(event) {
     };
 }
 
+// document.getElementById('startButton').addEventListener('click', function() {
+//     console.log("Buton çalışıyor mu?")
+//     checkOrStart();
+// });
+
+function checkOrStart() {
+    socket.send(JSON.stringify({
+        'action': 'checkOrStart'
+    }));
+
+    socket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+    
+        if (data.action === 'start_game') {
+            // When the game is ready to start, navigate to the pong page
+            navigateTo('game/pong');
+        } else if (data.message) {
+            alert(data.message);
+        }
+    };
+}
+
+// function leaveTournament() {
+//     if (socket && socket.readyState === WebSocket.OPEN) {
+//         socket.send(JSON.stringify({
+//             'action': 'leave_tournament'
+//         }));
+//     } else {
+//         console.error("WebSocket bağlantısı kapalı!");
+//     }
+// }
+
+
 function joinTournament(event) {
     event.preventDefault();
 

@@ -256,16 +256,20 @@ class PongConsumer(AsyncWebsocketConsumer):
                 ball["vx"] = -ball["vx"]
             if ball["x"] < 0:
                 game_state["scores"]["player2"] += 1
+                print(f"Player 2 scored. New score: {game_state['scores']['player2']}")
                 await self.reset_ball(1)
             elif ball["x"] > 990:
                 game_state["scores"]["player1"] += 1
+                print(f"Player 1 scored. New score: {game_state['scores']['player1']}")
                 await self.reset_ball(-1)
             # Skor 2'ye ulaşan oyuncu kazanır, oyunu bitir
-            if game_state["scores"]["player1"] == 2:
+            if game_state["scores"]["player1"] == 5:
                 await self.end_game("player1")
+                print("Player 1 won the game.")
                 break
-            elif game_state["scores"]["player2"] == 2:
+            elif game_state["scores"]["player2"] == 5:
                 await self.end_game("player2")
+                print("Player 2 won the game.")
                 break
             await self.channel_layer.group_send(
                 self.room_group_name, {"type": "game_state", "state": game_state}
@@ -395,7 +399,25 @@ class TournamentConsumer(AsyncWebsocketConsumer):
             print(f"Error while sending initial message: {e}")
 
     async def disconnect(self, close_code):
-        # Kanalı gruptan çı
+        tournament = await self.get_user_tournament()
+    
+        if tournament:
+            # Kullanıcıyı turnuvadan çıkar
+            await self.remove_player_from_tournament(tournament)
+            
+            # Katılımcı sayısını veritabanından sorgula
+            participant_count = await self.get_participant_count(tournament)
+            
+            if participant_count == 0:
+                # Eğer turnuvada hiç katılımcı yoksa, turnuvayı sil
+                await self.delete_tournament(tournament)
+                await self.send(
+                    text_data=json.dumps(
+                        {"message": f"The tournament '{tournament.tournament_name}' has been deleted because there are no participants."}
+                    )
+                )
+
+        await super().disconnect(close_code)
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
         print(f"Disconnected: {self.channel_name}, code: {close_code}")
 
@@ -446,6 +468,45 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                     )
                 )
 
+        elif action == "leave_tournament":
+            tournament = await self.get_user_tournament()
+            if not tournament:
+                await self.send(
+                    text_data=json.dumps({"message": "You are not in any tournament."})
+                )
+                return
+            
+            # Oyuncuyu turnuvadan çıkar
+            await self.remove_player_from_tournament(tournament)
+
+            still_in_tournament = await self.get_user_tournament()
+
+            if still_in_tournament:
+                await self.send(
+                    text_data=json.dumps(
+                        {"message": "An error occurred while leaving the tournament."}
+                    )
+                )
+            else:
+                await self.send(
+                    text_data=json.dumps(
+                        {"message": f"You have left the tournament '{tournament.tournament_name}'."}
+                    )
+                )
+            if tournament.participant_count == 0:
+                await self.delete_tournament(tournament)
+                await self.send(
+                    text_data=json.dumps(
+                        {"message": f"The tournament '{tournament.tournament_name}' has been deleted because there are no participants."}
+                    )
+                )
+            else:
+                await self.send(
+                    text_data=json.dumps(
+                        {"message": f"You have left the tournament '{tournament.tournament_name}'."}
+                    )
+                )
+
         elif action == "join_tournament":
             player_alias = data.get("player_alias")
             tournament_name = data.get("tournament_name")
@@ -463,35 +524,56 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
             tournament = await self.get_tournament_by_name(tournament_name)
             if tournament:
-                # Oturum açmış kullanıcıyla katılım işlemi
-                participant = await self.add_player_to_tournament(
-                    tournament, player_alias
-                )
-
-                if participant:
-                    await self.send(
-                        text_data=json.dumps(
-                            {
-                                "message": f"User with alias '{player_alias}' joined the tournament '{tournament_name}'."
-                            }
-                        )
+                if await self.get_participant_count(tournament) < 4:
+                    participant = await self.add_player_to_tournament(
+                        tournament, player_alias
                     )
+
+                    if participant:
+                        await self.send(
+                            text_data=json.dumps(
+                                {
+                                    "message": f"User with alias '{player_alias}' joined the tournament '{tournament_name}'."
+                                }
+                            )
+                        )
+                    else:
+                        await self.send(
+                            text_data=json.dumps(
+                                {
+                                    "message": f"Could not add player to the tournament '{tournament_name}'."
+                                }
+                            )
+                        )
+                        await self.close()
                 else:
                     await self.send(
                         text_data=json.dumps(
-                            {
-                                "message": f"Could not add player to the tournament '{tournament_name}'."
-                            }
+                            {"message": f"Tournament '{tournament_name}' not found."}
                         )
                     )
                     await self.close()
+
+        elif action == "checkOrStart":
+            tournament = await self.get_user_tournament()  # Get the user's tournament
+            if tournament:
+                participant_count = await self.get_participant_count(tournament)
+                print(participant_count)
+                if participant_count == 2:
+                        # Send the signal to the frontend to start the game
+                    await self.send(text_data=json.dumps({
+                        'action': 'start_game',
+                        'message': 'Tournament is ready. Starting the game!'
+                    }))
+                else:
+                    await self.send(text_data=json.dumps({
+                        'message': f'Tournament is not ready. {participant_count} players present.'
+                    }))
             else:
-                await self.send(
-                    text_data=json.dumps(
-                        {"message": f"Tournament '{tournament_name}' not found."}
-                    )
-                )
-                await self.close()
+                await self.send(text_data=json.dumps({
+                    'message': 'You are not part of any tournament.'
+                }))
+
 
     async def create_tournament(self, creator_alias, tournament_name):
         if await database_sync_to_async(
@@ -587,3 +669,21 @@ class TournamentConsumer(AsyncWebsocketConsumer):
     def is_user_in_any_tournament(self):
         # Kullanıcının başka bir turnuvaya katılıp katılmadığını kontrol et
         return TournamentParticipant.objects.filter(user=self.user).exists()
+
+    @database_sync_to_async
+    def get_user_tournament(self):
+        participant = TournamentParticipant.objects.filter(user=self.user).first()
+        return participant.tournament if participant else None
+
+    @database_sync_to_async
+    def remove_player_from_tournament(self, tournament):
+        TournamentParticipant.objects.filter(user=self.user, tournament=tournament).delete()
+
+    @database_sync_to_async
+    def delete_tournament(self, tournament):
+        # Turnuvayı sil
+        tournament.delete()
+
+    @database_sync_to_async
+    def get_participant_count(self, tournament):
+        return TournamentParticipant.objects.filter(tournament=tournament).count()
