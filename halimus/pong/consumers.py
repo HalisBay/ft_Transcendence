@@ -139,9 +139,11 @@ class PongConsumer(AsyncWebsocketConsumer):
                     lose_count=await database_sync_to_async(
                         lambda: remaining_player.match_history.filter(result=False).count()
                     )(),
-                    score=0,  # No game played, so score is 0
+                    score=11,  # No game played, so score is 0
+                    opponent_score=0,
                     tWinner=False,
                 )
+            
                 await database_sync_to_async(MatchHistory.objects.create)(
                     user=self.user,
                     opponent=remaining_player,
@@ -153,9 +155,10 @@ class PongConsumer(AsyncWebsocketConsumer):
                         lambda: self.user.match_history.filter(result=False).count() + 1
                     )(),
                     score=0,  # No game played, so score is 0
+                    opponent_score=11,
                     tWinner=False,
                 )
-                
+
                 # Notify that a player disconnected and the game is canceled
                 await self.channel_layer.group_send(
                     self.room_group_name,
@@ -318,6 +321,7 @@ class PongConsumer(AsyncWebsocketConsumer):
                 lambda: winner_user.match_history.filter(result=False).count()
             )(),
             score=game_state["scores"][winner],
+            opponent_score=game_state["scores"][f"player{3 - int(winner[-1])}"],
             tWinner=False,
         )
         await database_sync_to_async(MatchHistory.objects.create)(
@@ -331,6 +335,7 @@ class PongConsumer(AsyncWebsocketConsumer):
                 lambda: loser_user.match_history.filter(result=False).count() + 1
             )(),
             score=game_state["scores"][f"player{3 - int(winner[-1])}"],
+            opponent_score=game_state["scores"][winner],
             tWinner=False,
         )
         # Clear players from the room
@@ -377,7 +382,7 @@ import json
 
 class TournamentConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        self.room_group_name = "tournament_group"
+        self.room_group_name = "tournament_group" #TODO: değişebilir 
         self.user = self.scope["user"]
 
         # Kullanıcı doğrulaması
@@ -390,7 +395,6 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         # Grupta bu kanal adı ile katılım sağla
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
 
-        # Başlangıç mesajı gönderme
         try:
             await self.send(
                 text_data=json.dumps({"message": "Connected to tournament room"})
@@ -553,9 +557,18 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                         )
                     )
                     await self.close()
+            else:
+                await self.send(
+                    text_data=json.dumps(
+                        {
+                            "message": "O isimde Turnuva yokkk"
+                        }
+                    )
+                )
+                
 
         elif action == "checkOrStart":
-            tournament = await self.get_user_tournament()  # Get the user's tournament
+            tournament = await self.get_user_tournament()
             if tournament:
                 participant_count = await self.get_participant_count(tournament)
                 print(participant_count)

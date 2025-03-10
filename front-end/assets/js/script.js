@@ -171,8 +171,17 @@ function logoutUser() {
 function getCsrfToken() {
     return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 }
+
+let isTournamentCreated = false;
+let isJoined = false;
+
 function waitingRoom(event) {
     event.preventDefault();
+
+    if (isJoined || isTournamentCreated) {
+        document.getElementById('status').innerText = "Zaten bir turnuva oluşturdun knkm";
+        return;
+    }
 
     const form = document.getElementById('create-tournament-form');
     const creatorAlias = document.getElementById('creator-alias').value;
@@ -194,6 +203,7 @@ function waitingRoom(event) {
             document.getElementById('status').innerText = data.error;
         } else {
             document.getElementById('status').innerText = data.message;
+            isTournamentCreated = true;
         }
     };
 
@@ -203,6 +213,7 @@ function waitingRoom(event) {
         } else {
             console.log("Connection closed:", event.code);
         }
+        isTournamentCreated = false;
     };
 
     socket.onerror = function(event) {
@@ -215,7 +226,13 @@ function waitingRoom(event) {
 //     checkOrStart();
 // });
 
+let tourStarted = false;
 function checkOrStart() {
+    if (!socket || socket.readyState !== WebSocket.OPEN) {
+        // Eğer WebSocket bağlantısı açık değilse, kullanıcıya uyarı ver
+        document.getElementById('status').innerText = "Turnuvaya katılmadan oyunu başlatamazsınız!";
+        return;
+    }
     socket.send(JSON.stringify({
         'action': 'checkOrStart'
     }));
@@ -226,8 +243,9 @@ function checkOrStart() {
         if (data.action === 'start_game') {
             // When the game is ready to start, navigate to the pong page
             navigateTo('game/pong');
+            tourStarted = true;
         } else if (data.message) {
-            alert(data.message);
+            document.getElementById('status').innerText = data.message;
         }
     };
 }
@@ -246,12 +264,16 @@ function checkOrStart() {
 function joinTournament(event) {
     event.preventDefault();
 
-    const form = document.getElementById('join-tournament-form');
     const playerAlias = document.getElementById('player-alias').value; 
     const tournamentName = document.getElementById('tournament-id').value; 
 
     if (!playerAlias || !tournamentName) {
         alert("Please fill in all fields!");
+        return;
+    }
+
+    if (isJoined || isTournamentCreated) {
+        document.getElementById('status').innerText = "Zaten bir turnuvaya katıldın knkm";
         return;
     }
 
@@ -267,36 +289,38 @@ function joinTournament(event) {
 
     socket.onmessage = function(event) {
         const data = JSON.parse(event.data);
-        if (data.error) {
-            document.getElementById('status').innerText = data.error;
-        } else {
+
+        if (data.message) {
             document.getElementById('status').innerText = data.message;
-            if (data.success && data.tournament_name === tournamentName) {
-                const tournamentItem = document.querySelector(`#tournament-list li[data-tournament="${tournamentName}"]`);
-                if (tournamentItem) {
-                    tournamentItem.innerHTML += ' - Katıldın';
-                }
+        }
+
+        if (data.message.includes("O isimde Turnuva yokkk") || 
+            data.message.includes("Tournament not found") || 
+            data.message.includes("Could not add player") || 
+            data.message.includes("already a participant")) {
+            
+            // Eğer katılım başarısızsa, bağlantıyı kapat
+            socket.close();
+        } else if (data.message.includes("joined the tournament")) {
+            isJoined = true;
+
+            const tournamentItem = document.querySelector(`#tournament-list li[data-tournament="${tournamentName}"]`);
+            if (tournamentItem) {
+                tournamentItem.innerHTML += ' - Katıldın';
             }
         }
-        
-        
-        if (data.message.includes("Could not add player") || data.message.includes("not found")) {
-            alert(data.message);  
-            socket.close();      
-        }
     };
-    
 
     socket.onclose = function(event) {
-        console.log("WebSocket connection closed:", event.code);
+        console.log("WebSocket kapandı:", event.code);
+        isJoined = false;
     };
-    
-    // Hata durumunda çalışacak kısım
-    socket.onerror = function(error) {
-        console.error("WebSocket error:", error);
-        socket.close();  
+
+    socket.onerror = function(event) {
+        document.getElementById('status').innerText = "WebSocket bağlantı hatası!";
     };
 }
+
 
 
 

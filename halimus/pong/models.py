@@ -15,6 +15,7 @@ class MatchHistory(models.Model):
     win_count = models.IntegerField(default=0)  # Kazandığı oyun sayısı
     lose_count = models.IntegerField(default=0)  # Kaybettiği oyun sayısı
     score = models.IntegerField()  # Skor
+    opponent_score = models.IntegerField(default=0) 
     date_time = models.DateTimeField(auto_now_add=True)  # Tarih ve saat
     tWinner = models.BooleanField(default=True)
 

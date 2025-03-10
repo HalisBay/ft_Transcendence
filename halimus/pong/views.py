@@ -45,9 +45,7 @@ def profile_view(request, user_id):
             'opponent': match.opponent.nick,
             'user_score': match.score,
             'opponent_score': (
-                MatchHistory.objects.filter(user=match.opponent, opponent=user)
-                .values_list('score', flat=True)
-                .first() or "N/A"
+                match.opponent_score
             ),
             'result': match.result,
             'date_time': match.date_time,
