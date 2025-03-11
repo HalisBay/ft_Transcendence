@@ -12,73 +12,70 @@
 
 body {
     min-height: 100vh;
+    min-width: 1200px;
+    width: 100%;
     background: var(--background-gradient);
-    background-size: cover;  /* Arka planın ekran boyutuna tam oturmasını sağlar */
-    background-repeat: no-repeat;  /* Tekrar etmesini önler */
-    background-attachment: fixed;  /* Kaydırma sırasında arka planın sabit kalmasını sağlar */
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     animation: gradientAnimation 10s ease infinite;
-    min-width: 1200px;
+    font-family: 'Press Start 2P', cursive;
+    color: var(--primary-color);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     overflow: auto;
+    
+    
 }
 
 
 .container {
-    display: grid;
-    height: 100vh;
-    grid-template-columns: 1fr minmax(200px, 5fr) minmax(200px, 5fr) minmax(200px, 5fr) minmax(100px, 1fr);
-    grid-template-rows: 5fr 5fr 5fr 1fr;
-    justify-items: center;
-    align-items: center;
-    gap: 10px;
-    transition: grid-template-columns 0.6s ease-in-out, grid-template-rows 0.6s ease-in-out;
-    overflow-x: auto;
-    overflow-y: auto;
-}
-
-.GDPR, .GDPR2 {
-    text-align: center;
-    bottom: 20px;
-    width: 150px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: transparent;
-    cursor: pointer;
-}
-
-.GDPR { grid-column: 3; }
-.GDPR2 { grid-column: 4; }
-
-.lazMusti {
-    margin: 0 10px;
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    position: fixed;
-    bottom: 20px;
-    width: 100%;
-    height: 1%;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: transparent;
-    color: var(--primary-color);
-    padding: 10px 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.roww {
-    margin-top: 150px;
-    grid-column: 2/5;
-}
-
-.buttons {
-    grid-column: 3;
-    grid-row: 2;
-    margin: auto;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    gap: 20px;
+    min-width: 100%;
+    max-width: 1200px; /* Maksimum genişlik */
+    margin: 0 auto; /* Ortala */
+    flex-grow: 1; /* İçerik alanını genişlet */
+    padding: 0 20px; /* Kenarlardan boşluk ekle */
+}
+
+.GDPR, .GDPR2 {
+    position: fixed;
+    bottom: 20px;
+    background-color: transparent;
+    color: var(--primary-color);
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all var(--transition-duration) ease;
+}
+
+.GDPR:hover, .GDPR2:hover {
+    background-color: var(--primary-color);
+    color: #000000;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 10px rgba(255, 255, 0, 0.5);
+}
+
+.GDPR {
+    left: 20px;
+}
+
+.GDPR2 {
+    right: 20px;
+}
+
+
+.buttons {
+    display: flex;
+    flex-direction: column;
     gap: 10px;
 }
 
@@ -140,6 +137,7 @@ button {
     margin-bottom: 10px;
     border-radius: 15px;
     max-width: 100%;
+    height: 30px;
     word-wrap: break-word;
     align-self: flex-end;
     text-align: center;
@@ -153,14 +151,16 @@ button {
 }
 
 .user-card {
-    grid-column: 3;
     width: 200px;
     height: 200px;
-    margin: auto;
+    margin: 20px auto;
     position: relative;
     border-radius: 50%;
     box-shadow: 0 4px 12px rgb(0, 0, 0);
     transition: height 0.4s ease, width 0.4s ease, border-radius 0.4s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .user-image {
@@ -332,9 +332,12 @@ button {
 }
 
 .modal {
+    position: fixed;
+    top: 0;
+    left: -500px; /* Başlangıçta ekranın dışında */
     height: 100%;
     width: 500px;
-    background: transparent;
+    background: rgba(0, 0, 0, 0.8); /* Yarı şeffaf siyah arka plan */
     z-index: 1000;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
     overflow-y: auto;
@@ -344,16 +347,18 @@ button {
 }
 
 .modal.active {
-    grid-column: 1;
-    grid-row: 1/5;
-    left: 0;
+    left: 0; /* Ekrana giriş */
     opacity: 1;
-    pointer-events: painted;
+    pointer-events: auto; /* Tıklanabilir hale getir */
 }
 
 .modal-content {
     padding: 20px;
     color: var(--primary-color);
+    background: rgba(0, 0, 0, 0.9); /* Modal içeriği için koyu arka plan */
+    border-radius: 10px;
+    margin: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .close-btn {
@@ -427,9 +432,9 @@ button {
     transition: 1.5s ease;
 }
 
-.room-one { grid-column: 2; grid-row: 2; }
-.room-two { grid-column: 4; grid-row: 2; }
-.room-three { grid-column: 3; }
+.room-one { grid-column: 2; grid-row: 1; }
+.room-two { grid-column: 4; grid-row: 1; }
+.room-three { grid-column: 3; grid-row: 2;}
 .room-three ul { text-align: center; }
 
 .text-success {
@@ -486,27 +491,6 @@ button {
     transition: background 0.3s ease-in-out;
 }
 
-
-.hdr-tr {
-    font-family: 'Press Start 2P', cursive;
-    grid-column: 3;
-    font-size: 60px;
-    color: #ff8c00;
-    text-shadow: 2px 2px 10px rgba(255, 140, 0, 0.6);
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    font-weight: bold;
-    animation: glow 1.5s ease-in-out infinite alternate;
-}
-
-@keyframes glow {
-    0% {
-        text-shadow: 0 0 10px #000000, 0 0 20px #000000, 0 0 30px #000000;
-    }
-    100% {
-        text-shadow: 0 0 20px #000000, 0 0 30px #000000, 0 0 40px #000000;
-    }
-}
 
 
 .switch-holder {
@@ -604,3 +588,4 @@ textarea:focus::placeholder {
     font-size: 13px;
     opacity: 1;
 }
+

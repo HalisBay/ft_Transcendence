@@ -29,7 +29,7 @@ button.back-btn {
 }
 
 button.back-btn:hover {
-    background-color: #333;
+    background-color: rgb(255, 174, 0);
 }
 
 /* Profil Başlık */

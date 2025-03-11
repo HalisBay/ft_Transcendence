@@ -3,7 +3,7 @@
 {% block title %}Profile - {{ profile_user.nick }}{% endblock %}
 
 {% block content %}
-    <!-- Geri Dön Butonu -->
+<div class="container">
     <button class="back-btn" onclick="navigateTo('home')"><span class="text-decoration">\\ geri //</span></button>
 
     <div class="profile-wrapper">
@@ -42,7 +42,7 @@
                         <tr >
                             <td class="{% if match.tWinner %}match-winner{% endif %}">{{ match.opponent }}</td>
                             {% if match.tWinner %}
-                                <td class="{% if match.tWinner %}match-winner{% endif %}">#1</td>
+                                <td class="{% if match.tWinner %}match-winner{% endif %}">🏆</td>
                             {%else %}
                                 <td></td>
                             {% endif %}  
@@ -62,4 +62,5 @@
             </div>
         </div>
     </div>
+</div>
 {% endblock %}

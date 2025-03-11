@@ -3,30 +3,32 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-<h1 class="pong-h1">PONG</h1>
 <div>
-    <div id="status">Waiting for players...</div>
-    <div id="gameArea">
-        <div id="centerLine"></div>
-        <div id="ball"></div>
-        <div id="player1" class="paddle"></div>
-        <div id="player2" class="paddle"></div>
+
+    <h1 class="pong-h1">PONG</h1>
+    <div>
+        <div id="status">Waiting for players...</div>
+        <div id="gameArea">
+            <div id="centerLine"></div>
+            <div id="ball"></div>
+            <div id="player1" class="paddle"></div>
+            <div id="player2" class="paddle"></div>
+        </div>
+    
+        <label class="switch">
+            <input type="checkbox" id="colorSwitch" onchange="changeColors()"> <!-- onchange used -->
+            <span class="toggle"></span>
+        </label>
     </div>
+    <div style="display: flex; justify-content: center; gap: 15px;">
+        <button class="btn-glitch-fill" onclick="navigateTo('game/home')"><span class="text-decoration">\\ leave //</span></button>
+    </div>
+    <div style="display: flex; justify-content: center; gap: 15px;">
+        <button id="nextGameBtn" class="btn-glitch-fill" onclick="navigateTo('game/pong')" disabled><span class="text-decoration">\\ Next Game //</span></button>
+    </div>
+    
 
-    <label class="switch">
-        <input type="checkbox" id="colorSwitch" onchange="changeColors()"> <!-- onchange used -->
-        <span class="toggle"></span>
-    </label>
-</div>
-<div style="display: flex; justify-content: center; gap: 15px;">
-    <button class="btn-glitch-fill" onclick="navigateTo('game/home')"><span class="text-decoration">\\ leave //</span></button>
-</div>
-<div style="display: flex; justify-content: center; gap: 15px;">
-    <button id="nextGameBtn" class="btn-glitch-fill" onclick="navigateTo('game/pong')" disabled><span class="text-decoration">\\ Next Game //</span></button>
-</div>
+</div>    
 
-
-
-<div id="content"></div>
 
 {% endblock %}
