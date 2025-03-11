@@ -698,3 +698,6 @@ function updateButtonVisibility(currentPage) {
         aboutButton.style.display = "block";
     }
 }
+
+
+

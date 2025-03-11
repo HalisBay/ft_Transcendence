@@ -19,12 +19,13 @@
                 <label for="password">Password</label>
                 <input type="password" class="input-field" id="password" name="password" placeholder="Enter your password" required>
             </div>
-            <div id="content"></div>
-            <button class="btn-glitch-fill" type="submit"><span class="text-decoration">// sign up //</span></button>
+            <div class="buttons">
+                <button class="btn-glitch-fill" type="submit"><span class="text-decoration">// sign up //</span></button>
+                <div class="btn-glitch-fill" onclick="navigateTo('home')">
+                    <span class="text-decoration">// Home //</span>
+                </div>
+            </div>
         </form>
-        <div class="btn-glitch-fill" onclick="navigateTo('home')">
-            <span class="text-decoration">// Home //</span>
-        </div>
     </div>
     <div class="message" style="grid-column: 3; grid-row: 3;">
         <div id="message"></div> 

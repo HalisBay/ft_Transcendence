@@ -56,17 +56,18 @@
                 </label>
             </div>
 
-            
-            <button type="submit" class="btn-glitch-fill"><span class="text-decoration">// update //</span></button>
+            <div class="buttons">
+                <button type="submit" class="btn-glitch-fill"><span class="text-decoration">// update //</span></button>
+                <div class="btn-glitch-fill" onclick="navigateTo('user')">
+                    <span class="text-decoration">// back //</span>
+                </div>
+            </div>
+            <div class="message">
+                <div id ="message"></div>
+            </div>
         </form>
         
         
-        <div class="btn-glitch-fill" onclick="navigateTo('user')">
-            <span class="text-decoration">// back //</span>
-        </div>
-        <div class="message">
-            <div id ="message"></div>
-        </div>
     </div>
 </div>
 {% endblock %}

@@ -9,14 +9,13 @@
     <link rel="stylesheet" href="{% static 'assets/css/gameHome.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/pong.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/matchHistory.css' %}">
+    <link rel="icon" type="image/png" sizes="48x48" href="{% static 'assets/images/favicon.ico' %}">
     <title>{% block title %}Halimus{% endblock %}</title>
 </head>
 <body>
     <div id="content">
-        <div class="lazMusti"> 
-            <div class="GDPR" onclick="navigateTo('gdpr')">Data Privacy Policy</div>
-            <div class="GDPR2" onclick="navigateTo('about')">About Us</div>
-        </div>
+        <div class="GDPR" onclick="navigateTo('gdpr')">Data Privacy Policy</div>
+        <div class="GDPR2" onclick="navigateTo('about')">About Us</div>
         {% block content %}
         {% endblock %}
     </div>
