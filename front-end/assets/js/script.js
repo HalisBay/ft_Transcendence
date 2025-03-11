@@ -48,7 +48,11 @@ function navigateTo(page) {
             window.history.pushState({ page }, '', newUrl);
 
             if (page === 'game/pong')
-                initiateWebSocketConnection();
+            {
+                const gameMode = sessionStorage.getItem("game_mode") || "1v1";
+                const alias = sessionStorage.getItem("player_alias");
+                initiateWebSocketConnection(gameMode, alias);
+            }
             else if (socket && socket.readyState === WebSocket.OPEN) {
                 socket.close();
             }
@@ -166,89 +170,106 @@ function logoutUser() {
     });
 }
 
+function start1v1Game() {
+    sessionStorage.setItem("game_mode", "1v1");
+    navigateTo("game/pong");
+}
 
+function joinTournament(event) {
+    event.preventDefault();
+    const alias = document.getElementById("player-alias").value;
+    if (!alias) {
+        alert("Please fill in all fields!");
+        return;
+    }
+
+    sessionStorage.setItem("game_mode", "tournament");
+    sessionStorage.setItem("player_alias", alias);
+
+    navigateTo("game/pong");
+}
 
 function getCsrfToken() {
     return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 }
 
-let isTournamentCreated = false;
+//let isTournamentCreated = false;
 let isJoined = false;
 
-function waitingRoom(event) {
-    event.preventDefault();
+// function waitingRoom(event) {
+//     event.preventDefault();
 
-    if (isJoined || isTournamentCreated) {
-        document.getElementById('status').innerText = "Zaten bir turnuva oluşturdun knkm";
-        return;
-    }
+//     if (isJoined || isTournamentCreated) {
+//         document.getElementById('status').innerText = "Zaten bir turnuva oluşturdun knkm";
+//         return;
+//     }
 
-    const form = document.getElementById('create-tournament-form');
-    const creatorAlias = document.getElementById('creator-alias').value;
-    const tournamentName = document.getElementById('tournament-name').value;
+//     const form = document.getElementById('create-tournament-form');
+//     const creatorAlias = document.getElementById('creator-alias').value;
+//     const tournamentName = document.getElementById('tournament-name').value;
     
-    socket = new WebSocket('wss://' + window.location.host + '/ws/tournament/');
+//     socket = new WebSocket('wss://' + window.location.host + '/ws/tournament/');
 
-    socket.onopen = function() {
-        socket.send(JSON.stringify({
-            'action': 'create_tournament',
-            'creator_alias': creatorAlias,
-            'tournament_name': tournamentName
-        }));
-    };
+//     socket.onopen = function() {
+//         socket.send(JSON.stringify({
+//             'action': 'create_tournament',
+//             'creator_alias': creatorAlias,
+//             'tournament_name': tournamentName
+//         }));
+//     };
 
-    socket.onmessage = function(event) {
-        const data = JSON.parse(event.data);
-        if (data.error) {
-            document.getElementById('status').innerText = data.error;
-        } else {
-            document.getElementById('status').innerText = data.message;
-            isTournamentCreated = true;
-        }
-    };
+//     socket.onmessage = function(event) {
+//         const data = JSON.parse(event.data);
+//         if (data.error) {
+//             document.getElementById('status').innerText = data.error;
+//         } else {
+//             document.getElementById('status').innerText = data.message;
+//             isTournamentCreated = true;
+//         }
+//     };
 
-    socket.onclose = function(event) {
-        if (event.code === 1000) {
-            console.log("The connection was successfully closed.");
-        } else {
-            console.log("Connection closed:", event.code);
-        }
-        isTournamentCreated = false;
-    };
+//     socket.onclose = function(event) {
+//         if (event.code === 1000) {
+//             console.log("The connection was successfully closed.");
+//         } else {
+//             console.log("Connection closed:", event.code);
+//         }
+//         isTournamentCreated = false;
+//     };
 
-    socket.onerror = function(event) {
-        document.getElementById('status').innerText = "Error: Unable to connect to the WebSocket.";
-    };
-}
+//     socket.onerror = function(event) {
+//         document.getElementById('status').innerText = "Error: Unable to connect to the WebSocket.";
+//     };
+// }
 
 // document.getElementById('startButton').addEventListener('click', function() {
 //     console.log("Buton çalışıyor mu?")
 //     checkOrStart();
 // });
 
-let tourStarted = false;
-function checkOrStart() {
-    if (!socket || socket.readyState !== WebSocket.OPEN) {
-        // Eğer WebSocket bağlantısı açık değilse, kullanıcıya uyarı ver
-        document.getElementById('status').innerText = "Turnuvaya katılmadan oyunu başlatamazsınız!";
-        return;
-    }
-    socket.send(JSON.stringify({
-        'action': 'checkOrStart'
-    }));
+// let tourStarted = false;
+// function checkOrStart() {
+//     if (!socket || socket.readyState !== WebSocket.OPEN) {
+//         // Eğer WebSocket bağlantısı açık değilse, kullanıcıya uyarı ver
+//         document.getElementById('status').innerText = "Turnuvaya katılmadan oyunu başlatamazsınız!";
+//         return;
+//     }
+//     socket.send(JSON.stringify({
+//         'action': 'checkOrStart'
+//     }));
 
-    socket.onmessage = function(e) {
-        const data = JSON.parse(e.data);
+//     socket.onmessage = function(e) {
+//         const data = JSON.parse(e.data);
     
-        if (data.action === 'start_game') {
-            // When the game is ready to start, navigate to the pong page
-            navigateTo('game/pong');
-            tourStarted = true;
-        } else if (data.message) {
-            document.getElementById('status').innerText = data.message;
-        }
-    };
-}
+//         if (data.action === 'start_game') {
+//             // When the game is ready to start, navigate to the pong page
+//             navigateTo('game/pong');
+//             tourStarted = true;
+//         } else if (data.message) {
+//             document.getElementById('status').innerText = data.message;
+//         }
+//     };
+// }
 
 // function leaveTournament() {
 //     if (socket && socket.readyState === WebSocket.OPEN) {
@@ -261,75 +282,84 @@ function checkOrStart() {
 // }
 
 
-function joinTournament(event) {
-    event.preventDefault();
+// function joinTournament(event) {
+//     event.preventDefault();
 
-    const playerAlias = document.getElementById('player-alias').value; 
-    const tournamentName = document.getElementById('tournament-id').value; 
+//     const playerAlias = document.getElementById('player-alias').value; 
+//     const tournamentName = document.getElementById('tournament-id').value; 
 
-    if (!playerAlias || !tournamentName) {
-        alert("Please fill in all fields!");
-        return;
-    }
+//     if (!playerAlias || !tournamentName) {
+//         alert("Please fill in all fields!");
+//         return;
+//     }
 
-    if (isJoined || isTournamentCreated) {
-        document.getElementById('status').innerText = "Zaten bir turnuvaya katıldın knkm";
-        return;
-    }
+//     if (isJoined) {
+//         document.getElementById('status').innerText = "Zaten bir turnuvaya katıldın knkm";
+//         return;
+//     }
 
-    socket = new WebSocket('wss://' + window.location.host + '/ws/tournament/');
+//     socket = new WebSocket('wss://' + window.location.host + '/ws/tournament/');
 
-    socket.onopen = function() {
-        socket.send(JSON.stringify({
-            'action': 'join_tournament',
-            'player_alias': playerAlias,
-            'tournament_name': tournamentName
-        }));
-    };
+//     socket.onopen = function() {
+//         socket.send(JSON.stringify({
+//             'action': 'join_tournament',
+//             'player_alias': playerAlias,
+//             'tournament_name': tournamentName
+//         }));
+//     };
 
-    socket.onmessage = function(event) {
-        const data = JSON.parse(event.data);
+//     socket.onmessage = function(event) {
+//         const data = JSON.parse(event.data);
 
-        if (data.message) {
-            document.getElementById('status').innerText = data.message;
-        }
+//         if (data.message) {
+//             document.getElementById('status').innerText = data.message;
+//         }
 
-        if (data.message.includes("O isimde Turnuva yokkk") || 
-            data.message.includes("Tournament not found") || 
-            data.message.includes("Could not add player") || 
-            data.message.includes("already a participant")) {
+//         if (data.message.includes("O isimde Turnuva yokkk") || 
+//             data.message.includes("Tournament not found") || 
+//             data.message.includes("Could not add player") || 
+//             data.message.includes("already a participant")) {
             
-            // Eğer katılım başarısızsa, bağlantıyı kapat
-            socket.close();
-        } else if (data.message.includes("joined the tournament")) {
-            isJoined = true;
+//             // Eğer katılım başarısızsa, bağlantıyı kapat
+//             socket.close();
+//         } else if (data.message.includes("joined the tournament")) {
+//             isJoined = true;
 
-            const tournamentItem = document.querySelector(`#tournament-list li[data-tournament="${tournamentName}"]`);
-            if (tournamentItem) {
-                tournamentItem.innerHTML += ' - Katıldın';
-            }
-        }
-    };
+//             const tournamentItem = document.querySelector(`#tournament-list li[data-tournament="${tournamentName}"]`);
+//             if (tournamentItem) {
+//                 tournamentItem.innerHTML += ' - Katıldın';
+//             }
+//         }
+//     };
 
-    socket.onclose = function(event) {
-        console.log("WebSocket kapandı:", event.code);
-        isJoined = false;
-    };
+//     socket.onclose = function(event) {
+//         console.log("WebSocket kapandı:", event.code);
+//         isJoined = false;
+//     };
 
-    socket.onerror = function(event) {
-        document.getElementById('status').innerText = "WebSocket bağlantı hatası!";
-    };
-}
-
-
+//     socket.onerror = function(event) {
+//         document.getElementById('status').innerText = "WebSocket bağlantı hatası!";
+//     };
+// }
 
 
-function initiateWebSocketConnection() {
+
+
+function initiateWebSocketConnection(gameMode, alias) {
     if (socket && socket.readyState === WebSocket.OPEN) {
         socket.close(); 
     }
 
-    socket = new WebSocket('wss://' + window.location.host + '/ws/pong/');
+    let wsUrl = 'wss://' + window.location.host + '/ws/pong/';
+
+    if (gameMode === "tournament") {
+        wsUrl += `?tournament_mode=true&alias=${encodeURIComponent(alias)}`;
+    } else {
+        wsUrl += `?tournament_mode=false&alias=${encodeURIComponent(alias)}`;
+    }
+
+
+    socket = new WebSocket(wsUrl);
 
     const statusElement = document.getElementById('status');
 

@@ -3,8 +3,7 @@
 {% block title %}Tournament - Pong{% endblock %}
 
 {% block content %}
-  <div class="container">
-    <!-- Tournament Creation Form (Left Side) -->
+  <!-- <div class="container">
     <div class="room-one">
       <h2 class="blinking-title">Create Tournament</h2>
       <form class="buttoon-div" id="create-tournament-form" onsubmit="waitingRoom(event)" method="POST">
@@ -21,21 +20,17 @@
       </form>
       <div id="status" style="color: white; margin-top: 20px;"></div>
       <button class="btn-glitch-fill" onclick="checkOrStart()">Başla</button>
-    </div>
+    </div> -->
 
     <!-- Join Tournament Form (Right Side) -->
     <div class="room-two">
       <h2 class="blinking-title">Join Tournament</h2>
       <form class="buttoon-div" id="join-tournament-form" onsubmit="joinTournament(event)">
-        <label for="player-alias">Alias (Participant):</label>
-        <input type="text" id="player-alias" name="player-alias" class="input-field" placeholder="Alias" required>
-    
-        <label for="tournament-id">Tournament Name:</label>
-        <input type="text" id="tournament-id" name="tournament-id" class="input-field" placeholder="Tournament Name" required>
-    
-        <button class="btn-glitch-fill" type="submit">Join</button>
-    </form>    
-    </div>
+          <label for="player-alias">Alias (Participant):</label>
+          <input type="text" id="player-alias" name="player-alias" class="input-field" placeholder="Alias" required>
+          <button class="btn-glitch-fill" type="submit">Join</button>
+      </form>    
+  </div>
 
     <!-- Active Tournaments List (Under the Forms) -->
      <div class="room-three">

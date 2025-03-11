@@ -17,7 +17,8 @@ class MatchHistory(models.Model):
     score = models.IntegerField()  # Skor
     opponent_score = models.IntegerField(default=0) 
     date_time = models.DateTimeField(auto_now_add=True)  # Tarih ve saat
-    tWinner = models.BooleanField(default=True)
+    tWinner = models.BooleanField(default=False)
+    is_tournament = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.user.nick} - {'Kazandı' if self.result else 'Kaybetti'} vs {self.opponent.nick}"
