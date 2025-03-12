@@ -20,7 +20,7 @@ class User(AbstractBaseUser):
     avatar = models.ImageField(upload_to='avatars/', default='user1.jpg', blank=True, null=True)
     is_online = models.BooleanField(default=False)
     is_anonymized = models.BooleanField(default=False)
-
+    alias = models.CharField(max_length=100, null=True, blank=True)
 
     is_active = models.BooleanField(default=True)#default false olarak ayarlanacak kullanıcı login olurken true olucak
     is_staff = models.BooleanField(default=False)

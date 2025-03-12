@@ -6,6 +6,12 @@
 <div>
 
     <h1 class="pong-h1">PONG</h1>
+    
+    <div style="display: flex; justify-content: space-between; padding: 10px 20px;">
+        <div id="left-player">Sol Oyuncu: Bekleniyor...</div>
+        <div id="right-player">Sağ Oyuncu: Bekleniyor...</div>
+    </div>
+
     <div>
         <div id="status">Waiting for players...</div>
         <div id="gameArea">
@@ -21,10 +27,10 @@
         </label>
     </div>
     <div style="display: flex; justify-content: center; gap: 15px;">
-        <button class="btn-glitch-fill" onclick="navigateTo('game/home')"><span class="text-decoration">\\ leave //</span></button>
+        <button class="btn-glitch-fill" onclick="leaveTournament()"><span class="text-decoration">\\ leave //</span></button>
     </div>
     <div style="display: flex; justify-content: center; gap: 15px;">
-        <button id="nextGameBtn" class="btn-glitch-fill" onclick="navigateTo('game/pong')" disabled><span class="text-decoration">\\ Next Game //</span></button>
+        <button id="nextGameBtn" class="btn-glitch-fill" onclick="handleNextGame()" disabled><span class="text-decoration">\\ Next Game //</span></button>
     </div>
     
 

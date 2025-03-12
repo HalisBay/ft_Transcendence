@@ -170,6 +170,20 @@ function logoutUser() {
     });
 }
 
+function handleNextGame() {
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({ action: "next_game" }));
+    }
+    navigateTo('game/pong'); 
+}
+
+function leaveTournament() {
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({ action: "leave_tournament" }));
+    }
+    navigateTo('home');  // Oyuncuyu ana sayfaya yönlendir
+}
+
 function start1v1Game() {
     sessionStorage.setItem("game_mode", "1v1");
     navigateTo("game/pong");
@@ -366,6 +380,11 @@ function initiateWebSocketConnection(gameMode, alias) {
     socket.onopen = () => {
         console.log('WebSocket connection opened successfully.');
         statusElement.innerHTML = 'Connecting...';
+        socket.send(JSON.stringify({
+            'action': 'getAlias',
+            'alias': alias,
+
+        }))
     };
 
     socket.onmessage = (event) => {
@@ -385,6 +404,11 @@ function initiateWebSocketConnection(gameMode, alias) {
             player1.style.top = data.state.players.player1.y + 'px';
             player2.style.top = data.state.players.player2.y + 'px';
         }
+        else if (data.type === "player_info") {
+            document.getElementById("left-player").innerText = `Sol Oyuncu: ${data.left}`;
+            document.getElementById("right-player").innerText = `Sağ Oyuncu: ${data.right}`;
+        }
+        
     };
 
     socket.onerror = (error) => {

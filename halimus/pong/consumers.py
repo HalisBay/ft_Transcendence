@@ -18,7 +18,7 @@ class PongConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         global rooms
         self.user = self.scope["user"]
-
+        self.next_game = False
         if not self.user.is_authenticated:
             await self.close()
             return
@@ -27,7 +27,20 @@ class PongConsumer(AsyncWebsocketConsumer):
         query_params = parse_qs(self.scope["query_string"].decode())
         is_tournament_mode = query_params.get("tournament_mode", ["false"])[0] == "true"
         alias = query_params.get("alias", [None])[0] 
+        print(f"📥 Gelen alias: {alias}")
 
+        if alias:
+            # Alias'ı güncelle ve kaç satır değiştiğini kontrol et
+            updated_count = await database_sync_to_async(lambda: User.objects.filter(id=self.user.id).update(alias=alias))()
+            print(f"🔄 Güncellenen kullanıcı sayısı: {updated_count}")
+            
+            # Kullanıcı nesnesini güncelle
+            self.user.alias = alias
+            print(f"📝 Kullanıcı alias güncellendi: {self.user.alias}")
+
+        # Güncellenen alias'ı doğrulamak için tekrar veritabanından çek
+        db_alias = await database_sync_to_async(lambda: User.objects.filter(id=self.user.id).values_list("alias", flat=True).first())()
+        print(f"📌 Veritabanından alınan alias: {db_alias}")
         # Eğer oyuncu zaten bir odadaysa, eski odadan çıkar
         for room_name, room_data in list(rooms.items()):
             if self.user in room_data["players"]:
@@ -120,6 +133,19 @@ class PongConsumer(AsyncWebsocketConsumer):
 
         # Eğer oda doluysa oyunu başlat
         if len(room["players"]) == 2:
+            await asyncio.sleep(0.1)  # Alias güncellenmesi için kısa bir bekleme
+
+            if self.room_group_name.startswith("tournament_"):
+                # Turnuva modundaysa alias'ları al
+                player_aliases = await database_sync_to_async(
+                    lambda: list(User.objects.filter(id__in=[p.id for p in room["players"]]).values_list("alias", flat=True))
+                )()
+                if all(player_aliases):  # Eğer alias'lar varsa
+                    await self.send_player_info()
+            else:
+                # 1v1 modundaysa direkt `send_player_info` çağır
+                await self.send_player_info()
+
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
@@ -129,6 +155,46 @@ class PongConsumer(AsyncWebsocketConsumer):
             )
             await asyncio.sleep(1)
             asyncio.create_task(self.start_game())
+
+    async def send_player_info(self):
+        global rooms
+        room = rooms.get(self.room_group_name, None)
+        players = room["players"]
+
+        if len(players) == 2:
+            print(f"DEBUG: Left Type: {players[0].alias}, Right Type: {players[1].alias}")
+            left_player = players[0]
+            right_player = players[1]
+
+            if self.room_group_name.startswith("tournament_"):
+                left_player_db = await database_sync_to_async(User.objects.get)(id=left_player.id)
+                right_player_db = await database_sync_to_async(User.objects.get)(id=right_player.id)
+                
+                print(f"🔍 Database’ten çekildi: {left_player_db.alias} - {right_player_db.alias}")
+
+                # Sadece string olarak alias gönder
+                left_name = left_player_db.alias  
+                right_name = right_player_db.alias  
+            else:
+                left_name = left_player.nick
+                right_name = right_player.nick
+
+            print(f"📢 Gönderilen Oyuncu Bilgileri: Left = {left_name}, Right = {right_name}")
+
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    "type": "player_info",
+                    "left": left_name,   # ✅ Artık sadece string veri gönderiyoruz
+                    "right": right_name,  # ✅
+                }
+            )
+
+        
+       # print(f"🎮 Left Player: {left_name}, Right Player: {right_name}")
+
+    async def player_info(self, event):
+        await self.send(text_data=json.dumps(event))
 
 
     async def leave_room(self, room_name):
@@ -166,6 +232,9 @@ class PongConsumer(AsyncWebsocketConsumer):
                 del room["user_channel_map"][self.user.id]
 
             is_tournament = self.room_group_name.startswith("tournament_")
+
+            if is_tournament:
+                await database_sync_to_async(lambda: User.objects.filter(id=self.user.id).update(alias=""))()
 
             # Eğer turnuva oyuncusuysa, win count'u temizle
             if is_tournament and self.user.id in tournament_win_counts:
@@ -228,7 +297,7 @@ class PongConsumer(AsyncWebsocketConsumer):
                 # Kullanıcıya mesaj gönder
                 winner_message = f"You Win! Congrats {remaining_player.nick}. Click 'Next Game' to start a new game."
                 if is_tournament_winner:
-                    winner_message += " 🎉 You are the TOURNAMENT CHAMPION! 🏆"
+                    winner_message = " 🎉 You are the TOURNAMENT CHAMPION! 🏆"
 
                 user_channel_map = room["user_channel_map"]
                 winner_channel = user_channel_map[remaining_player.id]
@@ -261,17 +330,42 @@ class PongConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        message_type = text_data_json.get('type')
+        action = text_data_json.get("action")
         global rooms
         room = rooms[self.room_group_name]
         game_state = room["game_state"]
-        data = json.loads(text_data)
-        if "move" in data:
-            direction = data["move"]
-            player = game_state["players"][self.player_id]
-            if direction == "up" and player["y"] > 0:
+
+        if action == "getAlias":
+            alias = text_data_json.get("alias")
+            user_id = self.scope["user"].id
+
+            # Alias'ı güncelle ve kullanıcı nesnesine işle
+            await database_sync_to_async(lambda: User.objects.filter(id=user_id).update(alias=alias))()
+            self.user.alias = alias  # Cache içindeki nesneyi güncelle
+
+            # İki oyuncunun da alias'ı var mı kontrol et
+            player_ids = [p.id for p in room.get("players", [])]  # Hata almamak için güvenli kontrol
+            player_aliases = await database_sync_to_async(
+                lambda: list(User.objects.filter(id__in=player_ids).values_list("alias", flat=True))
+            )()
+
+            if len(player_aliases) == 2 and all(player_aliases):  # İki oyuncu da alias aldı mı?
+                await self.send_player_info()
+            
+            print(f"🎮 Alias kontrol: Kullanıcı: {self.user}, Alias: {alias}")
+
+        elif action == "next_game":
+            self.next_game = True
+        
+        elif action == "leave_tournament":
+            self.next_game = False
+
+        if "move" in text_data_json:
+            direction = text_data_json["move"]
+            player = game_state["players"].get(self.player_id, {})
+            if direction == "up" and player.get("y", 0) > 0:
                 player["y"] -= 5
-            elif direction == "down" and player["y"] < 520:  # Paddle height
+            elif direction == "down" and player.get("y", 0) < 520:  # Paddle height
                 player["y"] += 5
 
 
@@ -380,7 +474,7 @@ class PongConsumer(AsyncWebsocketConsumer):
         # Mesajları belirle
         winner_message = f"You Win! Congrats {winner_user.nick}. Click 'Next Game' to start a new game."
         if is_tournament_winner:
-            winner_message += " 🎉 You are the TOURNAMENT CHAMPION! 🏆"
+            winner_message = " 🎉 You are the TOURNAMENT CHAMPION! 🏆"
 
         loser_message = f"You Lose! Try again {loser_user.nick}. Click 'Next Game' to start a new game."
 
@@ -446,6 +540,8 @@ class PongConsumer(AsyncWebsocketConsumer):
             del tournament_win_counts[winner_user.id]
 
         # Oda temizleme
+        if not getattr(self, "next_game", False):
+            await database_sync_to_async(lambda: User.objects.filter(id__in=[winner_user.id, loser_user.id]).update(alias=""))()
         del rooms[self.room_group_name]
 
 
