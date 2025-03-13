@@ -44,6 +44,10 @@ function navigateTo(page) {
                 document.body.appendChild(newScript);
             });
 
+            if (page === 'home') {
+                startAnimations(); // Animasyonları başlat
+            }
+
             const newUrl = `/${page}`;
             window.history.pushState({ page }, '', newUrl);
 
@@ -725,3 +729,19 @@ function updateButtonVisibility(currentPage) {
 
 
 
+function startAnimations() {
+    const transandece = document.getElementById('transandece');
+    const contentt = document.getElementById('contentt');
+
+
+    setTimeout(() => {
+        transandece.style.transform = 'translate(-45%, -850%)';
+    }, 2000); 
+
+    setTimeout(() => {
+        contentt.style.opacity = '1';
+    }, 3000); // 3 saniye sonra içeriği görünür yap
+}
+
+// Sayfa yüklendiğinde animasyonları başlat
+window.onload = startAnimations;

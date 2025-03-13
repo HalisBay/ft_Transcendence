@@ -589,3 +589,32 @@ textarea:focus::placeholder {
     opacity: 1;
 }
 
+
+#contentt {
+    opacity: 0;
+    transform: translateY(20px); /* İçerik başlangıçta biraz aşağıda */
+    transition: opacity 1s ease, transform 1s ease; /* Hem fade-in hem de kaydırma efekti */
+}
+
+.visible {
+    opacity: 1;
+    transform: translateY(0); /* İçerik yukarı kaydırılarak görünür olacak */
+}
+
+
+#transandece {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-45%, -50%);
+    font-size: 4rem;
+    opacity: 1;
+    color: rgb(0, 0, 0);
+    transition: opacity 1s ease, transform 2s ease;
+    font-family: 'Press Start 2P', cursive;
+    text-shadow: 
+        5px 5px 0 #fff, 
+        -1px -1px 0 #fff,
+        1px -1px 0 #fff, 
+        -1px 1px 0 #fff;
+}
