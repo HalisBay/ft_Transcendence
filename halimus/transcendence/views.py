@@ -284,20 +284,22 @@ def verify_fail(request):
         request, "pages/notverified.html", status=200
     )  # TODO: burası 401 olunca patıyor bakılcak
 
-
+@login_required
 def activate_2fa(request):
     user = request.user
     if request.method == "POST":
         if user.is_2fa_active:
             user.is_2fa_active = False
+            user.save()
+            return JsonResponse(
+                {"success": True, "message": "2FA has been successfully deactivated."}
+            )
         else:
             user.is_2fa_active = True
-        user.save()
-        print(user)
-        print(user.is_2fa_active)
-        return JsonResponse(
-            {"success": True, "message": "2FA has been successfully activated."}
-        )
+            user.save()
+            return JsonResponse(
+                {"success": True, "message": "2FA has been successfully activated."}
+            )
     return JsonResponse({"success": False, "message": "Invalid request."}, status=400)
 
 

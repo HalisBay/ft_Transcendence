@@ -435,11 +435,11 @@ class PongConsumer(AsyncWebsocketConsumer):
                 print(f"Player 1 scored. New score: {game_state['scores']['player1']}")
                 await self.reset_ball(-1)
             # Skor 2'ye ulaşan oyuncu kazanır, oyunu bitir
-            if game_state["scores"]["player1"] == 2:
+            if game_state["scores"]["player1"] == 11:
                 await self.end_game("player1")
                 print("Player 1 won the game.")
                 break
-            elif game_state["scores"]["player2"] == 2:
+            elif game_state["scores"]["player2"] == 11:
                 await self.end_game("player2")
                 print("Player 2 won the game.")
                 break

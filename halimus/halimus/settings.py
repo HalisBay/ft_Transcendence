@@ -102,7 +102,8 @@ SECRET_KEY = env("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env("DEBUG")
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
+ALLOWED_HOSTS.append(env("HOSTIP", default="127.0.0.1"))
 
 EMAIL_BACKEND = env("EMAIL_BACKEND")
 EMAIL_HOST = env("EMAIL_HOST")
@@ -191,7 +192,7 @@ REST_FRAMEWORK = {
 }
 from datetime import datetime, timedelta
 
-# asd
+
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10),  # Access token'ın süresi
     "REFRESH_TOKEN_LIFETIME": timedelta(weeks=2),  # Refresh token'ın süresi
