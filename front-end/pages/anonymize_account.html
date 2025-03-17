@@ -4,7 +4,7 @@
 
 {% block content %}
   <h2 style="text-align: center; color: #ffffff; font-size: xx-large;">Anonymize Your Account Information</h2>
-  <form method="POST" action="/anonymize_account" onsubmit="submitAnonymizeForm(event)" style="text-align: center;">
+  <form method="PUT" action="/anonymize_account" onsubmit="submitAnonymizeForm(event)" style="text-align: center;">
     {% csrf_token %}
     <p style="color: aliceblue; text-align: center;">
       When you anonymize your account information, your account will be completely anonymized in the system, you will not be able to log in, and it cannot be undone. Are you sure you want to proceed?
