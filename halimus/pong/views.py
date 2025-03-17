@@ -63,3 +63,31 @@ def profile_view(request, user_id):
         'tWinner': match_history
     }
     return render(request, 'pages/profile.html', context)
+
+
+from django.http import JsonResponse
+from pong.models import User  # Kullanıcı modelini içe aktar
+from pong.consumers import rooms  # WebSocket odalarını içe aktar
+
+def check_alias(request):
+    alias = request.GET.get("alias")
+    print("buraya geldi mi ki")
+    # Turnuvadaki tüm alias'ları kontrol et
+    active_aliases = set()
+    for room_name, room_data in rooms.items():
+        if room_name.startswith("tournament_"):  # Sadece turnuva odalarına bak
+            for player in room_data["players"]:
+                if player.alias:  # Eğer alias boş değilse ekle
+                    active_aliases.add(player.alias)
+
+    # Alias turnuvada var mı?
+    return JsonResponse({"exists": alias in active_aliases})
+ # Aktif odaların tutulduğu yer
+
+
+# Sunucu tarafında kullanıcının aktif bir oyunda olup olmadığını kontrol eden endpoint
+def check_active_game(request):
+    print("CHECK ACTIVE GAME")
+    user = request.user
+    in_game = any(user in room["players"] for room in rooms.values())
+    return JsonResponse({"in_game": in_game})

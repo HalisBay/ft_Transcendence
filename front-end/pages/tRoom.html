@@ -23,36 +23,19 @@
     </div> -->
 
     <!-- Join Tournament Form (Right Side) -->
-    <div class="room-two">
-      <h2 class="blinking-title">Join Tournament</h2>
-      <form class="buttoon-div" id="join-tournament-form" onsubmit="joinTournament(event)">
-          <label for="player-alias">Alias (Participant):</label>
-          <input type="text" id="player-alias" name="player-alias" class="input-field" placeholder="Alias" required>
-          <button class="btn-glitch-fill" type="submit">Join</button>
-      </form>    
-  </div>
-
-    <!-- Active Tournaments List (Under the Forms) -->
-     <div class="room-three">
-         <h2 class="blinking-title">Active Tournaments</h2>
-         <ul id="tournament-list">
-           {% for tournament in tournaments %}
-           <li data-tournament="{{ tournament.tournament_name }}">
-             {{ tournament.tournament_name }} - Creator: {{ tournament.creator_alias }} ({{ tournament.participant_count }}/4)
-             {% if user.is_authenticated %}
-             {% if tournament.is_user_participant %}
-             - You Joined
-             {% endif %}
-             {% endif %}
-            </li>
-            {% empty %}
-            <li>No active tournaments.</li>
-            {% endfor %}
-          </ul>
-        </ul>
-    </div>
-    <div class="btn-glitch-fill" onclick="navigateTo('game/home')" style="grid-column: 3; grid-row: 3;">
-      <span class="text-decoration">// Back //</span>
-  </div>
+     <div class="buttons">
+       <div class="room-two">
+         <h2 class="blinking-title">Join Tournament</h2>
+         <form class="buttoon-div" id="join-tournament-form" onsubmit="joinTournament(event)">
+             <label for="player-alias">Alias (Participant):</label>
+             <input type="text" id="player-alias" name="player-alias" class="input-field" placeholder="Alias" required>
+             <button class="btn-glitch-fill" type="submit">Join</button>
+           </form>    
+          </div>
+          <div class="btn-glitch-fill" onclick="navigateTo('game/home')">
+            <span class="text-decoration">// Back //</span>
+          </div>
+          <div id="alias-message"></div>
+     </div>
   </div>
 {% endblock %}

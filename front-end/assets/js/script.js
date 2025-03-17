@@ -189,23 +189,77 @@ function leaveTournament() {
 }
 
 function start1v1Game() {
-    sessionStorage.setItem("game_mode", "1v1");
-    navigateTo("game/pong");
+    fetch("/game/home/check-active-game/")  // Sunucudan mevcut oyun durumunu kontrol et
+        .then(response => response.json())
+        .then(data => {
+            const messageBox = document.getElementById("game-message"); // Mesaj göstermek için bir div seç
+            if (data.in_game) {
+                messageBox.innerHTML = "Zaten bir oyundasın!";
+                messageBox.style.color = "red";  // Mesajı kırmızı yap (isteğe bağlı)
+                messageBox.style.fontWeight = "bold";  // Kullanıcıya mesaj göster
+            } else {
+                sessionStorage.setItem("game_mode", "1v1");
+                navigateTo("game/pong");  // Oyunda değilse yönlendirme yap
+            }
+        })
+        .catch(error => {
+            console.error("Oyun durumu kontrol edilirken hata oluştu:312312", error);
+        });
 }
+
 
 function joinTournament(event) {
     event.preventDefault();
     const alias = document.getElementById("player-alias").value;
+    const messageElement = document.getElementById("alias-message");
+
     if (!alias) {
         alert("Please fill in all fields!");
         return;
     }
 
-    sessionStorage.setItem("game_mode", "tournament");
-    sessionStorage.setItem("player_alias", alias);
+    console.log("Checking active game...");
+    
+    fetch("/game/home/check-active-game/")
+        .then(response => {
+            console.log("Active game response status:", response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log("Active game response data:", data);
+            if (data.in_game) {
+                messageElement.innerHTML = `<p style="color: red;">Already in a game!</p>`;
+                return null;  // ❗️ `null` dönerek zinciri kır
+            }
 
-    navigateTo("game/pong");
+            console.log("Checking alias availability...");
+            return fetch("/game/tournament/check-alias/?alias=" + encodeURIComponent(alias));
+        })
+        .then(response => {
+            if (!response) return; // ⬅️ Eğer `null` dönerse, devam etme!
+
+            console.log("Alias check response status:", response.status);
+            return response.json();
+        })
+        .then(data => {
+            if (!data) return; // ⬅️ Eğer önceki adımda durduysak, devam etme!
+            console.log("Alias check response data:", data);
+
+            if (data.exists) {
+                messageElement.innerHTML = `<p style="color: red;">This alias is already taken</p>`;
+            } else {
+                messageElement.innerHTML = "";
+                sessionStorage.setItem("game_mode", "tournament");
+                sessionStorage.setItem("player_alias", alias);
+                navigateTo("game/pong");
+            }
+        })
+        .catch(error => {
+            console.error("Error in joinTournament:", error);
+            alert("An error occurred. Please check the console for details.");
+        });
 }
+
 
 function getCsrfToken() {
     return document.querySelector('meta[name="csrf-token"]').getAttribute('content');

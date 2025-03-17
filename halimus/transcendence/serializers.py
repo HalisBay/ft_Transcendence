@@ -79,8 +79,6 @@ class LoginSerializer(serializers.Serializer):
                     raise serializers.ValidationError(
                         "Invalid username or password."
                     )
-                if user.is_online == True:
-                    raise serializers.ValidationError("The session is already open")
             except User.DoesNotExist:
                 raise serializers.ValidationError("Invalid username or password.")
         else:
