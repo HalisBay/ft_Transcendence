@@ -7,7 +7,7 @@
     <h1 style="grid-column: 3; text-align: center; color: white; font-family: 'Press Start 2P', cursive;">Update User Information</h1>
     <div class="buttons">
 
-        <form method="POST" action="/user/update_user" onsubmit="submitUpdatePasswordForm(event)" enctype="multipart/form-data">
+        <form method="PUT" action="/user/update_user" onsubmit="submitUpdatePasswordForm(event)" enctype="multipart/form-data">
             {% csrf_token %}
             <!-- Username -->
             <div class="form-group">

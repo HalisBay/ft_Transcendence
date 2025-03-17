@@ -262,8 +262,11 @@ function joinTournament(event) {
 
 
 function getCsrfToken() {
-    return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    const csrfElement = document.querySelector('meta[name="csrf-token"]') 
+                      || document.querySelector('input[name="csrfmiddlewaretoken"]');
+    return csrfElement ? csrfElement.getAttribute('content') || csrfElement.getAttribute('value') : null;
 }
+
 
 //let isTournamentCreated = false;
 let isJoined = false;
@@ -498,7 +501,7 @@ function activate2FA() {
     const isEnabled = toggle.checked;  // Açık/Kapalı durumunu kontrol et
 
     fetch('/user/activate2fa', {  
-        method: 'POST',
+        method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': csrfToken
@@ -522,7 +525,7 @@ function deleteAccount() {
     
     if (inputText === "delete my account") {
         fetch('/user/delete', {
-            method: 'POST',
+            method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest',
@@ -590,7 +593,7 @@ function submitUpdatePasswordForm(event) {
     const form = new FormData(event.target);  
 
     fetch('/user/update_user', {
-        method: 'POST',
+        method: 'PUT',
         body: form,
         headers: {
             'X-Requested-With': 'XMLHttpRequest',  
@@ -606,10 +609,10 @@ function submitUpdatePasswordForm(event) {
 
 
 
-        if (message === "Password updated successfully, logging out.") {
+        if (message.includes("Password updated successfully, logging out.")) {
             setTimeout(() => {
                 navigateTo('login');
-            }, 2000);
+            }, 1000);
         }
 
     })
@@ -622,14 +625,16 @@ function submitUpdatePasswordForm(event) {
 
 function submitAnonymizeForm(event) {
     event.preventDefault();  
-
+    const csrfToken = getCsrfToken();
     const form = new FormData(event.target); 
 
     fetch('/anonymize_account', {
-        method: 'POST',
+        method: 'PUT',
         body: form,
         headers: {
-            'X-Requested-With': 'XMLHttpRequest',  
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': csrfToken,  
+
         },
     })
     .then(response => response.json())  

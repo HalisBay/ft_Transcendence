@@ -4,7 +4,6 @@ from django.contrib import messages
 from django.contrib.auth import (
     authenticate,
     login,
-    logout,
     get_user_model,
     update_session_auth_hash,
 )
@@ -71,7 +70,7 @@ def anonymize_user_data(user):
 def anonymize_account(request):
     user = request.user
 
-    if request.method == "POST":
+    if request.method == "PUT":
         # Kullanıcı bilgilerini anonimleştir
         user.is_anonymized = True
         anonymize_user_data(user)
@@ -117,7 +116,7 @@ from django.shortcuts import render
 
 
 @csrf_protect
-@api_view(["POST"])
+@api_view(["POST","PUT"])
 @jwt_required
 def logout_page(request):
     if request.user.is_authenticated:
@@ -287,7 +286,7 @@ def verify_fail(request):
 @login_required
 def activate_2fa(request):
     user = request.user
-    if request.method == "POST":
+    if request.method == "PUT":
         if user.is_2fa_active:
             user.is_2fa_active = False
             user.save()
@@ -313,20 +312,20 @@ def format_messages(messages):
     return "<br>".join(messages)
 
 
-@api_view(["POST"])
+@api_view(["PUT"])
 @jwt_required
 @login_required
 def update_user(request):
     user = request.user
     if user.is_anonymized:
-        return Response({"error": "Authentication failed."}, status=401)
+        return JsonResponse({"success": False, "error_message": "Anonymous users cannot update their information."}, status=400)
 
     # Güncellenecek alanları al
-    nick = request.POST.get("nick")
-    email = request.POST.get("email")
-    new_password = request.POST.get("new_password")
-    new_password_confirm = request.POST.get("new_password_confirm")
-    selected_avatar = request.POST.get("select_avatar")
+    nick = request.data.get("nick")
+    email = request.data.get("email")
+    new_password = request.data.get("new_password")
+    new_password_confirm = request.data.get("new_password_confirm")
+    selected_avatar = request.data.get("select_avatar")
     avatar_file = request.FILES.get("avatar_file")
 
     messages = []
@@ -356,23 +355,6 @@ def update_user(request):
                 serializer.errors.get("email", ["Failed to update email."])[0]
             )
 
-    # Şifre güncelleme
-    if new_password and new_password_confirm:
-        if new_password != new_password_confirm:
-            errors.append("Passwords do not match.")
-        else:
-            serializer = UserSerializer(
-                user, data={"password": new_password}, partial=True
-            )
-            if serializer.is_valid():
-                serializer.save()
-                messages.append("Password updated successfully, logging out.")
-                request = request._request
-                logout_page(request)
-            else:
-                errors.append(
-                    serializer.errors.get("password", ["Failed to update password."])[0]
-                )
 
     # Avatar güncelleme
     if avatar_file:
@@ -397,6 +379,24 @@ def update_user(request):
         user.avatar = selected_avatar
         user.save()
         messages.append("Avatar successfully updated.")
+    
+        # Şifre güncelleme
+    if new_password and new_password_confirm:
+        if new_password != new_password_confirm:
+            errors.append("Passwords do not match.")
+        else:
+            serializer = UserSerializer(
+                user, data={"password": new_password}, partial=True
+            )
+            if serializer.is_valid():
+                serializer.save()
+                messages.append("Password updated successfully, logging out.")
+                request = request._request
+                logout_page(request)
+            else:
+                errors.append(
+                    serializer.errors.get("password", ["Failed to update password."])[0]
+                )
 
     # Hata mesajları varsa success False olarak döndür
     if errors:
@@ -423,20 +423,22 @@ def profile_edit_view(request):
     }
     return render(request, "pages/userInterface.html", context)
 
-@api_view(["POST","GET"])
+@api_view(["DELETE","GET"])
 @jwt_required
 @login_required
 def delete_all(request):
-    if request.method == "POST":
-        if request.headers.get("X-Requested-With") == "XMLHttpRequest":  
-            input_text = request.data.get("txt", "").strip().lower()  # JSON formatını doğru al
-            if input_text == "delete my account":
-                user = request.user
-                if user.is_anonymous:
-                    return JsonResponse({"error": "Authentication failed."}, status=401)
-                response = logout_and_clear_cache(request,"successfully deleted your account.")
-                user.delete()
-                return response
-            else:
-                return JsonResponse({"success": False, "message": "Incorrect input. Please type 'delete my account'."}, status=400)
+    if request.method == "DELETE":
+        if request.headers.get("X-Requested-With") != "XMLHttpRequest":
+            return JsonResponse({"error": "Invalid request type."}, status=400)
+        
+        input_text = request.data.get("txt", "").strip().lower()
+        if input_text == "delete my account":
+            user = request.user
+            if user.is_anonymous:
+                return JsonResponse({"error": "Authentication failed."}, status=401)
+            response = logout_and_clear_cache(request,"successfully deleted your account.")
+            user.delete()
+            return response
+        else:
+            return JsonResponse({"success": False, "message": "Incorrect input. Please type 'delete my account'."}, status=400)
     return render(request, "pages/deleteall.html")
