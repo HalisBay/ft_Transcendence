@@ -432,11 +432,6 @@ button {
     transition: 1.5s ease;
 }
 
-.room-one { grid-column: 2; grid-row: 1; }
-.room-two { grid-column: 4; grid-row: 1; }
-.room-three { grid-column: 3; grid-row: 2;}
-.room-three ul { text-align: center; }
-
 .text-success {
     display: flex;
     border-radius: 15px;
@@ -490,8 +485,6 @@ button {
     border-radius: 10px;
     transition: background 0.3s ease-in-out;
 }
-
-
 
 .switch-holder {
     display: flex;

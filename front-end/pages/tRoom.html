@@ -23,19 +23,16 @@
     </div> -->
 
     <!-- Join Tournament Form (Right Side) -->
-     <div class="buttons">
-       <div class="room-two">
-         <h2 class="blinking-title">Join Tournament</h2>
-         <form class="buttoon-div" id="join-tournament-form" onsubmit="joinTournament(event)">
+        <div class="buttoon-div">
+          <h2 class="blinking-title">Join Tournament</h2>
+          <form class="buttoon-div" id="join-tournament-form" onsubmit="joinTournament(event)">
              <label for="player-alias">Alias (Participant):</label>
              <input type="text" id="player-alias" name="player-alias" class="input-field" placeholder="Alias" required>
-             <button class="btn-glitch-fill" type="submit">Join</button>
-           </form>    
-          </div>
+             <button class="btn-glitch-fill" type="submit">// Join //</button>
+          </form>    
           <div class="btn-glitch-fill" onclick="navigateTo('game/home')">
             <span class="text-decoration">// Back //</span>
           </div>
           <div id="alias-message"></div>
-     </div>
-  </div>
+       </div>
 {% endblock %}
