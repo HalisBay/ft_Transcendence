@@ -1,9 +1,14 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from transcendence.requireds import jwt_required
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from .models import Tournament
 import json
+from .models import MatchHistory
+from django.contrib.auth import get_user_model
+from pong.models import User
+from pong.consumers import rooms
+
 @login_required
 @jwt_required
 def pong(request):
@@ -13,9 +18,6 @@ def pong(request):
 @jwt_required
 def gameHome(request):
     return render(request, 'pages/gameHome.html')
-
-from django.shortcuts import render
-from .models import Tournament
 
 @login_required
 @jwt_required
@@ -28,12 +30,7 @@ def tournamentRoom(request):
     return render(request, 'pages/tRoom.html', {'tournaments': tournaments, 'user': request.user})
 
 
-from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from .models import MatchHistory
-from django.contrib.auth import get_user_model
 
-# Varsayılan User modelini alın
 User = get_user_model()
 @login_required
 def profile_view(request, user_id):
@@ -49,7 +46,7 @@ def profile_view(request, user_id):
             ),
             'result': match.result,
             'date_time': match.date_time,
-            'tWinner': match.tWinner  # Bu alanı doğru bir şekilde aktarıyoruz
+            'tWinner': match.tWinner
         }
         for match in match_history
     ]
@@ -65,9 +62,6 @@ def profile_view(request, user_id):
     return render(request, 'pages/profile.html', context)
 
 
-from django.http import JsonResponse
-from pong.models import User  # Kullanıcı modelini içe aktar
-from pong.consumers import rooms  # WebSocket odalarını içe aktar
 
 def check_alias(request):
     alias = request.GET.get("alias")
@@ -82,7 +76,6 @@ def check_alias(request):
 
     # Alias turnuvada var mı?
     return JsonResponse({"exists": alias in active_aliases})
- # Aktif odaların tutulduğu yer
 
 
 # Sunucu tarafında kullanıcının aktif bir oyunda olup olmadığını kontrol eden endpoint

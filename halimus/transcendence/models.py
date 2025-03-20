@@ -9,8 +9,24 @@ class UserManager(BaseUserManager):
         if not email:
             raise ValueError("Kullanıcıların bir e-posta adresi olmalı")
         email = self.normalize_email(email)
+        # Extra_fields içinde is_superuser veya is_staff gibi parametreler varsa, bunları çıkartalım
+        extra_fields.pop('is_superuser', None)
+        extra_fields.pop('is_staff', None)
+
         user = self.model(nick=nick, email=email, **extra_fields)
+
+        if password:
+            user.set_password(password)
+        
+        user.save(using=self._db)
         return user
+    
+    def create_superuser(self, nick, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_active', True)
+
+        return self.create_user(nick, email, password, **extra_fields)
 
 class User(AbstractBaseUser):
     id = models.AutoField(primary_key=True)
@@ -22,9 +38,11 @@ class User(AbstractBaseUser):
     is_anonymized = models.BooleanField(default=False)
     alias = models.CharField(max_length=100, null=True, blank=True)
 
-    is_active = models.BooleanField(default=True)#default false olarak ayarlanacak kullanıcı login olurken true olucak
+    is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
-    date_joined = models.DateTimeField(auto_now_add=True)  # Varsayılan olarak şimdiye ayarlanır
+    is_superuser = models.BooleanField(default=False)
+
+    date_joined = models.DateTimeField(auto_now_add=True)
     is_2fa_active = models.BooleanField(default=False)
 
     objects = UserManager()
@@ -35,7 +53,19 @@ class User(AbstractBaseUser):
     def __str__(self):
         return self.nick
 
+    def has_module_perms(self, app_label):
+            """
+            Kullanıcının, belirtilen uygulama etiketinde (app_label) izinlere sahip olup olmadığını kontrol eder.
+            Admin paneli için gerekli.
+            """
+            return self.is_superuser or self.is_staff
 
+    def has_perm(self, perm, obj=None):
+            """
+            Kullanıcının belirtilen izinlere sahip olup olmadığını kontrol eder.
+            Admin paneli için gerekli.
+            """
+            return self.is_superuser or self.is_staff
 
 def copy_static_to_media():
     static_path = "/usr/share/nginx/static/assets/images"
@@ -53,17 +83,3 @@ def copy_static_to_media():
         # Eğer bu bir dosya ise (klasör değil), kopyala
         if os.path.isfile(file_path):
             shutil.copy(file_path, media_path)
-
-
-
-
-# class MatchHistory(models.Model):
-#     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='match_history')
-#     result = models.BooleanField()  # Kazandı mı? (True: kazandı, False: kaybetti)
-#     win_rate = models.FloatField()  # Kazanma oranı
-#     score = models.IntegerField()  # Skor
-#     opponent = models.CharField(max_length=50)  # Rakip oyuncu (nick veya ID)
-#     date_time = models.DateTimeField(auto_now_add=True)  # Tarih ve saat
-
-#     def __str__(self):
-#         return f"{self.user.nick} - {'Kazandı' if self.result else 'Kaybetti'}"

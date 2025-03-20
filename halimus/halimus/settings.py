@@ -133,12 +133,6 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
-    # {
-    #     'NAME': 'transcendence.validators.SpecialCharacterValidator',
-    # },
-    # {
-    #     'NAME': 'transcendence.validators.UppercaseValidator',
-    # },
 ]
 
 
@@ -210,3 +204,5 @@ CSRF_COOKIE_SECURE = True  # CSRF çerezlerini sadece HTTPS üzerinden gönderir
 SESSION_COOKIE_SECURE = True  # Oturum çerezlerini sadece HTTPS üzerinden gönderir
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = True
+
+SITE_ID = 1
