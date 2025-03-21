@@ -65,8 +65,8 @@ User = get_user_model()
 
 
 class LoginSerializer(serializers.Serializer):
-    nick = serializers.CharField(max_length=150, required=True, label="Kullanıcı Adı")
-    password = serializers.CharField(write_only=True, required=True, label="şifre")
+    nick = serializers.CharField(max_length=150, required=True, label="username")
+    password = serializers.CharField(write_only=True, required=True, label="password")
 
     def validate(self, data):
         username = data.get("nick")

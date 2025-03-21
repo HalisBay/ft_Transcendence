@@ -7,11 +7,8 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 class UserManager(BaseUserManager):
     def create_user(self, nick, email, password=None, **extra_fields):
         if not email:
-            raise ValueError("Kullanıcıların bir e-posta adresi olmalı")
+            raise ValueError("Users must have an email address.")
         email = self.normalize_email(email)
-        # Extra_fields içinde is_superuser veya is_staff gibi parametreler varsa, bunları çıkartalım
-        extra_fields.pop('is_superuser', None)
-        extra_fields.pop('is_staff', None)
 
         user = self.model(nick=nick, email=email, **extra_fields)
 

@@ -377,7 +377,6 @@ class PongConsumer(AsyncWebsocketConsumer):
             return  # Eğer oda silinmişse oyunu başlatma
 
 
-    # Oyun başlatma mantığını burada devam ettir
         print(f"✅ {self.room_group_name} için oyun başlatılıyor.")
         try:
             room = rooms[self.room_group_name]
@@ -434,7 +433,6 @@ class PongConsumer(AsyncWebsocketConsumer):
                 game_state["scores"]["player1"] += 1
                 print(f"Player 1 scored. New score: {game_state['scores']['player1']}")
                 await self.reset_ball(-1)
-            # Skor 2'ye ulaşan oyuncu kazanır, oyunu bitir
             if game_state["scores"]["player1"] == 11:
                 await self.end_game("player1")
                 print("Player 1 won the game.")
@@ -490,12 +488,10 @@ class PongConsumer(AsyncWebsocketConsumer):
             loser_channel, {"type": "game_message", "message": loser_message}
         )
 
-        # 'Next Game' butonunu etkinleştir
         await self.channel_layer.group_send(
             self.room_group_name, {"type": "enable_next_game_button"}
         )
 
-        # Genel kazanma sayısı (hem 1v1 hem turnuva)
         win_count = await database_sync_to_async(
             lambda: winner_user.match_history.filter(result=True).count() + 1
         )()
@@ -546,7 +542,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 
 
-        # Consumer.py
     async def enable_next_game_button(self, event):
         # Frontend'e "Next Game" butonunun etkinleştirildiği bilgisini gönderiyoruz
         await self.send(text_data=json.dumps({

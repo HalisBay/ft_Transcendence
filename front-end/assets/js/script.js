@@ -199,7 +199,7 @@ function start1v1Game() {
         .then(data => {
             const messageBox = document.getElementById("game-message"); // Mesaj göstermek için bir div seç
             if (data.in_game) {
-                messageBox.innerHTML = "Zaten bir oyundasın!";
+                messageBox.innerHTML = "You're already in a game.";
                 messageBox.style.color = "red";  // Mesajı kırmızı yap (isteğe bağlı)
                 messageBox.style.fontWeight = "bold";  // Kullanıcıya mesaj göster
             } else {
