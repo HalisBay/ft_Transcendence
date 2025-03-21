@@ -19,7 +19,6 @@ from django.urls import path,include
 from django.urls import path, re_path
 from django.views.generic import TemplateView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-# from transcendence.views import spa
 
 urlpatterns = [
     path('admin/', admin.site.urls),

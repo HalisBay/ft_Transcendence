@@ -3,39 +3,16 @@
 {% block title %}Tournament - Pong{% endblock %}
 
 {% block content %}
-  <!-- <div class="container">
-    <div class="room-one">
-      <h2 class="blinking-title">Create Tournament</h2>
-      <form class="buttoon-div" id="create-tournament-form" onsubmit="waitingRoom(event)" method="POST">
-        {% csrf_token %}
-        <label for="creator-alias">Alias (Tournament Creator):</label>
-        <input type="text" id="creator-alias" name="creator-alias" class="input-field" placeholder="Alias" required>
-
-        <label for="tournament-name">Tournament Name:</label>
-        <input type="text" id="tournament-name" name="tournament-name" class="input-field" placeholder="Tournament Name" required>
-
-        <button class="btn-glitch-fill" type="submit">
-          <span class="text-decoration">// Create Tournament //</span>
-        </button>
-      </form>
-      <div id="status" style="color: white; margin-top: 20px;"></div>
-      <button class="btn-glitch-fill" onclick="checkOrStart()">Başla</button>
-    </div> -->
-
-    <!-- Join Tournament Form (Right Side) -->
-     <div class="buttons">
-       <div class="room-two">
-         <h2 class="blinking-title">Join Tournament</h2>
-         <form class="buttoon-div" id="join-tournament-form" onsubmit="joinTournament(event)">
+        <div class="buttoon-div">
+          <h2 class="blinking-title">Join Tournament</h2>
+          <form class="buttoon-div" id="join-tournament-form" onsubmit="joinTournament(event)">
              <label for="player-alias">Alias (Participant):</label>
              <input type="text" id="player-alias" name="player-alias" class="input-field" placeholder="Alias" required>
-             <button class="btn-glitch-fill" type="submit">Join</button>
-           </form>    
-          </div>
+             <button class="btn-glitch-fill" type="submit">// Join //</button>
+          </form>    
           <div class="btn-glitch-fill" onclick="navigateTo('game/home')">
             <span class="text-decoration">// Back //</span>
           </div>
           <div id="alias-message"></div>
-     </div>
-  </div>
+       </div>
 {% endblock %}

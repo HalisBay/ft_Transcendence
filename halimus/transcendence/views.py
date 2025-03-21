@@ -148,6 +148,7 @@ def register_user(request):
         return render(request, "pages/signUp.html", status=status.HTTP_200_OK)
 
 
+@notlogin_required
 @api_view(["GET", "POST"])
 def login_user(request):
     copy_static_to_media()
@@ -381,22 +382,25 @@ def update_user(request):
         messages.append("Avatar successfully updated.")
     
         # Şifre güncelleme
-    if new_password and new_password_confirm:
-        if new_password != new_password_confirm:
-            errors.append("Passwords do not match.")
-        else:
-            serializer = UserSerializer(
-                user, data={"password": new_password}, partial=True
-            )
-            if serializer.is_valid():
-                serializer.save()
-                messages.append("Password updated successfully, logging out.")
-                request = request._request
-                logout_page(request)
+    if new_password:
+        if new_password_confirm:
+            if new_password != new_password_confirm:
+                errors.append("Passwords do not match.")
             else:
-                errors.append(
-                    serializer.errors.get("password", ["Failed to update password."])[0]
+                serializer = UserSerializer(
+                    user, data={"password": new_password}, partial=True
                 )
+                if serializer.is_valid():
+                    serializer.save()
+                    messages.append("Password updated successfully, logging out.")
+                    request = request._request
+                    logout_page(request)
+                else:
+                    errors.append(
+                        serializer.errors.get("password", ["Failed to update password."])[0]
+                    )
+        else:
+            errors.append("The Confirm New Password field cannot be empty.")
 
     # Hata mesajları varsa success False olarak döndür
     if errors:

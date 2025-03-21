@@ -1,4 +1,5 @@
-.PHONY: up down clean fclean status
+.PHONY: up down clean status restart build
+
 
 up:
 	@if [ ! -f docker/up_env.sh ]; then echo "Error: up_env.sh not found!"; exit 1; fi
@@ -6,15 +7,28 @@ up:
 	cd docker && ./up_env.sh
 	@echo "Building and starting containers..."
 	cd docker && docker-compose up --build
+
+
 down:
 	@echo "...Stopping containers..."
 	cd docker && docker-compose down
-clean:
-	@echo "...Cleaning up unused images and containers..."
-	docker system prune -f
-fclean:
-	@echo "...Cleaning up all images and containers..."
-	docker system prune  -f
+
+
+clean:	down
+	@echo "...Cleaning up unused images, containers, volumes, and networks..."
+	docker system prune -af
+	docker volume prune -af
+	docker network prune -f
+
+
 status:
 	@echo "...Container status..."
-	docker ps -a
+	cd docker && docker-compose ps
+
+
+build:
+	@echo "Building images only..."
+	cd docker && docker-compose build
+
+
+restart: down up

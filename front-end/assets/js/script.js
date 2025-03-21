@@ -1,31 +1,13 @@
-let socket = null; // Global bir WebSocket değişkeni tanımlayın
+let socket = null;
 let pageHistory = [];
 
-window.addEventListener('DOMContentLoaded', (event) => {
+window.addEventListener('DOMContentLoaded', () => {
     const initialPage = window.location.pathname.substring(1) || 'home';
-    navigateTo(initialPage);
+    navigateTo(initialPage, false);
 });
 
-// TODO: kullanıcı tarayıcıyı kapatınca olcak bu, bu düzeltilcek.
-// window.onbeforeunload = function() {
-//     fetch('/logout', {
-//         method: 'POST',  // POST isteği yapılıyor
-//         headers: {
-//             'X-Requested-With': 'XMLHttpRequest',  // AJAX isteği olduğunu belirtiyoruz
-//         },
-//     })
-//     document.cookie.split(';').forEach(function(c) {
-//         document.cookie = c.trim().split('=')[0] + '=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-//     });
-// };
-
-function navigateTo(page) {
+function navigateTo(page, addToHistory = true) {
     const content = document.getElementById('content');
-
-      // Aynı URL'yi tekrar eklememek için kontrol et
-      if (pageHistory[pageHistory.length - 1] !== page) {
-        pageHistory.push(page); // Yeni sayfayı geçmişe ekle
-    }
 
     fetch(`/${page}`)
         .then(response => {
@@ -35,21 +17,17 @@ function navigateTo(page) {
         .then(html => {
             content.innerHTML = html;
             updateButtonVisibility(page);
+            document.title = getPageTitle(page);
 
-            const newScripts = content.querySelectorAll('script');
-            newScripts.forEach(script => {
-                const newScript = document.createElement('script');
-                newScript.src = script.src;
-                newScript.defer = true;
-                document.body.appendChild(newScript);
-            });
-
-            if (page === 'home') {
-                startAnimations(); // Animasyonları başlat
+            if (addToHistory) {
+                window.history.pushState({ page }, "", `/${page}`);
+            } else {
+                window.history.replaceState({ page }, "", `/${page}`);
             }
 
-            const newUrl = `/${page}`;
-            window.history.pushState({ page }, '', newUrl);
+            if (page === 'home') {
+                startAnimations(page); // Animasyonları başlat
+            }
 
             setTimeout(() => {
                 if (page === 'game/pong') {
@@ -72,20 +50,49 @@ function navigateTo(page) {
         });
 }
 
-
 window.addEventListener('popstate', (event) => {
     const page = event.state?.page || 'home';
     if (socket && socket.readyState === WebSocket.OPEN) {
         socket.close();
      }
-    navigateTo(page);
+    navigateTo(page, false);  // Geçmişe tekrar ekleme yapma
+});
 
 window.addEventListener('beforeunload', () => {
     if (socket && socket.readyState === WebSocket.OPEN) {
         socket.close();
-     }
- });
+    }
 });
+
+function getPageTitle(page) {
+    const titles = {
+        "home": "Home",
+        "about": "About",
+        "game/home": "Game",
+        "game/pong": "Pong",
+        "register": "Register",
+        "login": "Login",
+        "activate_user": "Activate User",
+        "verify": "Verify",
+        "user": "User",
+        "logout": "Logout",
+        "notverified": "Not verified",
+        "user/activate2fa": "User 2fa",
+        "user/update": "Update",
+        "user/update_user": "Update user",
+        "user/delete": "Delete",
+        "anonymize_account": "Anonymize Account",
+        "gdpr": "GDPR",
+        "game/tournament": "Tournament",
+    };
+    const profileMatch = page.match(/^game\/profile\/(\d+)$/);
+    if (profileMatch) {
+        const userId = profileMatch[1];
+        return `Profile - ${userId}`;
+    }
+    return titles[page] || "Unknown Page";
+}
+
 
 function submitForm(event) {
     event.preventDefault(); 
@@ -200,7 +207,7 @@ function start1v1Game() {
         .then(data => {
             const messageBox = document.getElementById("game-message"); // Mesaj göstermek için bir div seç
             if (data.in_game) {
-                messageBox.innerHTML = "Zaten bir oyundasın!";
+                messageBox.innerHTML = "You're already in a game.";
                 messageBox.style.color = "red";  // Mesajı kırmızı yap (isteğe bağlı)
                 messageBox.style.fontWeight = "bold";  // Kullanıcıya mesaj göster
             } else {
@@ -440,156 +447,6 @@ function getCsrfToken() {
                       || document.querySelector('input[name="csrfmiddlewaretoken"]');
     return csrfElement ? csrfElement.getAttribute('content') || csrfElement.getAttribute('value') : null;
 }
-
-
-//let isTournamentCreated = false;
-let isJoined = false;
-
-// function waitingRoom(event) {
-//     event.preventDefault();
-
-//     if (isJoined || isTournamentCreated) {
-//         document.getElementById('status').innerText = "Zaten bir turnuva oluşturdun knkm";
-//         return;
-//     }
-
-//     const form = document.getElementById('create-tournament-form');
-//     const creatorAlias = document.getElementById('creator-alias').value;
-//     const tournamentName = document.getElementById('tournament-name').value;
-    
-//     socket = new WebSocket('wss://' + window.location.host + '/ws/tournament/');
-
-//     socket.onopen = function() {
-//         socket.send(JSON.stringify({
-//             'action': 'create_tournament',
-//             'creator_alias': creatorAlias,
-//             'tournament_name': tournamentName
-//         }));
-//     };
-
-//     socket.onmessage = function(event) {
-//         const data = JSON.parse(event.data);
-//         if (data.error) {
-//             document.getElementById('status').innerText = data.error;
-//         } else {
-//             document.getElementById('status').innerText = data.message;
-//             isTournamentCreated = true;
-//         }
-//     };
-
-//     socket.onclose = function(event) {
-//         if (event.code === 1000) {
-//             console.log("The connection was successfully closed.");
-//         } else {
-//             console.log("Connection closed:", event.code);
-//         }
-//         isTournamentCreated = false;
-//     };
-
-//     socket.onerror = function(event) {
-//         document.getElementById('status').innerText = "Error: Unable to connect to the WebSocket.";
-//     };
-// }
-
-// document.getElementById('startButton').addEventListener('click', function() {
-//     console.log("Buton çalışıyor mu?")
-//     checkOrStart();
-// });
-
-// let tourStarted = false;
-// function checkOrStart() {
-//     if (!socket || socket.readyState !== WebSocket.OPEN) {
-//         // Eğer WebSocket bağlantısı açık değilse, kullanıcıya uyarı ver
-//         document.getElementById('status').innerText = "Turnuvaya katılmadan oyunu başlatamazsınız!";
-//         return;
-//     }
-//     socket.send(JSON.stringify({
-//         'action': 'checkOrStart'
-//     }));
-
-//     socket.onmessage = function(e) {
-//         const data = JSON.parse(e.data);
-    
-//         if (data.action === 'start_game') {
-//             // When the game is ready to start, navigate to the pong page
-//             navigateTo('game/pong');
-//             tourStarted = true;
-//         } else if (data.message) {
-//             document.getElementById('status').innerText = data.message;
-//         }
-//     };
-// }
-
-// function leaveTournament() {
-//     if (socket && socket.readyState === WebSocket.OPEN) {
-//         socket.send(JSON.stringify({
-//             'action': 'leave_tournament'
-//         }));
-//     } else {
-//         console.error("WebSocket bağlantısı kapalı!");
-//     }
-// }
-
-
-// function joinTournament(event) {
-//     event.preventDefault();
-
-//     const playerAlias = document.getElementById('player-alias').value; 
-//     const tournamentName = document.getElementById('tournament-id').value; 
-
-//     if (!playerAlias || !tournamentName) {
-//         alert("Please fill in all fields!");
-//         return;
-//     }
-
-//     if (isJoined) {
-//         document.getElementById('status').innerText = "Zaten bir turnuvaya katıldın knkm";
-//         return;
-//     }
-
-//     socket = new WebSocket('wss://' + window.location.host + '/ws/tournament/');
-
-//     socket.onopen = function() {
-//         socket.send(JSON.stringify({
-//             'action': 'join_tournament',
-//             'player_alias': playerAlias,
-//             'tournament_name': tournamentName
-//         }));
-//     };
-
-//     socket.onmessage = function(event) {
-//         const data = JSON.parse(event.data);
-
-//         if (data.message) {
-//             document.getElementById('status').innerText = data.message;
-//         }
-
-//         if (data.message.includes("O isimde Turnuva yokkk") || 
-//             data.message.includes("Tournament not found") || 
-//             data.message.includes("Could not add player") || 
-//             data.message.includes("already a participant")) {
-            
-//             // Eğer katılım başarısızsa, bağlantıyı kapat
-//             socket.close();
-//         } else if (data.message.includes("joined the tournament")) {
-//             isJoined = true;
-
-//             const tournamentItem = document.querySelector(`#tournament-list li[data-tournament="${tournamentName}"]`);
-//             if (tournamentItem) {
-//                 tournamentItem.innerHTML += ' - Katıldın';
-//             }
-//         }
-//     };
-
-//     socket.onclose = function(event) {
-//         console.log("WebSocket kapandı:", event.code);
-//         isJoined = false;
-//     };
-
-//     socket.onerror = function(event) {
-//         document.getElementById('status').innerText = "WebSocket bağlantı hatası!";
-//     };
-// }
 
 
 function initiateWebSocketConnection(gameMode, alias) {
@@ -898,13 +755,6 @@ function goBack() {
     }
 }
 
-
-setTimeout(function() {
-    document.getElementById("message-container").style.display = "none";
-}, 5000);
-
-
-
 function submitFriendsForm(event) {
     event.preventDefault();  
     const csrfToken = getCsrfToken();
@@ -991,20 +841,20 @@ function updateButtonVisibility(currentPage) {
     }
 }
 
-
-
-function startAnimations() {
+function startAnimations(page) {
     const transandece = document.getElementById('transandece');
     const contentt = document.getElementById('contentt');
 
+    if (page === "home"){
 
-    setTimeout(() => {
-        transandece.style.transform = 'translate(-45%, -850%)';
-    }, 500); 
+        setTimeout(() => {
+            transandece.style.transform = 'translate(-45%, -850%)';
+        }, 250); 
 
-    setTimeout(() => {
-        contentt.style.opacity = '1';
-    }, 1000); // 3 saniye sonra içeriği görünür yap
+        setTimeout(() => {
+            contentt.style.opacity = '1';
+        }, 600); // 3 saniye sonra içeriği görünür yap
+    }
 }
 
 // Sayfa yüklendiğinde animasyonları başlat
