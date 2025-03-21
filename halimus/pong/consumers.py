@@ -222,151 +222,160 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 
     async def disconnect(self, close_code):
-        global rooms
-        room = rooms.get(self.room_group_name, None)
+            global rooms
+            room = rooms.get(self.room_group_name, None)
 
-        if room:
-            # Kullanıcıyı odadan çıkar
-            if self.user in room["players"]:
-                room["players"].remove(self.user)
-                del room["user_channel_map"][self.user.id]
+            if room:
+                # Kullanıcıyı odadan çıkar
+                if self.user in room["players"]:
+                    room["players"].remove(self.user)
+                    del room["user_channel_map"][self.user.id]
 
-            is_tournament = self.room_group_name.startswith("tournament_")
-
-            if is_tournament:
-                await database_sync_to_async(lambda: User.objects.filter(id=self.user.id).update(alias=""))()
-
-            # Eğer turnuva oyuncusuysa, win count'u temizle
-            if is_tournament and self.user.id in tournament_win_counts:
-                del tournament_win_counts[self.user.id]
-
-            # Eğer odada kimse kalmadıysa, tamamen sil
-            if not room["players"]:
-                del rooms[self.room_group_name]
-            else:
-                # Odada kalan oyuncu varsa, hükmen galip ilan et
-                remaining_player = room["players"][0]
+                is_tournament = self.room_group_name.startswith("tournament_")
 
                 if is_tournament:
-                    if remaining_player.id not in tournament_win_counts:
-                        tournament_win_counts[remaining_player.id] = 0
-                    tournament_win_counts[remaining_player.id] += 1  # Hükmen galibiyet
+                    await database_sync_to_async(lambda: User.objects.filter(id=self.user.id).update(alias=""))()
 
-                is_tournament_winner = is_tournament and tournament_win_counts[remaining_player.id] == 3
+                # Eğer turnuva oyuncusuysa, win count'u temizle
+                if is_tournament and self.user.id in tournament_win_counts:
+                    del tournament_win_counts[self.user.id]
 
-                # Genel win_count güncelle
-                win_count = await database_sync_to_async(
-                    lambda: remaining_player.match_history.filter(result=True).count() + 1
-                )()
-
-                # Turnuva win count kontrolü
-                tournament_wins = tournament_win_counts[remaining_player.id] if is_tournament else None
-
-                # Maç geçmişini kaydet (hükmen kazanan)
-                await database_sync_to_async(MatchHistory.objects.create)(
-                    user=remaining_player,
-                    opponent=self.user,
-                    result=True,
-                    win_count=win_count,
-                    lose_count=await database_sync_to_async(
-                        lambda: remaining_player.match_history.filter(result=False).count()
-                    )(),
-                    score=11,  # Hükmen galibiyet
-                    opponent_score=0,
-                    tWinner=is_tournament_winner,
-                    is_tournament=is_tournament,
-                )
-
-                # Maç geçmişini kaydet (hükmen kaybeden)
-                await database_sync_to_async(MatchHistory.objects.create)(
-                    user=self.user,
-                    opponent=remaining_player,
-                    result=False,
-                    win_count=await database_sync_to_async(
-                        lambda: self.user.match_history.filter(result=True).count()
-                    )(),
-                    lose_count=await database_sync_to_async(
-                        lambda: self.user.match_history.filter(result=False).count() + 1
-                    )(),
-                    score=0,
-                    opponent_score=11,
-                    tWinner=False,
-                    is_tournament=is_tournament,
-                )
-
-                # Kullanıcıya mesaj gönder
-                winner_message = f"You Win! Congrats {remaining_player.nick}. Click 'Next Game' to start a new game."
-                if is_tournament_winner:
-                    winner_message = " 🎉 You are the TOURNAMENT CHAMPION! 🏆"
-
-                user_channel_map = room["user_channel_map"]
-                winner_channel = user_channel_map[remaining_player.id]
-
-                await self.channel_layer.send(
-                    winner_channel, {"type": "game_message", "message": winner_message}
-                )
-
-                # Eğer turnuva kazananı belirlendiyse, temizle
-                if is_tournament_winner:
-                    del tournament_win_counts[remaining_player.id]
-
-                # 'Next Game' butonunu etkinleştir
-                await self.channel_layer.group_send(
-                    self.room_group_name,
-                    {"type": "enable_next_game_button"}
-                )
-
-                # Odayı temizle
-                if self.room_group_name in rooms:
+                # Eğer odada kimse kalmadıysa, tamamen sil
+                if not room["players"]:
                     del rooms[self.room_group_name]
+                else:
+                    # Odada kalan oyuncu varsa, hükmen galip ilan et
+                    remaining_player = room["players"][0]
 
-                await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+                    if is_tournament:
+                        if remaining_player.id not in tournament_win_counts:
+                            tournament_win_counts[remaining_player.id] = 0
+                        tournament_win_counts[remaining_player.id] += 1  # Hükmen galibiyet
 
+                    is_tournament_winner = is_tournament and tournament_win_counts[remaining_player.id] == 3
 
+                    # Genel win_count güncelle
+                    win_count = await database_sync_to_async(
+                        lambda: remaining_player.match_history.filter(result=True).count() + 1
+                    )()
 
+                    # Turnuva win count kontrolü
+                    tournament_wins = tournament_win_counts[remaining_player.id] if is_tournament else None
 
+                    # Maç geçmişini kaydet (hükmen kazanan)
+                    await database_sync_to_async(MatchHistory.objects.create)(
+                        user=remaining_player,
+                        opponent=self.user,
+                        result=True,
+                        win_count=win_count,
+                        lose_count=await database_sync_to_async(
+                            lambda: remaining_player.match_history.filter(result=False).count()
+                        )(),
+                        score=11,  # Hükmen galibiyet
+                        opponent_score=0,
+                        tWinner=is_tournament_winner,
+                        is_tournament=is_tournament,
+                    )
+
+                    # Maç geçmişini kaydet (hükmen kaybeden)
+                    await database_sync_to_async(MatchHistory.objects.create)(
+                        user=self.user,
+                        opponent=remaining_player,
+                        result=False,
+                        win_count=await database_sync_to_async(
+                            lambda: self.user.match_history.filter(result=True).count()
+                        )(),
+                        lose_count=await database_sync_to_async(
+                            lambda: self.user.match_history.filter(result=False).count() + 1
+                        )(),
+                        score=0,
+                        opponent_score=11,
+                        tWinner=False,
+                        is_tournament=is_tournament,
+                    )
+
+                    # Kullanıcıya mesaj gönder
+                    winner_message = f"You Win! Congrats {remaining_player.nick}. Click 'Next Game' to start a new game."
+                    if is_tournament_winner:
+                        winner_message = " 🎉 You are the TOURNAMENT CHAMPION! 🏆"
+
+                    user_channel_map = room["user_channel_map"]
+                    winner_channel = user_channel_map.get(remaining_player.id)
+
+                    if winner_channel:
+                        await self.channel_layer.send(
+                            winner_channel, {"type": "game_message", "message": winner_message}
+                        )
+
+                    # Eğer turnuva kazananı belirlendiyse, temizle
+                    if is_tournament_winner:
+                        del tournament_win_counts[remaining_player.id]
+
+                    # 'Next Game' butonunu etkinleştir
+                    await self.channel_layer.group_send(
+                        self.room_group_name,
+                        {"type": "enable_next_game_button"}
+                    )
+
+                    # Odayı temizle
+                    if self.room_group_name in rooms:
+                        del rooms[self.room_group_name]
+
+            # Kullanıcıyı gruptan çıkar
+            await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
 
 
 
     async def receive(self, text_data):
-        text_data_json = json.loads(text_data)
-        action = text_data_json.get("action")
-        global rooms
-        room = rooms[self.room_group_name]
-        game_state = room["game_state"]
+        try:
+            text_data_json = json.loads(text_data)
+            action = text_data_json.get("action")
+            global rooms
 
-        if action == "getAlias":
-            alias = text_data_json.get("alias")
-            user_id = self.scope["user"].id
+            # Oda var mı kontrol et, yoksa hata döndürme
+            if self.room_group_name not in rooms:
+                await self.send(text_data=json.dumps({"error": "Oda kapandı veya mevcut değil."}))
+                return  # İşlemi burada durdur
 
-            # Alias'ı güncelle ve kullanıcı nesnesine işle
-            await database_sync_to_async(lambda: User.objects.filter(id=user_id).update(alias=alias))()
-            self.user.alias = alias  # Cache içindeki nesneyi güncelle
+            room = rooms[self.room_group_name]
+            game_state = room["game_state"]
 
-            # İki oyuncunun da alias'ı var mı kontrol et
-            player_ids = [p.id for p in room.get("players", [])]  # Hata almamak için güvenli kontrol
-            player_aliases = await database_sync_to_async(
-                lambda: list(User.objects.filter(id__in=player_ids).values_list("alias", flat=True))
-            )()
+            if text_data_json.get("type") == "move":  # "type" kontrolü
+                direction = text_data_json["direction"]
+                player_key = self.player_id
+                await self.move_paddle(player_key, direction)
 
-            if len(player_aliases) == 2 and all(player_aliases):  # İki oyuncu da alias aldı mı?
-                await self.send_player_info()
-            
-            print(f"🎮 Alias kontrol: Kullanıcı: {self.user}, Alias: {alias}")
+            elif action == "getAlias":
+                alias = text_data_json.get("alias")
+                user_id = self.scope["user"].id
 
-        elif action == "next_game":
-            self.next_game = True
-        
-        elif action == "leave_tournament":
-            self.next_game = False
+                await database_sync_to_async(lambda: User.objects.filter(id=user_id).update(alias=alias))()
+                self.user.alias = alias
 
-        if "move" in text_data_json:
-            direction = text_data_json["move"]
-            player = game_state["players"].get(self.player_id, {})
-            if direction == "up" and player.get("y", 0) > 0:
-                player["y"] -= 5
-            elif direction == "down" and player.get("y", 0) < 520:  # Paddle height
-                player["y"] += 5
+                player_ids = [p.id for p in room.get("players", [])]
+                player_aliases = await database_sync_to_async(
+                    lambda: list(User.objects.filter(id__in=player_ids).values_list("alias", flat=True))
+                )()
+
+                if len(player_aliases) == 2 and all(player_aliases):
+                    await self.send_player_info()
+
+                print(f"🎮 Alias kontrol: Kullanıcı: {self.user}, Alias: {alias}")
+
+            elif action == "next_game":
+                self.next_game = True
+
+            elif action == "leave_tournament":
+                self.next_game = False
+
+        except KeyError as e:
+            print(f"⚠️ Hata: Oda bulunamadı! {e}")  # Konsola hata mesajı yaz
+            await self.send(text_data=json.dumps({"error": "Oyun odası artık mevcut değil."}))  # Kullanıcıya mesaj gönder
+
+        except Exception as e:
+            print(f"⚠️ Beklenmeyen hata: {e}")  # Diğer hataları logla
+            await self.send(text_data=json.dumps({"error": "Oda kapalı."})) 
+
 
 
     async def start_game(self):
@@ -403,38 +412,91 @@ class PongConsumer(AsyncWebsocketConsumer):
         )
         asyncio.create_task(self.move_ball())
 
+    
+    async def move_paddle(self, player_key, direction):
+        global rooms
+        room = rooms.get(self.room_group_name)
+        if not room:
+            return
+
+        game_state = room["game_state"]
+        players = game_state["players"]
+
+        speed = 13  # Buraya istediğin hızı verebilirsin
+
+        if player_key == "player1":
+            if direction == "up":
+                players["player1"]["y"] = max(0, players["player1"]["y"] - speed)
+            elif direction == "down":
+                players["player1"]["y"] = min(520, players["player1"]["y"] + speed)
+
+        elif player_key == "player2":
+            if direction == "up":
+                players["player2"]["y"] = max(0, players["player2"]["y"] - speed)
+            elif direction == "down":
+                players["player2"]["y"] = min(520, players["player2"]["y"] + speed)
+
+
+        await self.channel_layer.group_send(
+            self.room_group_name, {"type": "game_state", "state": game_state}
+        )
+
+
+
     async def move_ball(self):
         global rooms
         room = rooms[self.room_group_name]
         if not room:
             return
         game_state = room["game_state"]
+
+        BALL_SIZE = 13  # Topun çapı
+        BALL_RADIUS = BALL_SIZE / 2  # Daha doğru hesaplama için yarıçap
+        PADDLE_WIDTH = 5  # Paddle genişliği
+        PADDLE_HEIGHT = 60  # Paddle yüksekliği
+        GAME_WIDTH = 1000  # Oyun alanı genişliği
+        GAME_HEIGHT = 580  # Oyun alanı yüksekliği
+
         while len(room["players"]) == 2:
             ball = game_state["ball"]
             players = game_state["players"]
+
+            # **Topun yeni pozisyonunu hesapla**
             ball["x"] += ball["vx"] * 10
             ball["y"] += ball["vy"] * 10
-            if ball["y"] >= 570 or ball["y"] < 2:
+
+            # **Üst ve alt duvar çarpışmaları**
+            if ball["y"] - BALL_RADIUS <= 0 or ball["y"] + BALL_RADIUS >= GAME_HEIGHT:
                 ball["vy"] = -ball["vy"]
+
+            # **Sol paddle çarpışma kontrolü**
             if (
-                ball["x"] <= 5
-                and players["player1"]["y"] <= ball["y"] <= players["player1"]["y"] + 60
+                ball["x"] - BALL_RADIUS <= PADDLE_WIDTH  # Paddle sınırına çarpıyor mu?
+                and players["player1"]["y"] <= ball["y"] <= players["player1"]["y"] + PADDLE_HEIGHT
             ):
                 ball["vx"] = -ball["vx"]
+                ball["x"] = PADDLE_WIDTH + BALL_RADIUS  # Paddle içine girmesin
+
+            # **Sağ paddle çarpışma kontrolü**
             elif (
-                ball["x"] >= 985
-                and players["player2"]["y"] <= ball["y"] <= players["player2"]["y"] + 60
+                ball["x"] + BALL_RADIUS >= GAME_WIDTH - PADDLE_WIDTH  # Sağ paddle sınırı
+                and players["player2"]["y"] <= ball["y"] <= players["player2"]["y"] + PADDLE_HEIGHT
             ):
                 ball["vx"] = -ball["vx"]
-            if ball["x"] < 0:
+                ball["x"] = GAME_WIDTH - PADDLE_WIDTH - BALL_RADIUS  # Paddle içine girmesin
+
+            # **Gol kontrolü**
+            if ball["x"] - BALL_RADIUS <= 0:
                 game_state["scores"]["player2"] += 1
                 print(f"Player 2 scored. New score: {game_state['scores']['player2']}")
                 await self.reset_ball(1)
-            elif ball["x"] > 990:
+
+            elif ball["x"] + BALL_RADIUS >= GAME_WIDTH:
                 game_state["scores"]["player1"] += 1
                 print(f"Player 1 scored. New score: {game_state['scores']['player1']}")
                 await self.reset_ball(-1)
-            # Skor 2'ye ulaşan oyuncu kazanır, oyunu bitir
+
+            # **Skor kontrolü (oyunu bitirme)**
             if game_state["scores"]["player1"] == 11:
                 await self.end_game("player1")
                 print("Player 1 won the game.")
@@ -443,10 +505,16 @@ class PongConsumer(AsyncWebsocketConsumer):
                 await self.end_game("player2")
                 print("Player 2 won the game.")
                 break
+
+            # **Yeni durumu oyunculara gönder**
             await self.channel_layer.group_send(
                 self.room_group_name, {"type": "game_state", "state": game_state}
             )
+
             await asyncio.sleep(0.05)
+
+
+
 
     async def end_game(self, winner):
         global rooms
@@ -559,7 +627,12 @@ class PongConsumer(AsyncWebsocketConsumer):
         global rooms
         room = rooms[self.room_group_name]
         game_state = room["game_state"]
-        game_state["ball"] = {"x": 500.0, "y": 290.0, "vx": direction * 1.0, "vy": 1.0}
+        game_state["ball"] = {
+            "x": 500.0,
+            "y": 290.0,
+            "vx": direction * 1.0,
+            "vy": random.choice([1.0, -1.0])  # %50 ihtimalle 1.0 veya -1.0 seç
+        }
         await self.channel_layer.group_send(
             self.room_group_name,
             {

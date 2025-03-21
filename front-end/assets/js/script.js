@@ -51,15 +51,21 @@ function navigateTo(page) {
             const newUrl = `/${page}`;
             window.history.pushState({ page }, '', newUrl);
 
-            if (page === 'game/pong')
-            {
-                const gameMode = sessionStorage.getItem("game_mode") || "1v1";
-                const alias = sessionStorage.getItem("player_alias");
-                initiateWebSocketConnection(gameMode, alias);
-            }
-            else if (socket && socket.readyState === WebSocket.OPEN) {
-                socket.close();
-            }
+            setTimeout(() => {
+                if (page === 'game/pong') {
+                    const gameMode = sessionStorage.getItem("game_mode") || "1v1";
+                    const alias = sessionStorage.getItem("player_alias");
+                    if (gameMode === "local") { // Local modu başlat
+                        startLocalPongGame();
+                    } else {
+                        isLocalMode = false;
+                        initiateWebSocketConnection(gameMode, alias);
+                    }
+                    console.log("isLocalMode:", isLocalMode);
+                } else if (socket && socket.readyState === WebSocket.OPEN) {
+                    socket.close();
+                }
+            }, 100);
         })
         .catch(error => {
             content.innerHTML = `<p class="text-danger">Hata: ${error.message}</p>`;
@@ -207,17 +213,185 @@ function start1v1Game() {
         });
 }
 
+function startLocalGame() {
+    sessionStorage.setItem("game_mode", "local");  // Local modda oynandığını sakla
+    navigateTo("game/pong"); // Oyunun oynandığı sayfaya git
+}
+
+
+const GAME_WIDTH = 1000;
+const GAME_HEIGHT = 580;
+const BALL_SIZE = 13;
+const BALL_RADIUS = BALL_SIZE / 2;
+const PADDLE_WIDTH = 5;
+const PADDLE_HEIGHT = 60;
+const PADDLE_SPEED = 18;
+const WINNING_SCORE = 2;
+
+let isLocalMode = false;
+let gameActive = false;
+
+// **Local Pong Değişkenleri**
+let scoresL, ballL, playersL;
+
+// **Local Pong Başlatma**
+function startLocalPongGame() {
+    isLocalMode = true;
+    gameActive = true;
+    scoresL = { player1: 0, player2: 0 };
+    ballL = { x: 500, y: 290, vx: 1.0, vy: 1.0 };
+    playersL = { player1: { y: 260 }, player2: { y: 260 } };
+
+    document.getElementById("left-player").innerText = "Sol Oyuncu: WASD - Player 1";
+    document.getElementById("right-player").innerText = "Sağ Oyuncu: Yön Tuşları - Player 2";
+    document.getElementById("status").innerText = "Oyun başladı!";
+
+    // Local event dinleyicileri ekle
+    document.addEventListener("keydown", handleLocalKeydown);
+    startLocalGameLoop();
+}
+
+// **Local Pong Oyun Döngüsü**
+function startLocalGameLoop() {
+    if (!isLocalMode) return;
+
+    function gameLoop() {
+        if (!gameActive) return;
+
+        moveBall();
+        updateGameView();
+        setTimeout(gameLoop, 50);
+    }
+
+    gameLoop();
+}
+
+// **Local Pong Top Hareketi**
+function moveBall() {
+    if (!gameActive || !isLocalMode) return;
+
+    ballL.x += ballL.vx * 10;
+    ballL.y += ballL.vy * 10;
+
+    if (ballL.y - BALL_RADIUS <= 0 || ballL.y + BALL_RADIUS >= GAME_HEIGHT) {
+        ballL.vy = -ballL.vy;
+    }
+
+    // **Sol paddle çarpışma kontrolü**
+    if (
+        ballL.x - BALL_RADIUS <= PADDLE_WIDTH &&
+        ballL.y >= playersL.player1.y &&
+        ballL.y <= playersL.player1.y + PADDLE_HEIGHT
+    ) {
+        ballL.vx = -ballL.vx;
+        ballL.x = PADDLE_WIDTH + BALL_RADIUS;
+    }
+    // **Sağ paddle çarpışma kontrolü**
+    else if (
+        ballL.x + BALL_RADIUS >= GAME_WIDTH - PADDLE_WIDTH &&
+        ballL.y >= playersL.player2.y &&
+        ballL.y <= playersL.player2.y + PADDLE_HEIGHT
+    ) {
+        ballL.vx = -ballL.vx;
+        ballL.x = GAME_WIDTH - PADDLE_WIDTH - BALL_RADIUS;
+    }
+
+    // **Gol kontrolü**
+    if (ballL.x - BALL_RADIUS <= 0) {
+        scoresL.player2++;
+        updateScore();
+        checkGameEnd();
+        resetBall(1);
+    } else if (ballL.x + BALL_RADIUS >= GAME_WIDTH) {
+        scoresL.player1++;
+        updateScore();
+        checkGameEnd();
+        resetBall(-1);
+    }
+}
+
+// **Topu başlangıç konumuna döndür**
+function resetBall(directionL) {
+    ballL = { 
+        x: 500.0, 
+        y: 290.0, 
+        vx: directionL * 1.0, 
+        vy: (Math.random() > 0.5 ? 1.0 : -1.0) // %50 yukarı, %50 aşağı gitmesi için
+    };
+}
+
+// **Paddle hareket ettirme**
+function movePaddle(player, directionL) {
+    if (!gameActive) return;
+
+    if (player === "player1") {
+        if (directionL === "up") {
+            playersL.player1.y = Math.max(0, playersL.player1.y - PADDLE_SPEED);
+        } else if (directionL === "down") {
+            playersL.player1.y = Math.min(GAME_HEIGHT - PADDLE_HEIGHT, playersL.player1.y + PADDLE_SPEED);
+        }
+    } else if (player === "player2") {
+        if (directionL === "up") {
+            playersL.player2.y = Math.max(0, playersL.player2.y - PADDLE_SPEED);
+        } else if (directionL === "down") {
+            playersL.player2.y = Math.min(GAME_HEIGHT - PADDLE_HEIGHT, playersL.player2.y + PADDLE_SPEED);
+        }
+    }
+}
+
+// **Skoru güncelle**
+function updateScore() {
+    document.getElementById("status").innerText = `Skor: ${scoresL.player1} - ${scoresL.player2}`;
+}
+
+// **Oyunu bitirme kontrolü**
+function checkGameEnd() {
+    if (scoresL.player1 >= WINNING_SCORE) {
+        endGame("Player 1 kazandı!");
+        document.getElementById("nextGameBtn").disabled = false;
+    } else if (scoresL.player2 >= WINNING_SCORE) {
+        endGame("Player 2 kazandı!");
+        document.getElementById("nextGameBtn").disabled = false;
+    }
+}
+
+// **Oyun bittiğinde mesaj göster**
+function endGame(message) {
+    gameActive = false;
+    document.getElementById("status").innerText = message;
+    document.removeEventListener("keydown", handleLocalKeydown); 
+}
+
+// **HTML içindeki paddle ve top konumlarını güncelle**
+function updateGameView() {
+    document.getElementById("ball").style.left = `${ballL.x}px`;
+    document.getElementById("ball").style.top = `${ballL.y}px`;
+    document.getElementById("player1").style.top = `${playersL.player1.y}px`;
+    document.getElementById("player2").style.top = `${playersL.player2.y}px`;
+}
+// **Local Pong Paddle Hareket Ettirme**
+function handleLocalKeydown(event) {
+    if (!isLocalMode) return;
+
+    if (event.key === "w") movePaddle("player1", "up");
+    if (event.key === "s") movePaddle("player1", "down");
+    if (event.key === "ArrowUp") movePaddle("player2", "up");
+    if (event.key === "ArrowDown") movePaddle("player2", "down");
+}
+
+
+
 
 function joinTournament(event) {
     event.preventDefault();
     const alias = document.getElementById("player-alias").value;
     const messageElement = document.getElementById("alias-message");
-
+    
     if (!alias) {
         alert("Please fill in all fields!");
         return;
     }
-
+    
     console.log("Checking active game...");
     
     fetch("/game/home/check-active-game/")
@@ -418,8 +592,6 @@ let isJoined = false;
 // }
 
 
-
-
 function initiateWebSocketConnection(gameMode, alias) {
     if (socket && socket.readyState === WebSocket.OPEN) {
         socket.close(); 
@@ -460,6 +632,9 @@ function initiateWebSocketConnection(gameMode, alias) {
                 statusElement.innerHTML += `<br>Score: ${data.scores.player1} - ${data.scores.player2}`;
             }
         } else if (data.type === 'game_state') {
+            if (!data.state.players || !data.state.players.player1 || !data.state.players.player2) {
+                return;
+            }
             ball.style.left = data.state.ball.x + 'px';
             ball.style.top = data.state.ball.y + 'px';
             player1.style.top = data.state.players.player1.y + 'px';
@@ -478,21 +653,51 @@ function initiateWebSocketConnection(gameMode, alias) {
 
     socket.onclose = (event) => {
         console.log('WebSocket connection closed:', event);
+        removeWebSocketEventListeners();
     };
-
-    // Handle player movement
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'w' || e.key === 'ArrowUp') {
-            socket.send(JSON.stringify({ move: 'up' }));
-        } else if (e.key === 's' || e.key === 'ArrowDown') {
-            socket.send(JSON.stringify({ move: 'down' }));
-        }
-    });
-
+ // Hareket intervali
+    addWebSocketEventListeners();
+  
 }
 
+let movementInterval = null;
 
+function handleWebSocketKeydown(e) {
+    if (isLocalMode || e.repeat || movementInterval) return;
 
+    let direction = null;
+    if (e.key === "w" || e.key === "ArrowUp") direction = "up";
+    else if (e.key === "s" || e.key === "ArrowDown") direction = "down";
+
+    if (direction) {
+        socket.send(JSON.stringify({ type: "move", direction }));
+        movementInterval = setInterval(() => {
+            socket.send(JSON.stringify({ type: "move", direction }));
+        }, 20);
+    }
+}
+
+// WebSocket için keyup event handler
+function handleWebSocketKeyup(e) {
+    if (isLocalMode) return;
+
+    if (["w", "ArrowUp", "s", "ArrowDown"].includes(e.key)) {
+        socket.send(JSON.stringify({ type: "move", direction: "stop" }));
+        clearInterval(movementInterval);
+        movementInterval = null;
+    }
+}
+
+function addWebSocketEventListeners() {
+    document.addEventListener("keydown", handleWebSocketKeydown);
+    document.addEventListener("keyup", handleWebSocketKeyup);
+}
+
+// Event listener'ları kaldıran fonksiyon
+function removeWebSocketEventListeners() {
+    document.removeEventListener("keydown", handleWebSocketKeydown);
+    document.removeEventListener("keyup", handleWebSocketKeyup);
+}
 
 
 function activate2FA() {
@@ -795,11 +1000,11 @@ function startAnimations() {
 
     setTimeout(() => {
         transandece.style.transform = 'translate(-45%, -850%)';
-    }, 2000); 
+    }, 500); 
 
     setTimeout(() => {
         contentt.style.opacity = '1';
-    }, 3000); // 3 saniye sonra içeriği görünür yap
+    }, 1000); // 3 saniye sonra içeriği görünür yap
 }
 
 // Sayfa yüklendiğinde animasyonları başlat
