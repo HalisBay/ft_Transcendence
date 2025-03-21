@@ -2,7 +2,7 @@ import json
 import asyncio
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.contrib.auth import get_user_model
-from .models import MatchHistory, Tournament, TournamentParticipant
+from .models import MatchHistory
 from channels.db import database_sync_to_async
 import string,random
 from urllib.parse import parse_qs

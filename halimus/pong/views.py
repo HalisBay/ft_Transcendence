@@ -2,7 +2,6 @@ from django.shortcuts import render, get_object_or_404
 from transcendence.requireds import jwt_required
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from .models import Tournament
 import json
 from .models import MatchHistory
 from django.contrib.auth import get_user_model
@@ -22,14 +21,7 @@ def gameHome(request):
 @login_required
 @jwt_required
 def tournamentRoom(request):
-    tournaments = Tournament.objects.all()
-    
-    for tournament in tournaments:
-        tournament.is_user_participant = tournament.is_user_participant(request.user)
-    
-    return render(request, 'pages/tRoom.html', {'tournaments': tournaments, 'user': request.user})
-
-
+    return render(request, 'pages/tRoom.html')
 
 User = get_user_model()
 @login_required

@@ -171,7 +171,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 host_ip = env("HOSTIP", default="127.0.0.1")  # Varsayılan IP'yi veriyoruz
 
-print(host_ip)
 CSRF_TRUSTED_ORIGINS = [f"https://{host_ip}:8001", "https://localhost:8001"]
 
 
