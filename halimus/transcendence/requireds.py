@@ -59,9 +59,6 @@ def jwt_required(view_func):
                         new_access_token
                     )
                     request.user = JWTAuthentication().get_user(validated_token)
-                    print(
-                        f"new acces token{new_access_token}\nvalidated token {validated_token}\nuser {request.user}"
-                    )
                 except Exception as e:
                     return JsonResponse(
                         {"success": False, "message": "Invalid refresh token."},

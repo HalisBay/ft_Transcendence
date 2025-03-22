@@ -21,6 +21,11 @@ class MatchHistory(models.Model):
     is_tournament = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.user.nick} - {'Kazandı' if self.result else 'Kaybetti'} vs {self.opponent.nick}"
+        match_type = "Tournament" if self.is_tournament else "Casual"
+        result_text = "Winner" if self.result else "Loser"
+        return (
+            f"{self.user.nick} ({self.score}) vs {self.opponent.nick} ({self.opponent_score}) - "
+            f"{result_text} - {match_type} Match"
+        )
 
 

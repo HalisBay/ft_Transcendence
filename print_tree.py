@@ -16,3 +16,4 @@ def print_tree(startpath):
 print_tree(".")
 
 
+# TODO: Bu dosya set project finish demeden önce silincek

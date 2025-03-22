@@ -42,7 +42,7 @@ from django.views.decorators.csrf import csrf_protect
 
 
 logger = logging.getLogger(__name__)
-User = get_user_model()  # TODO:merkezi yapıda kullanmak için bi dosya vs olabilir.
+User = get_user_model()
 
 
 def anonymize_email(email):
@@ -282,7 +282,7 @@ def verify_token(request):
 def verify_fail(request):
     return render(
         request, "pages/notverified.html", status=200
-    )  # TODO: burası 401 olunca patıyor bakılcak
+    )
 
 @login_required
 def activate_2fa(request):

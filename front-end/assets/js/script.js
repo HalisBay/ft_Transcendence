@@ -216,7 +216,7 @@ function start1v1Game() {
             }
         })
         .catch(error => {
-            console.error("Oyun durumu kontrol edilirken hata oluştu:312312", error);
+            console.error("An error occurred while checking the game state:", error);
         });
 }
 
@@ -249,9 +249,9 @@ function startLocalPongGame() {
     ballL = { x: 500, y: 290, vx: 1.0, vy: 1.0 };
     playersL = { player1: { y: 260 }, player2: { y: 260 } };
 
-    document.getElementById("left-player").innerText = "Sol Oyuncu: WASD - Player 1";
-    document.getElementById("right-player").innerText = "Sağ Oyuncu: Yön Tuşları - Player 2";
-    document.getElementById("status").innerText = "Oyun başladı!";
+    document.getElementById("left-player").innerText = "Left Player: WASD - Player 1";
+    document.getElementById("right-player").innerText = "Right Player: arrow keys - Player 2";
+    document.getElementById("status").innerText = "Game Started!";
 
     // Local event dinleyicileri ekle
     document.addEventListener("keydown", handleLocalKeydown);
@@ -348,16 +348,16 @@ function movePaddle(player, directionL) {
 
 // **Skoru güncelle**
 function updateScore() {
-    document.getElementById("status").innerText = `Skor: ${scoresL.player1} - ${scoresL.player2}`;
+    document.getElementById("status").innerText = `Score: ${scoresL.player1} - ${scoresL.player2}`;
 }
 
 // **Oyunu bitirme kontrolü**
 function checkGameEnd() {
     if (scoresL.player1 >= WINNING_SCORE) {
-        endGame("Player 1 kazandı!");
+        endGame("Player 1 Winner!");
         document.getElementById("nextGameBtn").disabled = false;
     } else if (scoresL.player2 >= WINNING_SCORE) {
-        endGame("Player 2 kazandı!");
+        endGame("Player 2 Winner!");
         document.getElementById("nextGameBtn").disabled = false;
     }
 }
@@ -498,8 +498,8 @@ function initiateWebSocketConnection(gameMode, alias) {
             player2.style.top = data.state.players.player2.y + 'px';
         }
         else if (data.type === "player_info") {
-            document.getElementById("left-player").innerText = `Sol Oyuncu: ${data.left}`;
-            document.getElementById("right-player").innerText = `Sağ Oyuncu: ${data.right}`;
+            document.getElementById("left-player").innerText = `Left Player: ${data.left}`;
+            document.getElementById("right-player").innerText = `Right Player: ${data.right}`;
         }
         
     };

@@ -8,7 +8,7 @@ class FriendList(models.Model):
     friends = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="friends")
 
     def __str__(self):
-        return f"{self.user.nick}'s friends"
+        return f"Friend list of {self.user.nick or 'Unknown User'}"
 
     def add_friend(self, friend):
         self.friends.add(friend)
@@ -41,7 +41,9 @@ class FriendRequest(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"From {self.from_user.nick} to {self.to_user.nick} - {self.status}"
+        from_user_nick = self.from_user.nick or "Unknown"
+        to_user_nick = self.to_user.nick or "Unknown"
+        return f"{from_user_nick} -> {to_user_nick} ({self.status})"
 
     class Meta:
         unique_together = ('from_user', 'to_user')  # Aynı iki kullanıcı arasında birden fazla istek olmasın.
