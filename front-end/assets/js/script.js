@@ -198,7 +198,7 @@ function leaveTournament() {
     if (socket && socket.readyState === WebSocket.OPEN) {
         socket.send(JSON.stringify({ action: "leave_tournament" }));
     }
-    navigateTo('home');  // Oyuncuyu ana sayfaya yönlendir
+    navigateTo('user');  // Oyuncuyu ana sayfaya yönlendir
 }
 
 function start1v1Game() {
@@ -371,10 +371,10 @@ function endGame(message) {
 
 // **HTML içindeki paddle ve top konumlarını güncelle**
 function updateGameView() {
-    document.getElementById("ball").style.left = `${ballL.x}px`;
-    document.getElementById("ball").style.top = `${ballL.y}px`;
-    document.getElementById("player1").style.top = `${playersL.player1.y}px`;
-    document.getElementById("player2").style.top = `${playersL.player2.y}px`;
+        document.getElementById("ball").style.left = `${ballL.x}px`;
+        document.getElementById("ball").style.top = `${ballL.y}px`;
+        document.getElementById("player1").style.top = `${playersL.player1.y}px`;
+        document.getElementById("player2").style.top = `${playersL.player2.y}px`;
 }
 // **Local Pong Paddle Hareket Ettirme**
 function handleLocalKeydown(event) {

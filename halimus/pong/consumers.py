@@ -27,20 +27,20 @@ class PongConsumer(AsyncWebsocketConsumer):
         query_params = parse_qs(self.scope["query_string"].decode())
         is_tournament_mode = query_params.get("tournament_mode", ["false"])[0] == "true"
         alias = query_params.get("alias", [None])[0] 
-        print(f"📥 Gelen alias: {alias}")
+        print(f"📥 alias: {alias}")
 
         if alias:
             # Alias'ı güncelle ve kaç satır değiştiğini kontrol et
             updated_count = await database_sync_to_async(lambda: User.objects.filter(id=self.user.id).update(alias=alias))()
-            print(f"🔄 Güncellenen kullanıcı sayısı: {updated_count}")
+            print(f"🔄 updated count: {updated_count}")
             
             # Kullanıcı nesnesini güncelle
             self.user.alias = alias
-            print(f"📝 Kullanıcı alias güncellendi: {self.user.alias}")
+            print(f"📝 alias: {self.user.alias}")
 
         # Güncellenen alias'ı doğrulamak için tekrar veritabanından çek
         db_alias = await database_sync_to_async(lambda: User.objects.filter(id=self.user.id).values_list("alias", flat=True).first())()
-        print(f"📌 Veritabanından alınan alias: {db_alias}")
+        print(f"📌 alias: {db_alias}")
         # Eğer oyuncu zaten bir odadaysa, eski odadan çıkar
         for room_name, room_data in list(rooms.items()):
             if self.user in room_data["players"]:
@@ -62,7 +62,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 
             if tournament_room:
                 self.room_group_name = tournament_room
-                print(f"✔️ Mevcut turnuva odasına bağlanılıyor: {self.room_group_name}")
+                print(f"✔️ Connecting to : {self.room_group_name}")
             else:
                 # Yeni turnuva odası oluştur
                 def generate_room_name():
@@ -88,7 +88,7 @@ class PongConsumer(AsyncWebsocketConsumer):
             for room_name, room_data in rooms.items():
                 if room_name.startswith("pong_1v1") and len(room_data["players"]) < 2:
                     self.room_group_name = room_name
-                    print(f"✔️ Mevcut 1v1 odasına katılıyor: {self.room_group_name}")
+                    print(f"✔️ Joining to 1v1: {self.room_group_name}")
                     break
             else:
                 # Yeni 1v1 odası oluştur
@@ -105,10 +105,10 @@ class PongConsumer(AsyncWebsocketConsumer):
                     },
                     "user_channel_map": {},
                 }
-                print(f"🆕 Yeni 1v1 odası oluşturuldu: {self.room_group_name}")
+                print(f"🆕 New 1v1 room: {self.room_group_name}")
 
         room = rooms[self.room_group_name]
-        print(f"📋 Oda durumu: {room}")
+        print(f"📋 Room: {room}")
 
         # Aynı kullanıcının kendisiyle eşleşmesini engelle
         if len(room["players"]) == 1 and room["players"][0] == self.user:
@@ -129,7 +129,7 @@ class PongConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
         
-        print(f"✅ Kullanıcı {self.user} odaya eklendi. Oda oyuncu durumu: {room['players']}")
+        print(f"✅ User {self.user} added to the room. Current players in room: {room['players']}")
 
         # Eğer oda doluysa oyunu başlat
         if len(room["players"]) == 2:
@@ -170,7 +170,7 @@ class PongConsumer(AsyncWebsocketConsumer):
                 left_player_db = await database_sync_to_async(User.objects.get)(id=left_player.id)
                 right_player_db = await database_sync_to_async(User.objects.get)(id=right_player.id)
                 
-                print(f"🔍 Database’ten çekildi: {left_player_db.alias} - {right_player_db.alias}")
+                print(f"🔍 from db: {left_player_db.alias} - {right_player_db.alias}")
 
                 # Sadece string olarak alias gönder
                 left_name = left_player_db.alias  
@@ -179,7 +179,7 @@ class PongConsumer(AsyncWebsocketConsumer):
                 left_name = left_player.nick
                 right_name = right_player.nick
 
-            print(f"📢 Gönderilen Oyuncu Bilgileri: Left = {left_name}, Right = {right_name}")
+            print(f"📢 players: Left = {left_name}, Right = {right_name}")
 
             await self.channel_layer.group_send(
                 self.room_group_name,
@@ -334,7 +334,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 
             # Oda var mı kontrol et, yoksa hata döndürme
             if self.room_group_name not in rooms:
-                await self.send(text_data=json.dumps({"error": "Oda kapandı veya mevcut değil."}))
+                await self.send(text_data=json.dumps({"error": "Room's closed."}))
                 return  # İşlemi burada durdur
 
             room = rooms[self.room_group_name]
@@ -360,7 +360,7 @@ class PongConsumer(AsyncWebsocketConsumer):
                 if len(player_aliases) == 2 and all(player_aliases):
                     await self.send_player_info()
 
-                print(f"🎮 Alias kontrol: Kullanıcı: {self.user}, Alias: {alias}")
+                print(f"🎮 Alias control:  {self.user}, Alias: {alias}")
 
             elif action == "next_game":
                 self.next_game = True
@@ -369,31 +369,31 @@ class PongConsumer(AsyncWebsocketConsumer):
                 self.next_game = False
 
         except KeyError as e:
-            print(f"⚠️ Hata: Oda bulunamadı! {e}")  # Konsola hata mesajı yaz
-            await self.send(text_data=json.dumps({"error": "Oyun odası artık mevcut değil."}))  # Kullanıcıya mesaj gönder
+            print(f"⚠️ Error: {e}")  # Konsola hata mesajı yaz
+            await self.send(text_data=json.dumps({"error": "Room not found."}))  # Kullanıcıya mesaj gönder
 
         except Exception as e:
-            print(f"⚠️ Beklenmeyen hata: {e}")  # Diğer hataları logla
-            await self.send(text_data=json.dumps({"error": "Oda kapalı."})) 
+            print(f"⚠️ Error: {e}")  # Diğer hataları logla
+            await self.send(text_data=json.dumps({"error": "Room's closed"})) 
 
 
 
     async def start_game(self):
         global rooms
-        print(f"📝 Oda adı start_game: {self.room_group_name}")
+        print(f"📝 Room name start_game: {self.room_group_name}")
         if self.room_group_name not in rooms:
-            print(f"⚠️ Hata: {self.room_group_name} odası bulunamadı, oyun başlatılamıyor.")
+            print(f"⚠️ Error: {self.room_group_name} room not found.")
             return  # Eğer oda silinmişse oyunu başlatma
 
 
-        print(f"✅ {self.room_group_name} için oyun başlatılıyor.")
+        print(f"✅ {self.room_group_name} game is starting.")
         try:
             room = rooms[self.room_group_name]
         except KeyError:
-            print(f"⚠️ Hata: {self.room_group_name} odası bulunamadı, oyun başlatılamıyor.")
+            print(f"⚠️ Error: {self.room_group_name} room not found.")
             return
 
-        print(f"✅ Oda durumu: {room}")
+        print(f"✅ Room: {room}")
         game_state = room["game_state"]
         for countdown in range(4, 0, -1):
            if not len(room["players"]) < 2:
@@ -443,72 +443,77 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 
     async def move_ball(self):
-        global rooms
-        room = rooms[self.room_group_name]
-        if not room:
-            return
-        game_state = room["game_state"]
+        try:
+            global rooms
+            room = rooms[self.room_group_name]
+            if not room:
+                return
+            game_state = room["game_state"]
 
-        BALL_SIZE = 13  # Topun çapı
-        BALL_RADIUS = BALL_SIZE / 2  # Daha doğru hesaplama için yarıçap
-        PADDLE_WIDTH = 5  # Paddle genişliği
-        PADDLE_HEIGHT = 60  # Paddle yüksekliği
-        GAME_WIDTH = 1000  # Oyun alanı genişliği
-        GAME_HEIGHT = 580  # Oyun alanı yüksekliği
+            BALL_SIZE = 13  # Topun çapı
+            BALL_RADIUS = BALL_SIZE / 2  # Daha doğru hesaplama için yarıçap
+            PADDLE_WIDTH = 5  # Paddle genişliği
+            PADDLE_HEIGHT = 60  # Paddle yüksekliği
+            GAME_WIDTH = 1000  # Oyun alanı genişliği
+            GAME_HEIGHT = 580  # Oyun alanı yüksekliği
 
-        while len(room["players"]) == 2:
-            ball = game_state["ball"]
-            players = game_state["players"]
+            while len(room["players"]) == 2:
+                ball = game_state["ball"]
+                players = game_state["players"]
 
-            # **Topun yeni pozisyonunu hesapla**
-            ball["x"] += ball["vx"] * 10
-            ball["y"] += ball["vy"] * 10
+                # **Topun yeni pozisyonunu hesapla**
+                ball["x"] += ball["vx"] * 10
+                ball["y"] += ball["vy"] * 10
 
-            # **Üst ve alt duvar çarpışmaları**
-            if ball["y"] - BALL_RADIUS <= 0 or ball["y"] + BALL_RADIUS >= GAME_HEIGHT:
-                ball["vy"] = -ball["vy"]
+                # **Üst ve alt duvar çarpışmaları**
+                if ball["y"] - BALL_RADIUS <= 0 or ball["y"] + BALL_RADIUS >= GAME_HEIGHT:
+                    ball["vy"] = -ball["vy"]
 
-            # **Sol paddle çarpışma kontrolü**
-            if (
-                ball["x"] - BALL_RADIUS <= PADDLE_WIDTH  # Paddle sınırına çarpıyor mu?
-                and players["player1"]["y"] <= ball["y"] <= players["player1"]["y"] + PADDLE_HEIGHT
-            ):
-                ball["vx"] = -ball["vx"]
-                ball["x"] = PADDLE_WIDTH + BALL_RADIUS  # Paddle içine girmesin
+                # **Sol paddle çarpışma kontrolü**
+                if (
+                    ball["x"] - BALL_RADIUS <= PADDLE_WIDTH  # Paddle sınırına çarpıyor mu?
+                    and players["player1"]["y"] <= ball["y"] <= players["player1"]["y"] + PADDLE_HEIGHT
+                ):
+                    ball["vx"] = -ball["vx"]
+                    ball["x"] = PADDLE_WIDTH + BALL_RADIUS  # Paddle içine girmesin
 
-            # **Sağ paddle çarpışma kontrolü**
-            elif (
-                ball["x"] + BALL_RADIUS >= GAME_WIDTH - PADDLE_WIDTH  # Sağ paddle sınırı
-                and players["player2"]["y"] <= ball["y"] <= players["player2"]["y"] + PADDLE_HEIGHT
-            ):
-                ball["vx"] = -ball["vx"]
-                ball["x"] = GAME_WIDTH - PADDLE_WIDTH - BALL_RADIUS  # Paddle içine girmesin
+                # **Sağ paddle çarpışma kontrolü**
+                elif (
+                    ball["x"] + BALL_RADIUS >= GAME_WIDTH - PADDLE_WIDTH  # Sağ paddle sınırı
+                    and players["player2"]["y"] <= ball["y"] <= players["player2"]["y"] + PADDLE_HEIGHT
+                ):
+                    ball["vx"] = -ball["vx"]
+                    ball["x"] = GAME_WIDTH - PADDLE_WIDTH - BALL_RADIUS  # Paddle içine girmesin
 
-            # **Gol kontrolü**
-            if ball["x"] - BALL_RADIUS <= 0:
-                game_state["scores"]["player2"] += 1
-                print(f"Player 2 scored. New score: {game_state['scores']['player2']}")
-                await self.reset_ball(1)
+                # **Gol kontrolü**
+                if ball["x"] - BALL_RADIUS <= 0:
+                    game_state["scores"]["player2"] += 1
+                    print(f"Player 2 scored. New score: {game_state['scores']['player2']}")
+                    await self.reset_ball(1)
 
-            elif ball["x"] + BALL_RADIUS >= GAME_WIDTH:
-                game_state["scores"]["player1"] += 1
-                print(f"Player 1 scored. New score: {game_state['scores']['player1']}")
-                await self.reset_ball(-1)
-            if game_state["scores"]["player1"] == 11:
-                await self.end_game("player1")
-                print("Player 1 won the game.")
-                break
-            elif game_state["scores"]["player2"] == 11:
-                await self.end_game("player2")
-                print("Player 2 won the game.")
-                break
+                elif ball["x"] + BALL_RADIUS >= GAME_WIDTH:
+                    game_state["scores"]["player1"] += 1
+                    print(f"Player 1 scored. New score: {game_state['scores']['player1']}")
+                    await self.reset_ball(-1)
+                if game_state["scores"]["player1"] == 2:
+                    await self.end_game("player1")
+                    print("Player 1 won the game.")
+                    break
+                elif game_state["scores"]["player2"] == 2:
+                    await self.end_game("player2")
+                    print("Player 2 won the game.")
+                    break
 
-            # **Yeni durumu oyunculara gönder**
-            await self.channel_layer.group_send(
-                self.room_group_name, {"type": "game_state", "state": game_state}
-            )
+                # **Yeni durumu oyunculara gönder**
+                await self.channel_layer.group_send(
+                    self.room_group_name, {"type": "game_state", "state": game_state}
+                )
 
-            await asyncio.sleep(0.05)
+                await asyncio.sleep(0.05)
+                
+        except Exception as e:
+            print(f"⚠️ {e} room closed")  # Diğer hataları logla
+            await self.send(text_data=json.dumps({"error": "Room's closed."})) 
 
 
 

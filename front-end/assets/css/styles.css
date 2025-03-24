@@ -136,7 +136,8 @@ button {
     padding: 10px 15px;
     margin-bottom: 10px;
     border-radius: 15px;
-    max-width: 100%;
+    width: 100%;
+    max-width: 300px;
     height: auto 30px;
     word-wrap: break-word;
     align-self: flex-end;
