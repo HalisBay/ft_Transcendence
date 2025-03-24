@@ -510,7 +510,6 @@ function initiateWebSocketConnection(gameMode, alias) {
 
     socket.onclose = (event) => {
         console.log('WebSocket connection closed:', event);
-        removeWebSocketEventListeners();
     };
  // Hareket intervali
     addWebSocketEventListeners();
